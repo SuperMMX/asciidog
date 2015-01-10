@@ -99,6 +99,17 @@ class ParserHeaderSpec extends Specification {
         'First Second Third Forth' | false
     }
 
+    def 'static: create author'() {
+        expect:
+        Parser.createAuthor(authorText) == author
+
+        where:
+        authorText | author
+        'Name' | new Author('Name', 'Name', null, null, 'N', null)
+        ' First   Last   <abc@def.com> ' | new Author('First Last', 'First', null, 'Last', 'FL', 'abc@def.com')
+        'First.   Middle-    Last_  <test@email.com>  ' | new Author('First. Middle- Last_', 'First.', 'Middle-', 'Last_', 'FML', 'test@email.com')
+    }
+
     def 'parse authors'() {
         given:
         def parser = new Parser()
@@ -119,11 +130,11 @@ class ParserHeaderSpec extends Specification {
             'First Last <abc@def.com> ; First.   Middle-    Last_  <test@email.com>  '
         ]
         expectedAuthors << [
-            [ new Author('Name', 'Name', null, null, null, null) ],
-            [ new Author('First Last', 'First', null, 'Last', null, 'abc@def.com') ],
+            [ new Author('Name', 'Name', null, null, 'N', null) ],
+            [ new Author('First Last', 'First', null, 'Last', 'FL', 'abc@def.com') ],
             [
-                new Author('First Last', 'First', null, 'Last', null, 'abc@def.com'),
-                new Author('First. Middle- Last_', 'First.', 'Middle-', 'Last_', null, 'test@email.com')
+                new Author('First Last', 'First', null, 'Last', 'FL', 'abc@def.com'),
+                new Author('First. Middle- Last_', 'First.', 'Middle-', 'Last_', 'FML', 'test@email.com')
             ]
         ]
     }

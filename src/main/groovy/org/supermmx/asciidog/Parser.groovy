@@ -140,7 +140,10 @@ ${AUTHOR_REGEX}
             }
             email = groups[4]
 
-            author = ([ firstname, middlename, lastname ] - null).join(' ')
+            def names = [ firstname, middlename, lastname ] - null
+            author = names.join(' ')
+
+            authorinitials = names.collect{ it[0] }.join('')
         }
 
         return newAuthor
