@@ -4,7 +4,7 @@ import org.supermmx.asciidog.ast.Header
 
 import spock.lang.*
 
-class ParserSpec extends Specification {
+class ParserHeaderSpec extends Specification {
     static def HEADER_NULL = null
     static def HEADER_EMPTY = ''
     static def HEADER_EMPTY_LINE = '''
