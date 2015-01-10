@@ -4,7 +4,15 @@ import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
 
 class Parser {
-    static final def SECTION_PATTERN = /^(={1,6})\s+(\S+(\s+\S+)*)\s*$/
+    static final def SECTION_PATTERN = '''(?x)
+(={1,6})         # 1, section identifier
+\\p{Blank}+
+(                # 2, whole title
+  \\S+
+  (?:\\p{Blank}+\\S+)*
+)
+\\s*
+'''
 
     Reader reader
 
