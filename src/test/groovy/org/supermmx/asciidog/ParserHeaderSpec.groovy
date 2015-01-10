@@ -47,7 +47,6 @@ class ParserHeaderSpec extends Specification {
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
-        reader.nextLine()
 
         when:
         def header = parser.parseHeader()
@@ -115,7 +114,6 @@ class ParserHeaderSpec extends Specification {
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
-        reader.nextLine()
 
         when:
         def authors = parser.parseAuthors()

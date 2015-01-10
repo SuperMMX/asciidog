@@ -69,13 +69,17 @@ ${AUTHOR_REGEX}
 
         doc.header = parseHeader()
 
+        // preamble
+
+        // sections
+
         return doc
     }
 
     protected Header parseHeader() {
         Header header = null
 
-        def line = reader.line
+        def line = reader.peekLine()
 
         if (line == null) {
             return null
@@ -89,21 +93,25 @@ ${AUTHOR_REGEX}
             return null
         }
 
+        reader.nextLine()
         header = new Header()
         header.title = m[0][2]
 
         // parse author
-        reader.nextLine()
         header.authors = parseAuthors()
 
-        // parse revision
-        // parse attributes
+        // FIXME: parse revision
+
+        // FIXME: parse attributes
 
         return header
     }
 
+    /**
+     * Parse authors from current line
+     */
     protected List<Author> parseAuthors() {
-        def line = reader.line
+        def line = reader.peekLine()
 
         if (line == null) {
             return null
@@ -113,6 +121,8 @@ ${AUTHOR_REGEX}
             return null
         }
 
+        reader.nextLine()
+
         def authors = [] as List<Author>
         line.split(";").each {
             authors << createAuthor(it)
@@ -120,9 +130,12 @@ ${AUTHOR_REGEX}
         return authors
     }
 
-    protected static Author createAuthor(String line) {
+    /**
+     * Create an author from a string
+     */
+    protected static Author createAuthor(String authorText) {
         // should always match from parser
-        def m = Parser.AUTHOR_PATTERN.matcher(line)
+        def m = Parser.AUTHOR_PATTERN.matcher(authorText)
         if (!m.matches()) {
             return null
         }

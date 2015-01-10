@@ -10,9 +10,6 @@ class Reader {
     // buffer size
     int bufferSize = DEFAULT_BUFFER_SIZE
 
-    // current line
-    String line
-    
     static Reader createFromFile(String filename) {
         null;
     }
@@ -29,7 +26,7 @@ class Reader {
 
     private Reader(BufferedReader reader) {
         this.reader = reader
-        lines = []
+        lines = [] as List<String>
     }
 
     void close() {
@@ -37,11 +34,13 @@ class Reader {
     }
 
     String nextLine() {
-        line = peekLine()
+        def line = peekLine()
 
         if (line != null) {
             lines.remove(0)
         }
+
+        return line
     }
 
     String peekLine() {
@@ -57,13 +56,10 @@ class Reader {
     }
 
     String[] nextLines(int size) {
-        println "orig lines = $lines"
         String[] nextLines = peekLines(size)
-        println "lines red = $nextLines"
         nextLines.size().times {
             lines.remove(0)
         }
-        println "new lines = $lines"
 
         return nextLines
     }
