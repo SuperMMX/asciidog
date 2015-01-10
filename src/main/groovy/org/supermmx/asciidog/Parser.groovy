@@ -4,7 +4,7 @@ import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
 
 class Parser {
-    static final def SECTION_PATTERN = '''(?x)
+    static final def SECTION_PATTERN = ~'''(?x)
 (={1,6})         # 1, section identifier
 \\p{Blank}+
 (                # 2, whole title
@@ -42,8 +42,12 @@ class Parser {
         Header header = null
 
         def line = reader.line
-        println "line = $line"
-        def m = (line =~ SECTION_PATTERN)
+
+        if (line == null) {
+            return null
+        }
+
+        def m = SECTION_PATTERN.matcher(line)
 
         if (m.matches()) {
             println("m[0] = ${m[0]}")
