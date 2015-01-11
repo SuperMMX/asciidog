@@ -161,4 +161,28 @@ ${AUTHOR_REGEX}
 
         return newAuthor
     }
+
+    /**
+     * Whether the line represents a section
+     *
+     * @param line the line to check
+     *
+     * @returns the section level, -1 if not a section,
+     *          the section title, null if not a section
+     */
+    protected static List<Object> isSection(String line) {
+        if (line == null) {
+            return [ -1, null ]
+        }
+
+        def m = SECTION_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return [ -1, null ]
+        }
+
+        int level = m[0][1].length() -1
+        String title = m[0][2]
+
+        return [ level, title ]
+    }
 }
