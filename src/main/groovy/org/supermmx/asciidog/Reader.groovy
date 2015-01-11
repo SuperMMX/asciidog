@@ -76,6 +76,27 @@ class Reader {
         }
     }
 
+    /**
+     * Skip blank lines
+     *
+     * @return the number of blank lines skipped
+     */
+    int skipBlankLines() {
+        int skipped = 0
+        def line = null
+
+        while ((line = peekLine()) != null) {
+            if (line.length() == 0) {
+                nextLine()
+                skipped ++
+            } else {
+                break
+            }
+        }
+
+        return skipped
+    }
+
     private void readMoreLines() {
         (bufferSize - lines.size()).times {
             String nextLine = reader.readLine()

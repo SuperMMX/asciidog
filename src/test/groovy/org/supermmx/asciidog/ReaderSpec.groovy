@@ -88,4 +88,28 @@ line3
         then:
         lines ==  []
     }
+
+    def 'skip blank lines'() {
+        given:
+        Reader reader = Reader.createFromString('''line1
+line2
+
+
+line3
+ line4
+line5  abc
+
+
+
+
+''');
+
+        expect:
+        reader.skipBlankLines() == 0
+        reader.nextLines(2) == [ 'line1', 'line2' ]
+        reader.skipBlankLines() == 2
+        reader.nextLines(3) == [ 'line3', ' line4', 'line5  abc']
+        reader.skipBlankLines() == 4
+        reader.nextLine() == null
+    }
 }
