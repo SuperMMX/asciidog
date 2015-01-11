@@ -76,6 +76,32 @@ ${AUTHOR_REGEX}
         return doc
     }
 
+    /**
+     * Parse a paragraph
+     *
+     * @param parent the parent block
+     */
+    protected Paragraph parseParagraph(Block parent) {
+        reader.skipBlankLines()
+
+        Paragraph para = null
+
+        def line = reader.peekLine()
+        while (line != null && line.length() > 0) {
+            if (para == null) {
+                para = new Paragraph()
+                para.parent = parent
+                para.document = parent.document
+            }
+            para.lines << line
+
+            reader.nextLine()
+            line = reader.peekLine()
+        }
+
+        return para
+    }
+
     protected Header parseHeader() {
         Header header = null
 
