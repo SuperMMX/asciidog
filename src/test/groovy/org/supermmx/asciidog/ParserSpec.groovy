@@ -1,6 +1,7 @@
 package org.supermmx.asciidog
 
 import org.supermmx.asciidog.ast.Author
+import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Header
 
 import spock.lang.*
@@ -22,5 +23,35 @@ class ParserSpec extends Specification {
         3     | 'Level 3' | '==== Level 3'
         4     | 'Level 4' | '===== Level 4'
         5     | 'Level 5' | '====== Level 5'
+    }
+
+    def 'parse: Paragraph'() {
+        given:
+        def content = '''
+
+line1
+line2
+line3
+
+line4
+line5
+
+
+'''
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def para = parser.parseParagraph(new Block())
+
+        then:
+        para.lines == [ 'line1', 'line2', 'line3']
+
+        when:
+        para = parser.parseParagraph(new Block())
+
+        then:
+        para.lines == [ 'line4', 'line5']
     }
 }
