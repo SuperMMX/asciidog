@@ -1,8 +1,11 @@
 package org.supermmx.asciidog
 
 import org.supermmx.asciidog.ast.Author
+import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
+import org.supermmx.asciidog.ast.Paragraph
+import org.supermmx.asciidog.ast.Section
 
 class Parser {
     static final def AUTHOR_NAME_REGEX = '\\w[\\w\\-\'\\.]*'
@@ -63,17 +66,92 @@ ${AUTHOR_REGEX}
     protected Document parseDocument() {
         Document doc = new Document()
 
-        if (reader.nextLine() == null) {
+        if (reader.peekLine() == null) {
             return doc
         }
 
         doc.header = parseHeader()
 
-        // preamble
+        // preamble, as a section content
 
         // sections
+        Section section = null
+        while ((section = parseSection(doc, 1)) != null) {
+            doc << section
+        }
 
         return doc
+    }
+
+    /**
+     * Parse a section.
+     *
+     * @param parent the parent block
+     * @param expectedLevel the expected level the section should be in
+     *
+     * @return the parsed section, null if section is not found
+     */
+    protected Section parseSection(Block parent, int expectedLevel) {
+        reader.skipBlankLines()
+
+        int level = -1
+        String title = null
+        (level, title) = isSection(reader.peekLine())
+
+        if (level != expectedLevel) {
+            // wrong section level
+            return null
+        }
+
+        reader.nextLine()
+
+        Section section = new Section()
+        section.parent = parent
+        section.document = parent.document
+        section.title = title
+
+        reader.skipBlankLines()
+
+        def line = null
+        // parse sections and blocks
+        while ((line = reader.peekLine()) != null) {
+            // check section
+            def (subSectionLevel, subSectionTitle) = isSection(line)
+            if (subSectionLevel != -1) {
+                if (subSectionLevel == level + 1) {
+                    // subsection
+                    Section subSection = parseSection(section, level + 1)
+                    section << subSection
+                } else if (subSectionLevel <= level) {
+                    // sibling section or upper level, need to be parsed by parent
+                    break
+                }
+
+                continue
+            }
+
+            Block block = parseBlock(section)
+            if (block != null) {
+                section << block
+            }
+
+            reader.skipBlankLines()
+        }
+
+        return section
+    }
+
+    /**
+     * Parse any block except a section
+     */
+    protected Block parseBlock(Block parent) {
+        reader.skipBlankLines()
+
+        Block block = null
+        // paragraph
+        block = parseParagraph(parent)
+
+        return block
     }
 
     /**
@@ -206,7 +284,7 @@ ${AUTHOR_REGEX}
             return [ -1, null ]
         }
 
-        int level = m[0][1].length() -1
+        int level = m[0][1].length() - 1
         String title = m[0][2]
 
         return [ level, title ]
