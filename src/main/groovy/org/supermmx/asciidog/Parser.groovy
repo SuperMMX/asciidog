@@ -94,6 +94,7 @@ ${AUTHOR_REGEX}
     protected Section parseSection(Block parent, int expectedLevel) {
         reader.skipBlankLines()
 
+        // check whether the next line is a section
         int level = -1
         String title = null
         (level, title) = isSection(reader.peekLine())
@@ -105,53 +106,56 @@ ${AUTHOR_REGEX}
 
         reader.nextLine()
 
+        // current section
         Section section = new Section()
         section.parent = parent
         section.document = parent.document
         section.title = title
 
-        reader.skipBlankLines()
+        // blocks in the section
+        def blocks = parseBlocks(section)
+        blocks.each { section << it }
 
+        // parse sub sections
         def line = null
-        // parse sections and blocks
         while ((line = reader.peekLine()) != null) {
-            // check section
-            def (subSectionLevel, subSectionTitle) = isSection(line)
-            if (subSectionLevel != -1) {
-                if (subSectionLevel == level + 1) {
-                    // subsection
-                    Section subSection = parseSection(section, level + 1)
-                    section << subSection
-                } else if (subSectionLevel <= level) {
-                    // sibling section or upper level, need to be parsed by parent
-                    break
-                }
-
-                continue
+            def subSection = parseSection(section, level + 1);
+            if (subSection == null) {
+                break
+            } else {
+                section << subSection
             }
-
-            Block block = parseBlock(section)
-            if (block != null) {
-                section << block
-            }
-
-            reader.skipBlankLines()
         }
 
         return section
     }
 
     /**
-     * Parse any block except a section
+     * Parse blocks
+     *
+     * @return a list of blocks
      */
-    protected Block parseBlock(Block parent) {
+    protected List<Block> parseBlocks(Block parent) {
         reader.skipBlankLines()
 
-        Block block = null
-        // paragraph
-        block = parseParagraph(parent)
+        def blocks = []
 
-        return block
+        def line = null
+        while ((line = reader.peekLine()) != null) {
+            def (level, title) = isSection(line)
+
+            // section found
+            if (level != -1) {
+                break
+            }
+
+            def block = parseParagraph(parent)
+            blocks << block
+
+            reader.skipBlankLines()
+        }
+
+        return blocks
     }
 
     /**
@@ -174,6 +178,7 @@ ${AUTHOR_REGEX}
             para.lines << line
 
             reader.nextLine()
+
             line = reader.peekLine()
         }
 
@@ -207,6 +212,7 @@ ${AUTHOR_REGEX}
         // FIXME: parse revision
 
         // FIXME: parse attributes
+        line = reader.peekLine()
 
         return header
     }
