@@ -71,8 +71,12 @@ ${AUTHOR_REGEX}
         }
 
         doc.header = parseHeader()
+        // get type
+        def type = doc.type
 
         // preamble, as a section content
+        def preambleBlocks = parseBlocks(doc)
+        preambleBlocks.each { doc << it }
 
         // sections
         Section section = null
@@ -185,8 +189,13 @@ ${AUTHOR_REGEX}
         return para
     }
 
+    /**
+     * Parse document header
+     */
     protected Header parseHeader() {
         Header header = null
+
+        reader.skipBlankLines()
 
         def line = reader.peekLine()
 
@@ -194,17 +203,16 @@ ${AUTHOR_REGEX}
             return null
         }
 
-        def m = SECTION_PATTERN.matcher(line)
-
-        if (!m.matches()
-            || m[0][1].length() != 1) {
+        def (level, title) = isSection(line)
+        if (level != 0) {
             // doesn't have a header
             return null
         }
 
         reader.nextLine()
+
         header = new Header()
-        header.title = m[0][2]
+        header.title = title
 
         // parse author
         header.authors = parseAuthors()
