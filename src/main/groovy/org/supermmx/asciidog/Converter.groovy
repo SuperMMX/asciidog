@@ -7,8 +7,12 @@ import groovy.text.markup.TemplateConfiguration
 
 
 class Converter {
-    void convert(Document doc, String file) {
-        convertToHtml(doc)
+    void convert(Document doc) {
+        def writer = new StringWriter()
+
+        convertToHtml(doc, writer)
+
+        println writer.toString()
     }
 
     void convertToHtml(Document doc) {
@@ -25,9 +29,6 @@ class Converter {
         def model = [:]
         model['doc'] = doc
         def output = template.make(model)
-        def writer = new StringWriter()
         output.writeTo(writer)
-
-        println writer.toString()
     }
 }
