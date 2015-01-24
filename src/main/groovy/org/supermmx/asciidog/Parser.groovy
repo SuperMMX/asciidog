@@ -114,6 +114,7 @@ ${AUTHOR_REGEX}
         Section section = new Section()
         section.parent = parent
         section.document = parent.document
+        section.level = level
         section.title = title
 
         // blocks in the section
