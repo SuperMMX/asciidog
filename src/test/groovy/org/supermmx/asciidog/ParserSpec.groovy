@@ -35,8 +35,8 @@ class ParserSpec extends Specification {
         'attr'  | 'a value'   | ':attr: a value'
         'attr'  | 'a value'   | ':attr:   a value'
         'attr'  | null        | ':attr:'
-        'attr'  | ''          | ':attr:  '
-        '!attr' | null        | ':!attr:'
+        'at tr'  | ''          | ':at tr:  '
+        '!at tr' | null        | ':!at tr:'
         null    | null        | null
         null    | null        | ''
         null    | null        | 'abcdef'
