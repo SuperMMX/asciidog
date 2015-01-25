@@ -26,6 +26,24 @@ class ParserSpec extends Specification {
         5     | 'Level 5' | '====== Level 5'
     }
 
+    def 'static: is attribute'() {
+        expect:
+        [ name, value ] == Parser.isAttribute(line)
+
+        where:
+        name    | value       | line
+        'attr'  | 'a value'   | ':attr: a value'
+        'attr'  | 'a value'   | ':attr:   a value'
+        'attr'  | null        | ':attr:'
+        'attr'  | ''          | ':attr:  '
+        '!attr' | null        | ':!attr:'
+        null    | null        | null
+        null    | null        | ''
+        null    | null        | 'abcdef'
+        null    | null        | '* abc'
+        null    | null        | '== abc'
+    }
+
     def 'parse: Paragraph'() {
         given:
         def content = '''

@@ -1,5 +1,6 @@
 package org.supermmx.asciidog
 
+import org.supermmx.asciidog.ast.Attribute
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
@@ -40,6 +41,17 @@ ${AUTHOR_REGEX}
   ;
   ${AUTHOR_REGEX}
 )*
+"""
+    static final def ATTRIBUTE_PATTERN = ~"""(?x)
+:
+(
+  !?\\w.*?      # 1, attribute name
+)
+:
+(?:
+  \\p{Blank}+
+  (.*)          # 2, attrinute value
+)?
 """
     static final def SECTION_PATTERN = ~'''(?x)
 (={1,6})         # 1, section identifier
@@ -286,7 +298,7 @@ ${AUTHOR_REGEX}
      *
      * @param line the line to check
      *
-     * @returns the section level, -1 if not a section,
+     * @return the section level, -1 if not a section,
      *          the section title, null if not a section
      */
     protected static List<Object> isSection(String line) {
@@ -303,5 +315,29 @@ ${AUTHOR_REGEX}
         String title = m[0][2]
 
         return [ level, title ]
+    }
+
+    /**
+     * Whether the line represents an attribute definition
+     *
+     * @param line the line to check
+     *
+     * @return the attribute name, null if not an attribute
+     *         the attribute value, null if not an attribute
+     */
+    protected static List<String> isAttribute(String line) {
+        if (line == null) {
+            return [ null, null ]
+        }
+
+        def m = ATTRIBUTE_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return [ null, null ]
+        }
+
+        String key = m[0][1]
+        String value = m[0][2]
+
+        return [ key, value ]
     }
 }
