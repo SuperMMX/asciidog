@@ -15,7 +15,7 @@ class Converter {
         println writer.toString()
     }
 
-    void convertToHtml(Document doc) {
+    void convertToHtml(Document doc, Writer writer) {
         def config = new TemplateConfiguration()
         config.with {
             autoNewLine = true

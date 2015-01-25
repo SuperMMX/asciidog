@@ -36,7 +36,7 @@ paragraph in section 2
 
         when:
         def converter = new Converter()
-        converter.convert(document, '')
+        converter.convert(document)
 
         then:
         document != null
