@@ -1,5 +1,7 @@
-package org.supermmx.asciidog
+package org.supermmx.asciidog.converter
 
+import org.supermmx.asciidog.Parser
+import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Header
