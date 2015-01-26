@@ -7,6 +7,10 @@ class Document extends Block {
         inline
     }
 
+    static final String DOCTYPE = 'doctype'
+    static final String TOC = 'toc'
+
     Type type
     Header header
+
 }
