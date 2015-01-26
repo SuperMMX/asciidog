@@ -1,4 +1,4 @@
-package org.supermmx.asciidog.ast;
+package org.supermmx.asciidog.ast
 
 class Document extends Block {
     static enum Type {
