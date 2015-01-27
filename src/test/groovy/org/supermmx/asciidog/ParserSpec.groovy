@@ -26,7 +26,7 @@ class ParserSpec extends Specification {
         5     | 'Level 5' | '====== Level 5'
     }
 
-    def 'static: is attribute'() {
+    def 'static: is attribute, value of single line'() {
         expect:
         [ name, value ] == Parser.isAttribute(line)
 
