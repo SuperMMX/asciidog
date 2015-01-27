@@ -84,6 +84,8 @@ class AttributeContainer {
         } else {
             attributes[name] = attr
         }
+
+        return getAttribute(name)
     }
 
     Attribute getAttribute(String name) {
