@@ -20,6 +20,9 @@ class AttributeContainerSpec extends Specification {
 
         attrCon.systemAttributes['new'] == attr
         attrCon.attributes['new'] == null
+
+        // getAttribute
+        attrCon.getAttribute('new') == attr
     }
 
     def 'set system attribute on default attribute'() {
@@ -38,5 +41,7 @@ class AttributeContainerSpec extends Specification {
         attrCon.systemAttributes[Document.DOCTYPE] == attr
         attrCon.attributes[Document.DOCTYPE] == null
         attrCon.DEFAULT_ATTRIBUTES[Document.DOCTYPE].value == Document.Type.article.toString()
+
+        attrCon.getAttribute(Document.DOCTYPE) == attr
     }
 }
