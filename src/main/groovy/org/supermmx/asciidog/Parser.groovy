@@ -63,7 +63,11 @@ ${AUTHOR_REGEX}
 \\s*
 '''
 
+    // Reader
     Reader reader
+
+    // latest attributes
+    AttributeContainer attrContainer = new AttributeContainer()
 
     Document parseString(String content) {
         reader = Reader.createFromString(content)
@@ -232,8 +236,15 @@ ${AUTHOR_REGEX}
 
         // FIXME: parse revision
 
-        // FIXME: parse attributes
-        line = reader.peekLine()
+        // parse attributes
+        AttributeEntry attr = null
+        while ((attr = parseAttribute()) != null) {
+            // update the latest value
+            attrContainer.setAttribute(attr.name, attr.value)
+
+            // track the attribute action
+            header << attr
+        }
 
         return header
     }
@@ -259,6 +270,28 @@ ${AUTHOR_REGEX}
             authors << createAuthor(it)
         }
         return authors
+    }
+
+    /**
+     * Parse an attribute from next line
+     *
+     * @return the parsed attribute, null if not an attribute
+     */
+    protected AttributeEntry parseAttribute() {
+        def line = reader.peekLine()
+
+        def (name, value) = isAttribute(line)
+        if (name == null) {
+            return null
+        }
+
+        reader.nextLine()
+
+        // FIXME: value of multiple lines
+
+        AttributeEntry attr = new AttributeEntry([ name: name, value: value ])
+
+        return attr
     }
 
     /**

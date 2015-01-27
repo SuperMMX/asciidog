@@ -1,6 +1,8 @@
 package org.supermmx.asciidog
 
+import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Author
+import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
 
 import spock.lang.*
@@ -135,4 +137,32 @@ class ParserHeaderSpec extends Specification {
             ]
         ]
     }
+
+    def 'parse attributes'() {
+        given:
+        def content = '''= Document Title
+:doctype: book
+:var: initial
+:var: new
+'''
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def header = parser.parseHeader()
+
+        then:
+        header.blocks.size() == 3
+        header.blocks[0].name == Document.DOCTYPE
+        header.blocks[0].value == 'book'
+        header.blocks[1].name == 'var'
+        header.blocks[1].value == 'initial'
+        header.blocks[2].name == 'var'
+        header.blocks[2].value == 'new'
+        parser.attrContainer.getAttribute('var') == new Attribute([ name: 'var',
+                                                                    type: Attribute.ValueType.STRING,
+                                                                    value: 'new'])
+    }
+
 }
