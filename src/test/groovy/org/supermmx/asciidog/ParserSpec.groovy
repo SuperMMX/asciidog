@@ -44,6 +44,18 @@ class ParserSpec extends Specification {
         null    | null        | '== abc'
     }
 
+    def 'static: is block anchor'() {
+        expect:
+        [ id, ref ] == Parser.isBlockAnchor(line)
+
+        where:
+        id       | ref        | line
+        'id'     | null       | '[[id]]'
+        'id'     | 'ref'      | '[[id, ref]]'
+        ':id-'   | '#- '         | '[[:id-, #- ]]'
+        '_i.d'   | '_-:. '     | '[[_i.d, _-:. ]]'
+    }
+
     def 'parse: Paragraph'() {
         given:
         def content = '''

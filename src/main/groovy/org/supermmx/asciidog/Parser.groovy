@@ -53,6 +53,22 @@ ${AUTHOR_REGEX}
   (.*)          # 2, attrinute value
 )?
 """
+    static final def BLOCK_ANCHOR_PATTERN = ~'''(?x)
+\\[\\[          # [[ to start
+
+(               # 1, idname
+[\\p{Alpha}:_]
+[\\w:.-]*
+)
+
+(?:
+  ,
+  \\p{Blank}*
+  (\\S.*)        # 2, reference text
+)?
+
+\\]\\]          # ]] to end
+'''
     static final def SECTION_PATTERN = ~'''(?x)
 (={1,6})         # 1, section identifier
 \\p{Blank}+
@@ -99,8 +115,13 @@ ${AUTHOR_REGEX}
         preambleBlocks.each { doc << it }
 
         // sections
+        int startingLevel = 1
+        if (doc.type == Document.Type.book) {
+            startingLevel = 0
+        }
+
         Section section = null
-        while ((section = parseSection(doc, 1)) != null) {
+        while ((section = parseSection(doc, startingLevel)) != null) {
             doc << section
         }
 
@@ -376,5 +397,29 @@ ${AUTHOR_REGEX}
         String value = m[0][2]
 
         return [ key, value ]
+    }
+
+    /**
+     * Whether a line represents a block anchor
+     *
+     * @param line the line to check
+     *
+     * @return the anchor id, null if not a block anchor
+     *         the reference text, null if not a block anchor
+     */
+    protected static List<String> isBlockAnchor(String line) {
+        if (line == null) {
+            return [ null, null ]
+        }
+
+        def m = BLOCK_ANCHOR_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return [ null, null ]
+        }
+
+        String id = m[0][1]
+        String ref = m[0][2]
+
+        return [ id, ref ]
     }
 }
