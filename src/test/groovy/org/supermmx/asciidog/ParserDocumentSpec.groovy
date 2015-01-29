@@ -1,11 +1,30 @@
 package org.supermmx.asciidog
 
 import org.supermmx.asciidog.ast.Author
+import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
 
 import spock.lang.*
 
 class ParserDocumentSpec extends Specification {
+    def 'parse: document: doctype'() {
+        given:
+        def content = '''
+= Document Title
+:doctype: book
+
+'''
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def doc = parser.parseDocument()
+
+        then:
+        doc.type == Document.Type.book
+    }
+
     def 'parse: document: preamble'() {
         given:
         def content = '''

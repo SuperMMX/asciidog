@@ -1,6 +1,6 @@
 package org.supermmx.asciidog
 
-import org.supermmx.asciidog.ast.Attribute
+import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
@@ -87,6 +87,10 @@ ${AUTHOR_REGEX}
         }
 
         doc.header = parseHeader()
+
+        def doctypeAttr = attrContainer.getAttribute(Document.DOCTYPE)
+        doc.type = Document.Type.valueOf(doctypeAttr.value)
+
         // get type
         def type = doc.type
 
