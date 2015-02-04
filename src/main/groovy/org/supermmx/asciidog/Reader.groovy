@@ -55,24 +55,38 @@ class Reader {
         }
     }
 
+    /**
+     * Read the next number of lines.
+     *
+     * @param size the number of lines to read
+     *
+     * @return the next lines, null appended if there are not enough data
+     */
     String[] nextLines(int size) {
         String[] nextLines = peekLines(size)
-        nextLines.size().times {
+        Math.min(nextLines.size(), lines.size()).times {
             lines.remove(0)
         }
 
         return nextLines
     }
 
+    /**
+     * Peek the next number of lines.
+     *
+     * @param size the number of lines to peek
+     *
+     * @return the next lines, null appended if there are not enough data
+     */
     String[] peekLines(int size) {
         if (lines.size() < size) {
             readMoreLines()
         }
 
-        if (lines.size() == 0) {
-            return []
+        if (lines.size() >= size) {
+            return lines[0..(size - 1)]
         } else {
-            return lines[0..Math.min(size - 1, lines.size() - 1)]
+            return lines + (1..(size - lines.size())).collect { null }
         }
     }
 

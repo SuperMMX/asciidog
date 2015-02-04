@@ -7,7 +7,6 @@ class ReaderSpec extends Specification {
         given:
         def reader = Reader.createFromString('''line1
 ''');
-        reader.bufferSize = 1
 
         when:
         def line = reader.peekLine()
@@ -26,7 +25,6 @@ class ReaderSpec extends Specification {
         given:
         def reader = Reader.createFromString('''line1
 ''');
-        reader.bufferSize = 1
 
         when:
         def line = reader.nextLine()
@@ -47,7 +45,6 @@ class ReaderSpec extends Specification {
 line2
 line3
 ''');
-        reader.bufferSize = 2
 
         when:
         def lines = reader.peekLines(2)
@@ -62,13 +59,31 @@ line3
         line == 'line1'
     }
     
+    def 'peek lines without enough data'() {
+        given:
+        def reader = Reader.createFromString('''line1
+line2
+''');
+
+        when:
+        def lines = reader.peekLines(3)
+
+        then:
+        lines == [ 'line1', 'line2', null ]
+
+        when:
+        def line = reader.nextLine()
+
+        then:
+        line == 'line1'
+    }
+
     def 'next lines'() {
         given:
         Reader reader = Reader.createFromString('''line1
 line2
 line3
 ''');
-        reader.bufferSize = 2
 
         when:
         def lines = reader.nextLines(2)
@@ -80,13 +95,13 @@ line3
         lines = reader.nextLines(2)
 
         then:
-        lines ==  [ 'line3' ]
+        lines ==  [ 'line3', null ]
 
         when:
         lines = reader.nextLines(2)
 
         then:
-        lines ==  []
+        lines ==  [ null, null ]
     }
 
     def 'skip blank lines'() {
