@@ -140,23 +140,33 @@ ${AUTHOR_REGEX}
         reader.skipBlankLines()
 
         // check whether the next line is a section
-        int level = -1
-        String title = null
-        (level, title) = isSection(reader.peekLine())
+        def level = -1
+        def title = null
+        def id = null
+        (level, title, id) = isSection(reader.peekLines(2))
+
+        if (level == -1) {
+            // not a section
+            return null
+        }
 
         if (level != expectedLevel) {
             // wrong section level
             return null
         }
 
+        if (id != null) {
+            reader.nextLine()
+        }
+
         reader.nextLine()
 
         // current section
-        Section section = new Section()
-        section.parent = parent
-        section.document = parent.document
-        section.level = level
-        section.title = title
+        Section section = new Section(parent: parent,
+                                      id: id,
+                                      document: parent.document,
+                                      level: level,
+                                      title: title)
 
         // blocks in the section
         def blocks = parseBlocks(section)
@@ -188,7 +198,7 @@ ${AUTHOR_REGEX}
 
         def line = null
         while ((line = reader.peekLine()) != null) {
-            def (level, title) = isSection(line)
+            def (level, title, id) = isSection(reader.peekLines(2))
 
             // section found
             if (level != -1) {
@@ -245,8 +255,9 @@ ${AUTHOR_REGEX}
             return null
         }
 
-        def (level, title) = isSection(line)
+        def (level, title, id) = isSection(reader.peekLines(2))
         if (level != 0) {
+            // section
             // doesn't have a header
             return null
         }
@@ -357,22 +368,37 @@ ${AUTHOR_REGEX}
      * @param line the line to check
      *
      * @return the section level, -1 if not a section,
-     *          the section title, null if not a section
+     *         the section title, null if not a section,
+     *         the section id, null if not a section or doesn't exist
      */
-    protected static List<Object> isSection(String line) {
+    protected static List<Object> isSection(String[] lines) {
+        if (lines == null || lines.length == 0) {
+            return [ -1, null, null ]
+        }
+
+        def line = lines[0]
+        def line2 = (lines.length >= 2) ? lines[1] : null
+
+        // check the id first
+        def (id, ref) = isBlockAnchor(line)
+        if (id != null) {
+            // has id
+            line = line2
+        }
+
         if (line == null) {
-            return [ -1, null ]
+            return [ -1, null, null ]
         }
 
         def m = SECTION_PATTERN.matcher(line)
         if (!m.matches()) {
-            return [ -1, null ]
+            return [ -1, null, null ]
         }
 
         int level = m[0][1].length() - 1
         String title = m[0][2]
 
-        return [ level, title ]
+        return [ level, title, id ]
     }
 
     /**
@@ -406,6 +432,7 @@ ${AUTHOR_REGEX}
      *
      * @return the anchor id, null if not a block anchor
      *         the reference text, null if not a block anchor
+     *         or not specified
      */
     protected static List<String> isBlockAnchor(String line) {
         if (line == null) {
