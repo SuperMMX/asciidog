@@ -5,6 +5,7 @@ import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
+import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Section
 
@@ -64,10 +65,18 @@ ${AUTHOR_REGEX}
 (?:
   ,
   \\p{Blank}*
-  (\\S.*)        # 2, reference text
+  (\\S.*)       # 2, reference text
 )?
 
 \\]\\]          # ]] to end
+'''
+    static final def BLOCK_TITLE_PATTERN = ~'''(?x)
+^
+\\.             # start with .
+(
+  [^\\s.].*      # 1, title
+)
+$
 '''
     static final def SECTION_PATTERN = ~'''(?x)
 (={1,6})         # 1, section identifier
@@ -79,11 +88,31 @@ ${AUTHOR_REGEX}
 \\s*
 '''
 
+    /**
+     * internal class
+     */
+    private static class BlockHeader {
+        static final String PROPERTY_SECTION_TITLE = 'secTitle'
+        static final String PROPERTY_SECTION_LEVEL = 'secLevel'
+
+        Node.Type type
+        def id
+        def title
+        // block attributes
+        def attributes = [:] as LinkedHashMap<String, String>
+
+        // other properties
+        def properties = [:]
+    }
+
     // Reader
     Reader reader
 
     // latest attributes
     AttributeContainer attrContainer = new AttributeContainer()
+
+    // block header used to parse the next block, including section
+    BlockHeader blockHeader
 
     Document parseString(String content) {
         reader = Reader.createFromString(content)
@@ -137,13 +166,14 @@ ${AUTHOR_REGEX}
      * @return the parsed section, null if section is not found
      */
     protected Section parseSection(Block parent, int expectedLevel) {
-        reader.skipBlankLines()
+        if (blockHeader?.type != Node.Type.SECTION) {
+            return null
+        }
 
         // check whether the next line is a section
-        def level = -1
-        def title = null
-        def id = null
-        (level, title, id) = isSection(reader.peekLines(2))
+        def id = blockHeader?.id
+        def level = blockHeader?.properties[BlockHeader.PROPERTY_SECTION_LEVEL]
+        def title = blockHeader?.properties[BlockHeader.PROPERTY_SECTION_TITLE]
 
         if (level == -1) {
             // not a section
@@ -153,10 +183,6 @@ ${AUTHOR_REGEX}
         if (level != expectedLevel) {
             // wrong section level
             return null
-        }
-
-        if (id != null) {
-            reader.nextLine()
         }
 
         reader.nextLine()
@@ -173,14 +199,9 @@ ${AUTHOR_REGEX}
         blocks.each { section << it }
 
         // parse sub sections
-        def line = null
-        while ((line = reader.peekLine()) != null) {
-            def subSection = parseSection(section, level + 1);
-            if (subSection == null) {
-                break
-            } else {
-                section << subSection
-            }
+        def subSection = null
+        while ((subSection = parseSection(section, level + 1)) != null) {
+            section << subSection
         }
 
         return section
@@ -192,23 +213,31 @@ ${AUTHOR_REGEX}
      * @return a list of blocks
      */
     protected List<Block> parseBlocks(Block parent) {
-        reader.skipBlankLines()
-
         def blocks = []
 
-        def line = null
-        while ((line = reader.peekLine()) != null) {
-            def (level, title, id) = isSection(reader.peekLines(2))
+        while (true) {
+            parseBlockHeader()
 
-            // section found
-            if (level != -1) {
+            if (blockHeader.type == null) {
                 break
             }
 
-            def block = parseParagraph(parent)
-            blocks << block
+            if (blockHeader.type == Node.Type.SECTION) {
+                break
+            }
 
-            reader.skipBlankLines()
+            def block = null
+            switch (blockHeader.type) {
+            case Node.Type.PARAGRAPH:
+                block = parseParagraph(parent)
+                break
+            }
+
+            if (block == null) {
+                break;
+            }
+
+            blocks << block
         }
 
         return blocks
@@ -255,7 +284,7 @@ ${AUTHOR_REGEX}
             return null
         }
 
-        def (level, title, id) = isSection(reader.peekLines(2))
+        def (level, title) = isSection(line)
         if (level != 0) {
             // section
             // doesn't have a header
@@ -331,6 +360,59 @@ ${AUTHOR_REGEX}
     }
 
     /**
+     * Parse a block header that is used to parse content further
+     */
+    protected BlockHeader parseBlockHeader() {
+        reader.skipBlankLines()
+
+        BlockHeader header = new BlockHeader()
+
+        def line = null
+        while ((line = reader.peekLine()) != null) {
+            // check id
+            def (anchorId, anchorRef) = isBlockAnchor(line)
+            if (anchorId != null) {
+                header.id = anchorId
+
+                reader.nextLine()
+
+                continue
+            }
+
+            // check attributes
+
+            // check title
+            def title = isBlockTitle(line)
+            if (title != null) {
+
+                reader.nextLine()
+                continue
+            }
+
+            // check section
+            def (secLevel, secTitle) = isSection(line)
+            if (secLevel != -1) {
+                header.type = Node.Type.SECTION
+                header.properties[BlockHeader.PROPERTY_SECTION_LEVEL] = secLevel
+                header.properties[BlockHeader.PROPERTY_SECTION_TITLE] = secTitle
+
+                break
+            }
+
+            // check list
+            // check delimited block
+
+            // normal paragraph
+            header.type = Node.Type.PARAGRAPH
+            break
+        }
+
+        blockHeader = header
+
+        return header
+    }
+
+    /**
      * Create an author from a string
      */
     protected static Author createAuthor(String authorText) {
@@ -363,46 +445,35 @@ ${AUTHOR_REGEX}
     }
 
     /**
-     * Whether the line represents a section
+     * Whether the line represents a section, like
+     *
+     * == Section Title
      *
      * @param line the line to check
      *
      * @return the section level, -1 if not a section,
      *         the section title, null if not a section,
-     *         the section id, null if not a section or doesn't exist
      */
-    protected static List<Object> isSection(String[] lines) {
-        if (lines == null || lines.length == 0) {
-            return [ -1, null, null ]
-        }
-
-        def line = lines[0]
-        def line2 = (lines.length >= 2) ? lines[1] : null
-
-        // check the id first
-        def (id, ref) = isBlockAnchor(line)
-        if (id != null) {
-            // has id
-            line = line2
-        }
-
+    protected static List<Object> isSection(String line) {
         if (line == null) {
-            return [ -1, null, null ]
+            return [ -1, null ]
         }
 
         def m = SECTION_PATTERN.matcher(line)
         if (!m.matches()) {
-            return [ -1, null, null ]
+            return [ -1, null ]
         }
 
         int level = m[0][1].length() - 1
         String title = m[0][2]
 
-        return [ level, title, id ]
+        return [ level, title ]
     }
 
     /**
-     * Whether the line represents an attribute definition
+     * Whether the line represents an attribute definition, like
+     *
+     * :attr-name: attribute value
      *
      * @param line the line to check
      *
@@ -426,7 +497,9 @@ ${AUTHOR_REGEX}
     }
 
     /**
-     * Whether a line represents a block anchor
+     * Whether a line represents a block anchor, like
+     *
+     * [[block id]]
      *
      * @param line the line to check
      *
@@ -448,5 +521,24 @@ ${AUTHOR_REGEX}
         String ref = m[0][2]
 
         return [ id, ref ]
+    }
+
+    /**
+     * Whether a line represents a block title, e.g.
+     * .BlockTitle
+     */
+    protected static String isBlockTitle(String line) {
+        if (line == null) {
+            return null
+        }
+
+        def m = BLOCK_TITLE_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return null
+        }
+
+        String title = m[0][1]
+
+        return title
     }
 }

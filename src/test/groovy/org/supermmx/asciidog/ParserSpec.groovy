@@ -34,8 +34,22 @@ class ParserSpec extends Specification {
         id       | ref        | line
         'id'     | null       | '[[id]]'
         'id'     | 'ref'      | '[[id, ref]]'
-        ':id-'   | '#- '         | '[[:id-, #- ]]'
-        '_i.d'   | '_-:. '     | '[[_i.d, _-:. ]]'
+        ':id-'   | '#- '      | '[[:id-, #- ]]'
+        '_i.d'   | '_-:. '    | '[[_i.d, _-:. ]]'
+    }
+
+    def 'static: is block title'() {
+        expect:
+        title == Parser.isBlockTitle(line)
+
+        where:
+        title           | line
+        null            | null
+        null            | ''
+        null            | '. abc def'
+        null            | '.'
+        null            | '== section'
+        'block title'   | '.block title'
     }
 
     def 'parse: Paragraph'() {
