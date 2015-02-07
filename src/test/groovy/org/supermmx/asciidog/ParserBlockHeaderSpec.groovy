@@ -27,8 +27,12 @@ class ParserBlockHeaderSpec extends Specification {
 
         then:
         header.type == Node.Type.SECTION
+        header.properties.size() == 2
         header.properties[BlockHeader.SECTION_TITLE] == 'section'
         header.properties[BlockHeader.SECTION_LEVEL] == 1
+
+        header.id == null
+        header.attributes.size() == 0
     }
 
     def 'section with id'() {
@@ -51,5 +55,78 @@ class ParserBlockHeaderSpec extends Specification {
         header.properties[BlockHeader.SECTION_TITLE] == 'section'
         header.properties[BlockHeader.SECTION_LEVEL] == 1
         header.id == 'sec-id'
+    }
+
+    def 'section with block title'() {
+        given:
+        def content =
+'''
+[[sec-id]]
+.non-sense-title
+== section
+'''
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def header = parser.parseBlockHeader()
+
+        then:
+        header.type == Node.Type.SECTION
+        header.properties[BlockHeader.SECTION_TITLE] == 'section'
+        header.properties[BlockHeader.SECTION_LEVEL] == 1
+        header.id == 'sec-id'
+
+        header.title == 'non-sense-title'
+    }
+
+    def 'paragraph'() {
+        given:
+        def content =
+'''
+this is a paragraph
+test of multiple lines
+'''
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def header = parser.parseBlockHeader()
+
+        then:
+        header.type == Node.Type.PARAGRAPH
+        header.id == null
+        header.title == null
+        header.attributes.size() == 0
+        header.properties.size() == 0
+    }
+
+    def 'paragraph with id and title'() {
+        given:
+        def content =
+'''
+.title
+[[id]]
+this is a paragraph
+test of multiple lines
+'''
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def header = parser.parseBlockHeader()
+
+        then:
+        header.type == Node.Type.PARAGRAPH
+        header.id == 'id'
+        header.title == 'title'
+        header.attributes.size() == 0
+        header.properties.size() == 0
     }
 }

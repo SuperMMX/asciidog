@@ -360,7 +360,8 @@ $
     }
 
     /**
-     * Parse a block header that is used to parse content further
+     * Parse a block header that is used to parse content further.
+     * The id, attribute, title are read, but not the block start line.
      */
     protected BlockHeader parseBlockHeader() {
         reader.skipBlankLines()
@@ -384,8 +385,10 @@ $
             // check title
             def title = isBlockTitle(line)
             if (title != null) {
+                header.title = title
 
                 reader.nextLine()
+
                 continue
             }
 
