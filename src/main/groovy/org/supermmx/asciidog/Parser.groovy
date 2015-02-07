@@ -74,10 +74,20 @@ ${AUTHOR_REGEX}
 ^
 \\.             # start with .
 (
-  [^\\s.].*      # 1, title
+  [^\\s.].*     # 1, title
 )
 $
 '''
+    static final def BLOCK_ATTRIBUTES_PATTERN = ~'''(?x)
+^
+\\[                              # start with [
+(
+  \\p{Blank}*[\\w{},.\\#"'%].*   # 1, atrribute line
+)
+\\]                              # end with ]
+$
+'''
+    //'
     static final def SECTION_PATTERN = ~'''(?x)
 (={1,6})         # 1, section identifier
 \\p{Blank}+
@@ -527,7 +537,8 @@ $
     }
 
     /**
-     * Whether a line represents a block title, e.g.
+     * Whether a line represents a block title, like
+     *
      * .BlockTitle
      */
     protected static String isBlockTitle(String line) {
@@ -543,5 +554,136 @@ $
         String title = m[0][1]
 
         return title
+    }
+
+    /**
+     * Whether the line represents block attributes definition, like
+     *
+     * [style, key="value" new-key='new value' ]
+     */
+    protected static Map<String, String> isBlockAttributes(String line) {
+        if (line == null) {
+            return null
+        }
+
+        def m = BLOCK_ATTRIBUTES_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return null
+        }
+
+        println "line = ${line}"
+        println "matching the pattern"
+
+        line = m[0][1]
+
+        def attrs = [:] as LinkedHashMap<String, String>
+
+        // size of the attribute line
+        def size = line.length()
+        println "line size = ${size}"
+
+        def key = null
+        def value = null
+
+        def index = 0
+
+        while (index < size) {
+            def buf = []
+
+            def quote = null
+
+            def ch = line[index]
+
+            // skip blanks
+            while (ch == ' ') {
+                index ++
+                ch = line[index]
+            }
+
+            if (ch == "'" || ch == '"') {
+                quote = ch
+                index ++
+
+                ch = ''
+            }
+
+            while (index < size) {
+                ch = line[index]
+
+                if (quote == null) {
+                    if (',='.indexOf(ch) >= 0) {
+                        // not in quotes, and is a delimiter
+                        break
+                    }
+                }
+
+                if ((ch == "'" || ch == '"')
+                    && ch == quote) {
+                    index ++
+                    ch = ''
+                    break
+                }
+
+                buf << ch
+                ch = ''
+
+                index ++
+            }
+
+            // join the characters
+            def str = buf.join('')
+
+            // trim the value if not in quote
+            if (quote == null) {
+                str = str.trim()
+            } else {
+                // skip all blanks after the quote
+                while (index < size) {
+                    ch = line[index]
+                    if (ch == ' ') {
+                        index ++
+                    } else {
+                        break
+                    }
+                }
+
+                quote = null
+            }
+
+            if (index >= size) {
+                ch = ','
+            } else {
+                ch = line[index]
+            }
+
+            if (ch == ',') {
+                // end of the value
+                // an attribute defintion is over
+
+                if (key == null) {
+                    key = str
+                } else {
+                    value = str
+                }
+
+                // add the attribute
+                attrs[(key)] = value
+
+                // reset
+                key = null
+                value = null
+            } else if (ch == '=') {
+                // end of the key
+                key = str
+            } else {
+                // invalid
+            }
+
+            if (index < size) {
+                index ++
+            }
+        }
+
+        return attrs
     }
 }

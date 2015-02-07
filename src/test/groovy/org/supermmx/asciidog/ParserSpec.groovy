@@ -52,6 +52,22 @@ class ParserSpec extends Specification {
         'block title'   | '.block title'
     }
 
+    def 'static: block attributes'() {
+        expect:
+        attributes == Parser.isBlockAttributes(line)
+        (attributes?.keySet()) as String[] == keys
+
+        where:
+        line                  | attributes       | keys
+        null                  | null             | null
+        ''                    | null             | null
+        '[]'                  | null             | null
+        '[style]'             | [style:null]     | [ 'style' ]
+        '[ style ,]'          | [style:null]     | [ 'style' ]
+        '[ quote,  this is a quote  ]' | [quote: null, 'this is a quote': null] | [ 'quote', 'this is a quote' ]
+        '[ \'at,"tr  \'=\'a, "value"  \',  style  , "  new,\'attr" = "a, \'new\' value  " ]' | ['at,"tr  ': 'a, "value"  ', style: null, '  new,\'attr': "a, 'new' value  "] | [ 'at,"tr  ', 'style', '  new,\'attr']
+    }
+
     def 'parse: Paragraph'() {
         given:
         def content = '''
