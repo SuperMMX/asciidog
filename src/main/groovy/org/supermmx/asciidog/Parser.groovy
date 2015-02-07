@@ -391,6 +391,14 @@ $
             }
 
             // check attributes
+            def attrs = isBlockAttributes(line)
+            if (attrs != null) {
+                header.attributes << attrs
+
+                reader.nextLine()
+
+                continue
+            }
 
             // check title
             def title = isBlockTitle(line)
@@ -571,16 +579,12 @@ $
             return null
         }
 
-        println "line = ${line}"
-        println "matching the pattern"
-
         line = m[0][1]
 
         def attrs = [:] as LinkedHashMap<String, String>
 
         // size of the attribute line
         def size = line.length()
-        println "line size = ${size}"
 
         def key = null
         def value = null
