@@ -91,9 +91,9 @@ $
     /**
      * internal class
      */
-    private static class BlockHeader {
-        static final String PROPERTY_SECTION_TITLE = 'secTitle'
-        static final String PROPERTY_SECTION_LEVEL = 'secLevel'
+    protected static class BlockHeader {
+        static final String SECTION_TITLE = 'secTitle'
+        static final String SECTION_LEVEL = 'secLevel'
 
         Node.Type type
         def id
@@ -172,8 +172,8 @@ $
 
         // check whether the next line is a section
         def id = blockHeader?.id
-        def level = blockHeader?.properties[BlockHeader.PROPERTY_SECTION_LEVEL]
-        def title = blockHeader?.properties[BlockHeader.PROPERTY_SECTION_TITLE]
+        def level = blockHeader?.properties[BlockHeader.SECTION_LEVEL]
+        def title = blockHeader?.properties[BlockHeader.SECTION_TITLE]
 
         if (level == -1) {
             // not a section
@@ -393,8 +393,8 @@ $
             def (secLevel, secTitle) = isSection(line)
             if (secLevel != -1) {
                 header.type = Node.Type.SECTION
-                header.properties[BlockHeader.PROPERTY_SECTION_LEVEL] = secLevel
-                header.properties[BlockHeader.PROPERTY_SECTION_TITLE] = secTitle
+                header.properties[BlockHeader.SECTION_LEVEL] = secLevel
+                header.properties[BlockHeader.SECTION_TITLE] = secTitle
 
                 break
             }
