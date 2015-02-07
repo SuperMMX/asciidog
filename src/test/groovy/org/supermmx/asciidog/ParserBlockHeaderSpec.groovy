@@ -57,7 +57,7 @@ class ParserBlockHeaderSpec extends Specification {
         header.id == 'sec-id'
     }
 
-    def 'section with block title'() {
+    def 'section with id and non-sense block title'() {
         given:
         def content =
 '''
