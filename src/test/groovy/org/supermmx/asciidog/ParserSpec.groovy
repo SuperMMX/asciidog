@@ -64,6 +64,7 @@ class ParserSpec extends Specification {
         '[]'                  | null             | null
         '[style]'             | [style:null]     | [ 'style' ]
         '[ style ,]'          | [style:null]     | [ 'style' ]
+        '[ abc =, = abc]'     | ['abc': '', '': 'abc']     | [ 'abc', '' ]
         '[ quote,  this is a quote  ]' | [quote: null, 'this is a quote': null] | [ 'quote', 'this is a quote' ]
         '[ \'at,"tr  \'=\'a, "value"  \',  style  , "  new,\'attr" = "a, \'new\' value  " ]' | ['at,"tr  ': 'a, "value"  ', style: null, '  new,\'attr': "a, 'new' value  "] | [ 'at,"tr  ', 'style', '  new,\'attr']
     }
