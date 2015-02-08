@@ -591,6 +591,7 @@ $
 
         def index = 0
 
+        // main loop
         while (index < size) {
             def buf = []
 
@@ -604,6 +605,7 @@ $
                 ch = line[index]
             }
 
+            // starting quote
             if (ch == "'" || ch == '"') {
                 quote = ch
                 index ++
@@ -611,6 +613,7 @@ $
                 ch = ''
             }
 
+            // find the key or value in quotes or not
             while (index < size) {
                 ch = line[index]
 
@@ -621,6 +624,7 @@ $
                     }
                 }
 
+                // ending quote
                 if ((ch == "'" || ch == '"')
                     && ch == quote) {
                     index ++
