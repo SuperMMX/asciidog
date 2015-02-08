@@ -10,23 +10,21 @@ import spock.lang.*
 class ParserSectionSpec extends Specification {
     def 'static: is section'() {
         expect:
-        [ level, title, id ] == Parser.isSection(lines)
+        [ level, title ] == Parser.isSection(line)
 
         where:
-        level | title     | id        | lines
-        -1    | null      | null      | null
-        -1    | null      | null      | [] as String[]
-        -1    | null      | null      | [ ' = Title ' ] as String[]
-        -1    | null      | null      | [ '======= Title' ] as String[]
-        -1    | null      | null      | [ '==abc' ] as String[]
-        -1    | null      | null      | [ '[[id]]', '', '== Title' ] as String[]
-        0     | 'Level 0' | null      | [ '= Level 0' ] as String[]
-        1     | 'Level 1' | null      | [ '== Level 1' ] as String[]
-        2     | 'Level 2' | null      | [ '=== Level 2' ] as String[]
-        3     | 'Level 3' | null      | [ '==== Level 3' ] as String[]
-        4     | 'Level 4' | null      | [ '===== Level 4' ] as String[]
-        5     | 'Level 5' | null      | [ '====== Level 5' ] as String[]
-        1     | 'Title'   | 'id'      | [ '[[id]]', '== Title' ] as String[]
+        level | title      | line
+        -1    | null       | null
+        -1    | null       | ''
+        -1    | null       | ' = Title '
+        -1    | null       | '======= Title'
+        -1    | null       | '==abc'
+        0     | 'Level 0'  | '= Level 0'
+        1     | 'Level 1'  | '== Level 1'
+        2     | 'Level 2'  | '=== Level 2'
+        3     | 'Level 3'  | '==== Level 3'
+        4     | 'Level 4'  | '===== Level 4'
+        5     | 'Level 5'  | '====== Level 5'
     }
 
     def 'parse: section: not expected level'() {
@@ -40,6 +38,8 @@ class ParserSectionSpec extends Specification {
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
+
+        parser.parseBlockHeader()
 
         when:
         def section = parser.parseSection(new Block(), 3)
@@ -62,6 +62,8 @@ class ParserSectionSpec extends Specification {
         parser.reader = reader
 
         when:
+        parser.parseBlockHeader()
+
         def section = parser.parseSection(new Block(), 1)
 
         then:
@@ -84,6 +86,7 @@ class ParserSectionSpec extends Specification {
         parser.reader = reader
 
         when:
+        parser.parseBlockHeader()
         def section = parser.parseSection(new Block(), 1)
 
         then:
@@ -112,6 +115,7 @@ New paragraph
         parser.reader = reader
 
         when:
+        parser.parseBlockHeader()
         def section = parser.parseSection(new Block(), 1)
 
         then:
@@ -154,6 +158,7 @@ paragraph for the subsection
         parser.reader = reader
 
         when:
+        parser.parseBlockHeader()
         def section = parser.parseSection(new Block(), 1)
 
         then:
@@ -205,6 +210,7 @@ paragraph for the subsection
         parser.reader = reader
 
         when:
+        parser.parseBlockHeader()
         def section = parser.parseSection(new Block(), 1)
 
         then:
@@ -235,6 +241,8 @@ paragraph for the subsection
         def reader = Reader.createFromString(content)
         parser.reader = reader
 
+        parser.parseBlockHeader()
+
         when:
         def section = parser.parseSection(new Block(), 2)
 
@@ -257,6 +265,8 @@ paragraph for the subsection
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
+
+        parser.parseBlockHeader()
 
         when:
         def section = parser.parseSection(new Block(), 1)
@@ -290,6 +300,8 @@ paragraph for the subsection
         def reader = Reader.createFromString(content)
         parser.reader = reader
 
+        parser.parseBlockHeader()
+
         when:
         def section = parser.parseSection(new Block(), 1)
 
@@ -313,6 +325,8 @@ paragraph for the subsection
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
+
+        parser.parseBlockHeader()
 
         when:
         def section = parser.parseSection(new Block(), 2)
