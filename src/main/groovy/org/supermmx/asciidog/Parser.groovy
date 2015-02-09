@@ -80,16 +80,18 @@ $
 '''
     static final def BLOCK_ATTRIBUTES_PATTERN = ~'''(?x)
 ^
-\\[                              # start with [
-(
-  \\p{Blank}*[\\w{},.\\#"'%].*   # 1, atrribute line
+\\[                   # start with [
+(                     # 1, atrribute line
+  \\p{Blank}*
+  [\\w{},.\\#"'%].*   # '
 )
-\\]                              # end with ]
+\\]                   # end with ]
 $
 '''
-    //'
     static final def SECTION_PATTERN = ~'''(?x)
-(={1,6})         # 1, section identifier
+(                # 1, section identifier
+  ={1,6}
+)
 \\p{Blank}+
 (                # 2, whole title
   \\S+
