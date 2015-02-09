@@ -99,6 +99,20 @@ $
 )
 \\s*
 '''
+    static final def LIST_PATTERN = ~'''(?x)
+^
+\\p{Blank}*
+(                # 1, list character
+  -
+  |
+  [*.]{1,5}
+)
+\\p{Blank}+
+(                # 2, content
+  .*
+)
+$
+'''
 
     /**
      * internal class
@@ -423,6 +437,10 @@ $
             }
 
             // check list
+            def (listType, listLevel, listFirstLine) = isList(line)
+            if (listType != null) {
+            }
+
             // check delimited block
 
             // normal paragraph
@@ -695,5 +713,48 @@ $
         }
 
         return attrs
+    }
+
+    /**
+     * Whether the line is the start of a list, like
+     *
+     * * abc
+     * - abc
+     * . abc
+     *
+     * @return the type of list
+     *         the level of the list
+     *         the first line of the list item content
+     */
+    protected static List isList(String line) {
+        if (line == null) {
+            return [ null, -1, null ]
+        }
+
+        def m = LIST_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return [ null, -1, null ]
+        }
+
+        Node.Type type = null
+
+        def listIdentifier = m[0][1]
+        String firstLine = m[0][2]
+        int listLevel = listIdentifier.length()
+
+        switch (listIdentifier[0]) {
+        case '*':
+        case '-':
+            type = Node.Type.UNORDERED_LIST
+            break
+        case '.':
+            type = Node.Type.ORDERED_LIST
+            break
+        default:
+            // should not happen
+            break
+        }
+
+        return [ type, listLevel, firstLine ]
     }
 }
