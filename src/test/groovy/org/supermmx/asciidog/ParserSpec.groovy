@@ -76,12 +76,12 @@ class ParserSpec extends Specification {
 
         where:
         line               | result
-        null               | [ null, -1, null ]
-        ''                 | [ null, -1, null ]
-        '  == abc '        | [ null, -1, null ]
-        '*  line  '        | [ Node.Type.UNORDERED_LIST, 1, 'line  ' ]
-        '   ...  line  '   | [ Node.Type.ORDERED_LIST, 3, 'line  ' ]
-        '  -  line  '      | [ Node.Type.UNORDERED_LIST, 1, 'line  ' ]
+        null               | [ null, null, -1, null ]
+        ''                 | [ null, null, -1, null ]
+        '  == abc '        | [ null, null, -1, null ]
+        '*  line  '        | [ Node.Type.UNORDERED_LIST, '*', 1, 'line  ' ]
+        '   ...  line  '   | [ Node.Type.ORDERED_LIST, '.', 3, 'line  ' ]
+        '  -  line  '      | [ Node.Type.UNORDERED_LIST, '-', 1, 'line  ' ]
     }
 
     def 'parse: Paragraph'() {

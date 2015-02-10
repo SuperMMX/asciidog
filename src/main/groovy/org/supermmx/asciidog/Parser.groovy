@@ -718,22 +718,23 @@ $
     /**
      * Whether the line is the start of a list, like
      *
-     * * abc
+     * *** abc
      * - abc
-     * . abc
+     * .. abc
      *
      * @return the type of list
+     *         the list type identifier, *, - or .
      *         the level of the list
      *         the first line of the list item content
      */
     protected static List isList(String line) {
         if (line == null) {
-            return [ null, -1, null ]
+            return [ null, null, -1, null ]
         }
 
         def m = LIST_PATTERN.matcher(line)
         if (!m.matches()) {
-            return [ null, -1, null ]
+            return [ null, null, -1, null ]
         }
 
         Node.Type type = null
@@ -742,7 +743,8 @@ $
         String firstLine = m[0][2]
         int listLevel = listIdentifier.length()
 
-        switch (listIdentifier[0]) {
+        def ch = listIdentifier[0]
+        switch (ch) {
         case '*':
         case '-':
             type = Node.Type.UNORDERED_LIST
@@ -755,6 +757,6 @@ $
             break
         }
 
-        return [ type, listLevel, firstLine ]
+        return [ type, ch, listLevel, firstLine ]
     }
 }
