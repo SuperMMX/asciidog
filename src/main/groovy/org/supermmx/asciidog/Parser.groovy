@@ -167,7 +167,6 @@ $
 
         // preamble, as a section content
         def preambleBlocks = parseBlocks(doc)
-        preambleBlocks.each { doc << it }
 
         // sections
         int startingLevel = 1
@@ -222,7 +221,6 @@ $
 
         // blocks in the section
         def blocks = parseBlocks(section)
-        blocks.each { section << it }
 
         // parse sub sections
         def subSection = null
@@ -264,6 +262,7 @@ $
             }
 
             blocks << block
+            parent << block
         }
 
         return blocks
