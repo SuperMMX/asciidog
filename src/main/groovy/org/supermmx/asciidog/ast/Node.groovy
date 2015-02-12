@@ -11,6 +11,7 @@ class Node {
         PARAGRAPH,
     }
 
+    Type type
     String id
     Map<String, AttributeEntry> attributes = [:]
     Node parent

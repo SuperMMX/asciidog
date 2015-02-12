@@ -22,7 +22,7 @@ class ParserDocumentSpec extends Specification {
         def doc = parser.parseDocument()
 
         then:
-        doc.type == Document.Type.book
+        doc.docType == Document.DocType.book
     }
 
     def 'parse: document: preamble'() {

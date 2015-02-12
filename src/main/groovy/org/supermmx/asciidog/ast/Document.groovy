@@ -1,7 +1,7 @@
 package org.supermmx.asciidog.ast
 
 class Document extends Block {
-    static enum Type {
+    static enum DocType {
         article,
         book,
         inline
@@ -10,7 +10,7 @@ class Document extends Block {
     static final String DOCTYPE = 'doctype'
     static final String TOC = 'toc'
 
-    Type type
+    DocType docType
     Header header
 
 }

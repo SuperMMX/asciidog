@@ -121,7 +121,7 @@ class AttributeContainerSpec extends Specification {
 
         attrCon.systemAttributes[DOCTYPE] == null
         attrCon.attributes[DOCTYPE] == attr
-        attrCon.DEFAULT_ATTRIBUTES[DOCTYPE].value == Document.Type.article.toString()
+        attrCon.DEFAULT_ATTRIBUTES[DOCTYPE].value == Document.DocType.article.toString()
 
         // getAttribute
         attrCon.getAttribute(DOCTYPE) == attr
@@ -142,7 +142,7 @@ class AttributeContainerSpec extends Specification {
 
         attrCon.systemAttributes[DOCTYPE] == attr
         attrCon.attributes[DOCTYPE] == null
-        attrCon.DEFAULT_ATTRIBUTES[DOCTYPE].value == Document.Type.article.toString()
+        attrCon.DEFAULT_ATTRIBUTES[DOCTYPE].value == Document.DocType.article.toString()
 
         attrCon.getAttribute(DOCTYPE) == attr
     }
@@ -167,7 +167,7 @@ class AttributeContainerSpec extends Specification {
         attrCon.attributes[DOCTYPE] == new Attribute([ name: DOCTYPE,
                                                        type: Attribute.ValueType.STRING,
                                                        value: 'inline' ])
-        attrCon.DEFAULT_ATTRIBUTES[DOCTYPE].value == Document.Type.article.toString()
+        attrCon.DEFAULT_ATTRIBUTES[DOCTYPE].value == Document.DocType.article.toString()
 
         attrCon.getAttribute(DOCTYPE) == sysAttr
     }

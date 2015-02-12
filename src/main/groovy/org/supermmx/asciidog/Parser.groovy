@@ -160,17 +160,17 @@ $
         doc.header = parseHeader()
 
         def doctypeAttr = attrContainer.getAttribute(Document.DOCTYPE)
-        doc.type = Document.Type.valueOf(doctypeAttr.value)
+        doc.docType = Document.DocType.valueOf(doctypeAttr.value)
 
         // get type
-        def type = doc.type
+        def type = doc.docType
 
         // preamble, as a section content
         def preambleBlocks = parseBlocks(doc)
 
         // sections
         int startingLevel = 1
-        if (doc.type == Document.Type.book) {
+        if (type == Document.DocType.book) {
             startingLevel = 0
         }
 
