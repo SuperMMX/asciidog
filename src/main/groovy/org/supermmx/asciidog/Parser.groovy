@@ -1,13 +1,17 @@
 package org.supermmx.asciidog
 
+import org.supermmx.asciidog.ast.AdocList
 import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
+import org.supermmx.asciidog.ast.ListItem
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.ast.OrderedList
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Section
+import org.supermmx.asciidog.ast.UnOrderedList
 
 class Parser {
     static final def AUTHOR_NAME_REGEX = '\\w[\\w\\-\'\\.]*'
@@ -120,6 +124,10 @@ $
     protected static class BlockHeader {
         static final String SECTION_TITLE = 'secTitle'
         static final String SECTION_LEVEL = 'secLevel'
+
+        static final String LIST_MARKER = 'listMarker'
+        static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
+        static final String LIST_FIRST_LINE = 'listFirstLine'
 
         Node.Type type
         def id
@@ -237,24 +245,51 @@ $
      * @return a list of blocks
      */
     protected List<Block> parseBlocks(Block parent) {
+        def inList = (parent instanceof ListItem)
+
         def blocks = []
 
+        boolean first = true
         while (true) {
-            parseBlockHeader()
-
-            if (blockHeader.type == null) {
-                break
-            }
-
-            if (blockHeader.type == Node.Type.SECTION) {
-                break
-            }
-
             def block = null
-            switch (blockHeader.type) {
-            case Node.Type.PARAGRAPH:
+
+            if (inList && first) {
+                first = false
+
                 block = parseParagraph(parent)
-                break
+            } else {
+
+                first = false
+                parseBlockHeader()
+
+                if (blockHeader.type == null) {
+                    break
+                }
+
+                if (blockHeader.type == Node.Type.SECTION) {
+                    break
+                }
+
+                switch (blockHeader.type) {
+                case Node.Type.PARAGRAPH:
+                    block = parseParagraph(parent)
+                    break
+                case Node.Type.ORDERED_LIST:
+                case Node.Type.UNORDERED_LIST:
+                    // check marker and level first
+                    def marker = blockHeader.attributes[BlockerHeader.LIST_MARKER]
+                    def markerLevel = blockHeader.attributes[BlockerHeader.LIST_MARKER_LEVEL]
+                    def list = parent.parent
+                    if (inList
+                        && list.marker == marker
+                        && list.markerLevel == markerLevel) {
+                        // next item in the list
+                    } else {
+                        block = parseList(parent)
+                    }
+                    break
+                }
+
             }
 
             if (block == null) {
@@ -263,9 +298,73 @@ $
 
             blocks << block
             parent << block
+
+            if (parent instanceof ListItem) {
+                // in list
+
+                // TODO: check comment block
+
+                // list continuation
+                def line = reader.peekLine()
+                if (isListContinuation(line)) {
+                    reader.nextLine()
+                } else {
+                    break
+                }
+            }
         }
 
         return blocks
+    }
+
+    protected AdocList parseList(Block parent) {
+        if (blockHeader == null) {
+            parseBlockHeader()
+        }
+
+        Node.Type type = blockHeader.type
+        if (type != Node.Type.ORDERED_LIST
+            && type != Node.Type.UNORDERED_LIST) {
+            return null
+        }
+
+        def list = null
+        switch (type) {
+        case Node.Type.ORDERED_LIST:
+            list = new OrderedList()
+            break
+        case Node.Type.UNORDERED_LIST:
+            list = new UnOrderedList()
+            break
+        }
+
+        list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
+        list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
+
+        // first line of the first list item
+        def line = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
+
+        ListItem item = new ListItem()
+
+        // first paragraph
+
+        parseBlocks(item)
+
+        Paragraph para = item.blocks[0]
+        para.lines[0] = line
+
+        list << item
+        // parse more items
+
+        return list
+    }
+
+    /**
+     */
+    protected ListItem parseListItem(AdocList parent) {
+        ListItem item = new ListItem()
+        // parse list item blocks
+        def blocks = parseBlocks(item)
     }
 
     /**
@@ -274,12 +373,28 @@ $
      * @param parent the parent block
      */
     protected Paragraph parseParagraph(Block parent) {
+        boolean inList = (parent instanceof ListItem)
+
         reader.skipBlankLines()
 
         Paragraph para = null
 
+        boolean first = true
         def line = reader.peekLine()
         while (line != null && line.length() > 0) {
+            if (inList && !first) {
+                if (isListContinuation(line)) {
+                    break
+                }
+
+                // check block header for every line
+                parseBlockHeader()
+
+                if (isList(blockHeader.type)) {
+                    break
+                }
+            }
+
             if (para == null) {
                 para = new Paragraph()
                 para.parent = parent
@@ -290,6 +405,8 @@ $
             reader.nextLine()
 
             line = reader.peekLine()
+
+            first = false
         }
 
         return para
@@ -436,8 +553,14 @@ $
             }
 
             // check list
-            def (listType, listLevel, listFirstLine) = isList(line)
+            def (listType, listMarker, markerLevel, listFirstLine) = isList(line)
             if (listType != null) {
+                header.type = listType
+                header.properties[BlockHeader.LIST_MARKER] = listMarker
+                header.properties[BlockHeader.LIST_MARKER_LEVEL] = markerLevel
+                header.properties[BlockHeader.LIST_FIRST_LINE] = listFirstLine
+
+                break
             }
 
             // check delimited block
@@ -722,7 +845,7 @@ $
      * .. abc
      *
      * @return the type of list
-     *         the list type identifier, *, - or .
+     *         the list marker, *, - or .
      *         the level of the list
      *         the first line of the list item content
      */
@@ -742,8 +865,8 @@ $
         String firstLine = m[0][2]
         int listLevel = listIdentifier.length()
 
-        def ch = listIdentifier[0]
-        switch (ch) {
+        def marker = listIdentifier[0]
+        switch (marker) {
         case '*':
         case '-':
             type = Node.Type.UNORDERED_LIST
@@ -756,6 +879,14 @@ $
             break
         }
 
-        return [ type, ch, listLevel, firstLine ]
+        return [ type, marker, listLevel, firstLine ]
+    }
+
+    protected static boolean isListContinuation(String line) {
+        return '+' == line
+    }
+
+    protected static boolean isList(Node.Type type) {
+        return type == Node.Type.ORDERED_LIST || type == Node.Type.UNORDERED_LIST
     }
 }
