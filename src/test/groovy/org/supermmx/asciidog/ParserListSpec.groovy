@@ -86,4 +86,25 @@ line3
         list.blocks[0].blocks[1] instanceof Paragraph
         list.blocks[0].blocks[1].lines == [ 'line1', 'line2', 'line3' ]
     }
+
+    def 'ordered list with multiple items'() {
+        given:
+        def content = '''
+. item1
+. item2
+. item3
+'''
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def list = parser.parseList(new Block())
+
+        then:
+        list instanceof OrderedList
+        list.type == Node.Type.ORDERED_LIST
+        list.blocks.size() == 3
+    }
 }

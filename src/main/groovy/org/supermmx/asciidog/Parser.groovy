@@ -341,30 +341,35 @@ $
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
 
-        // first line of the first list item
-        def line = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
-
-        ListItem item = new ListItem()
-
-        // first paragraph
-
-        parseBlocks(item)
-
-        Paragraph para = item.blocks[0]
-        para.lines[0] = line
-
-        list << item
-        // parse more items
+        // parse items
+        ListItem item = null
+        while ((item = parseListItem(list)) != null) {
+        }
 
         return list
     }
 
     /**
      */
-    protected ListItem parseListItem(AdocList parent) {
+    protected ListItem parseListItem(AdocList list) {
+        // first line of the list item
+        def line = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
+
         ListItem item = new ListItem()
+
         // parse list item blocks
         def blocks = parseBlocks(item)
+
+        if (blocks.size() == 0) {
+            item = null
+        } else {
+            Paragraph para = item.blocks[0]
+            para.lines[0] = line
+
+            list << item
+        }
+
+        return item
     }
 
     /**
