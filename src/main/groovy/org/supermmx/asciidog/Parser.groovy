@@ -250,6 +250,8 @@ $
 
         def blocks = []
 
+        boolean listContinuation = false
+
         boolean first = true
         while (true) {
             def block = null
@@ -271,6 +273,12 @@ $
                 }
 
                 if (blockHeader.type == Node.Type.SECTION) {
+                    break
+                }
+
+                // currently in list, but next block is not a list,
+                // and not in list continuation
+                if (inList && !isList(blockHeader.type) && !listContinuation) {
                     break
                 }
 
@@ -306,14 +314,16 @@ $
 
             if (inList) {
                 // in list
+                def line = reader.peekLine()
 
                 // TODO: check comment block
 
                 // list continuation
-                def line = reader.peekLine()
                 if (isListContinuation(line)) {
                     reader.nextLine()
+                    listContinuation = true
                 } else {
+                    listContinuation = false
                 }
             }
         }
@@ -360,6 +370,11 @@ $
      */
     protected ListItem parseListItem(AdocList list) {
         println "parse list item"
+
+        if (!isList(blockHeader.type)) {
+            return null
+        }
+
         // first line of the list item
         def line = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
 
@@ -399,6 +414,7 @@ $
         boolean first = true
         def line = reader.peekLine()
         while (line != null && line.length() > 0) {
+            println "line = ${line}"
             if (inList && !first) {
                 if (isListContinuation(line)) {
                     break

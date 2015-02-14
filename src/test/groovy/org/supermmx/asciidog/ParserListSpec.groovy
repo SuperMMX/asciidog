@@ -52,6 +52,8 @@ class ParserListSpec extends Specification {
         def content = '''
 . list item with
 multiple lines
+
+new paragraph
 '''
 
         def expectedList = builder.orderedList(marker: '.',
@@ -88,6 +90,8 @@ multiple lines
 line1
 line2
 line3
+
+== section
 '''
 
         def expectedList = builder.unOrderedList(marker: '*',
@@ -123,6 +127,8 @@ line3
 . item1
 . item2
 . item3
+
+== section
 '''
 
         def expectedList = builder.orderedList(marker: '.',
@@ -166,6 +172,8 @@ line3
 . item1
 * item2
 - item3
+
+new paragraph
 '''
 
         def expectedList = builder.orderedList(marker: '.',
@@ -221,6 +229,8 @@ line3
 . item1
 .. item2
 * item3
+
+new paragraph
 '''
 
         def expectedList = builder.orderedList(marker: '.',
