@@ -23,7 +23,7 @@ class ParserListSpec extends Specification {
         given:
         def content = '* list item'
 
-        def expectedList = builder.UnOrderedList(marker: '*',
+        def expectedList = builder.unOrderedList(marker: '*',
                                                  markerLevel: 1,
                                                  level: 0) {
             current.blocks = [
@@ -54,7 +54,7 @@ class ParserListSpec extends Specification {
 multiple lines
 '''
 
-        def expectedList = builder.OrderedList(marker: '.',
+        def expectedList = builder.orderedList(marker: '.',
                                                markerLevel: 1,
                                                level: 0) {
             current.blocks = [
@@ -90,14 +90,14 @@ line2
 line3
 '''
 
-        def expectedList = builder.UnOrderedList(marker: '*',
+        def expectedList = builder.unOrderedList(marker: '*',
                                                  markerLevel: 1,
                                                  level: 0) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
                         paragraph(lines: ['list item with',
-                                           'multiple lines' ]),
+                                          'multiple lines']),
                         paragraph(lines: ['line1', 'line2', 'line3'])
                     ]
                 }
@@ -125,7 +125,7 @@ line3
 . item3
 '''
 
-        def expectedList = builder.OrderedList(marker: '.',
+        def expectedList = builder.orderedList(marker: '.',
                                                markerLevel: 1,
                                                level: 0) {
             current.blocks = [
@@ -183,6 +183,61 @@ line3
                                     current.blocks = [
                                         paragraph(lines: ['item2']),
                                         unOrderedList(marker: '-',
+                                                      markerLevel: 1,
+                                                      level: 0) {
+                                            current.blocks = [
+                                                listItem() {
+                                                    current.blocks = [
+                                                        paragraph(lines: ['item3'])
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+
+        def list = parser.parseList(new Block())
+
+        then:
+
+        list == expectedList
+    }
+
+    def 'nested list with same marker'() {
+        given:
+        def content = '''
+. item1
+.. item2
+* item3
+'''
+
+        def expectedList = builder.orderedList(marker: '.',
+                                               markerLevel: 1,
+                                               level: 0) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item1']),
+                        orderedList(marker: '.',
+                                    markerLevel: 2,
+                                    level: 0) {
+                            current.blocks = [
+                                listItem() {
+                                    current.blocks = [
+                                        paragraph(lines: ['item2']),
+                                        unOrderedList(marker: '*',
                                                       markerLevel: 1,
                                                       level: 0) {
                                             current.blocks = [
