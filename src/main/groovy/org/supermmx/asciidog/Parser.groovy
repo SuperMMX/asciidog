@@ -245,6 +245,7 @@ $
      * @return a list of blocks
      */
     protected List<Block> parseBlocks(Block parent) {
+        println "parse blocks"
         def inList = (parent instanceof ListItem)
 
         def blocks = []
@@ -254,14 +255,17 @@ $
             def block = null
 
             if (inList && first) {
+                println "in list and is first"
                 first = false
 
                 block = parseParagraph(parent)
             } else {
+                println "something else"
 
                 first = false
                 parseBlockHeader()
 
+                println "block header type = ${blockHeader.type}"
                 if (blockHeader.type == null) {
                     break
                 }
@@ -277,8 +281,9 @@ $
                 case Node.Type.ORDERED_LIST:
                 case Node.Type.UNORDERED_LIST:
                     // check marker and level first
-                    def marker = blockHeader.attributes[BlockerHeader.LIST_MARKER]
-                    def markerLevel = blockHeader.attributes[BlockerHeader.LIST_MARKER_LEVEL]
+                    def marker = blockHeader.properties[BlockHeader.LIST_MARKER]
+                    def markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
+                    println "current marker = ${marker}, current marker level = ${markerLevel}"
                     def list = parent.parent
                     if (inList
                         && list.marker == marker
@@ -299,7 +304,7 @@ $
             blocks << block
             parent << block
 
-            if (parent instanceof ListItem) {
+            if (inList) {
                 // in list
 
                 // TODO: check comment block
@@ -309,15 +314,16 @@ $
                 if (isListContinuation(line)) {
                     reader.nextLine()
                 } else {
-                    break
                 }
             }
         }
 
+        println "parse blocks end, blocks size = ${blocks.size()}"
         return blocks
     }
 
     protected AdocList parseList(Block parent) {
+        println "parse list"
         if (blockHeader == null) {
             parseBlockHeader()
         }
@@ -340,6 +346,7 @@ $
 
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
+        println "list marker = ${list.marker}, list level = ${list.markerLevel}"
 
         // parse items
         ListItem item = null
@@ -352,10 +359,13 @@ $
     /**
      */
     protected ListItem parseListItem(AdocList list) {
+        println "parse list item"
         // first line of the list item
         def line = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
 
         ListItem item = new ListItem()
+        item.parent = list
+        item.document = list.document
 
         // parse list item blocks
         def blocks = parseBlocks(item)
@@ -369,6 +379,7 @@ $
             list << item
         }
 
+        println "parse list item end"
         return item
     }
 
@@ -378,6 +389,7 @@ $
      * @param parent the parent block
      */
     protected Paragraph parseParagraph(Block parent) {
+        println "parse paragraph"
         boolean inList = (parent instanceof ListItem)
 
         reader.skipBlankLines()
@@ -414,6 +426,7 @@ $
             first = false
         }
 
+        println "parse paragraph end, lines = ${para?.lines}"
         return para
     }
 

@@ -12,9 +12,28 @@ import org.supermmx.asciidog.ast.UnOrderedList
 import spock.lang.*
 
 class ParserListSpec extends Specification {
+    @Shared
+    def builder = new ObjectGraphBuilder()
+
+    def setupSpec() {
+        builder.classNameResolver = "org.supermmx.asciidog.ast"
+    }
+
     def 'unordered list with one line paragraph'() {
         given:
         def content = '* list item'
+
+        def expectedList = builder.UnOrderedList(marker: '*',
+                                                 markerLevel: 1,
+                                                 level: 0) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['list item'])
+                    ]
+                }
+            ]
+        }
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
@@ -24,13 +43,8 @@ class ParserListSpec extends Specification {
         def list = parser.parseList(new Block())
 
         then:
-        list instanceof UnOrderedList
-        list.type == Node.Type.UNORDERED_LIST
-        list.blocks.size() == 1
-        list.blocks[0] instanceof ListItem
-        list.blocks[0].blocks.size() == 1
-        list.blocks[0].blocks[0] instanceof Paragraph
-        list.blocks[0].blocks[0].lines == [ 'list item' ]
+
+        list == expectedList
     }
 
     def 'ordered list with multiple-line paragraph'() {
@@ -40,21 +54,29 @@ class ParserListSpec extends Specification {
 multiple lines
 '''
 
+        def expectedList = builder.OrderedList(marker: '.',
+                                               markerLevel: 1,
+                                               level: 0) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['list item with', 'multiple lines'])
+                    ]
+                }
+            ]
+        }
+
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
 
         when:
+
         def list = parser.parseList(new Block())
 
         then:
-        list instanceof OrderedList
-        list.type == Node.Type.ORDERED_LIST
-        list.blocks.size() == 1
-        list.blocks[0] instanceof ListItem
-        list.blocks[0].blocks.size() == 1
-        list.blocks[0].blocks[0] instanceof Paragraph
-        list.blocks[0].blocks[0].lines == [ 'list item with', 'multiple lines' ]
+
+        list == expectedList
     }
 
     def 'unordered list with list continuation'() {
@@ -68,23 +90,31 @@ line2
 line3
 '''
 
+        def expectedList = builder.UnOrderedList(marker: '*',
+                                                 markerLevel: 1,
+                                                 level: 0) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['list item with',
+                                           'multiple lines' ]),
+                        paragraph(lines: ['line1', 'line2', 'line3'])
+                    ]
+                }
+            ]
+        }
+
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
 
         when:
+
         def list = parser.parseList(new Block())
 
         then:
-        list instanceof UnOrderedList
-        list.type == Node.Type.UNORDERED_LIST
-        list.blocks.size() == 1
-        list.blocks[0] instanceof ListItem
-        list.blocks[0].blocks.size() == 2
-        list.blocks[0].blocks[0] instanceof Paragraph
-        list.blocks[0].blocks[0].lines == [ 'list item with', 'multiple lines' ]
-        list.blocks[0].blocks[1] instanceof Paragraph
-        list.blocks[0].blocks[1].lines == [ 'line1', 'line2', 'line3' ]
+
+        list == expectedList
     }
 
     def 'ordered list with multiple items'() {
@@ -95,16 +125,93 @@ line3
 . item3
 '''
 
+        def expectedList = builder.OrderedList(marker: '.',
+                                               markerLevel: 1,
+                                               level: 0) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item1'])
+                    ]
+                },
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item2'])
+                    ]
+                },
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item3'])
+                    ]
+                }
+            ]
+        }
+
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
 
         when:
+
         def list = parser.parseList(new Block())
 
         then:
-        list instanceof OrderedList
-        list.type == Node.Type.ORDERED_LIST
-        list.blocks.size() == 3
+
+        list == expectedList
+    }
+
+    def 'nested list with different markers'() {
+        given:
+        def content = '''
+. item1
+* item2
+- item3
+'''
+
+        def expectedList = builder.orderedList(marker: '.',
+                                               markerLevel: 1,
+                                               level: 0) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item1']),
+                        unOrderedList(marker: '*',
+                                      markerLevel: 1,
+                                      level: 0) {
+                            current.blocks = [
+                                listItem() {
+                                    current.blocks = [
+                                        paragraph(lines: ['item2']),
+                                        unOrderedList(marker: '-',
+                                                      markerLevel: 1,
+                                                      level: 0) {
+                                            current.blocks = [
+                                                listItem() {
+                                                    current.blocks = [
+                                                        paragraph(lines: ['item3'])
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+
+        def list = parser.parseList(new Block())
+
+        then:
+
+        list == expectedList
     }
 }
