@@ -279,4 +279,123 @@ new paragraph
 
         list == expectedList
     }
+
+    def 'nested list with same marker with blank lines'() {
+        given:
+        def content = '''
+. item1
+paragraph1
+
+.. item2
+paragraph2
+
+... item3
+paragraph3
+
+new paragraph
+'''
+
+        def expectedList = builder.orderedList(marker: '.',
+                                               markerLevel: 1,
+                                               level: 0) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item1', 'paragraph1']),
+                        orderedList(marker: '.',
+                                    markerLevel: 2,
+                                    level: 0) {
+                            current.blocks = [
+                                listItem() {
+                                    current.blocks = [
+                                        paragraph(lines: ['item2', 'paragraph2']),
+                                        orderedList(marker: '.',
+                                                    markerLevel: 3,
+                                                    level: 0) {
+                                            current.blocks = [
+                                                listItem() {
+                                                    current.blocks = [
+                                                        paragraph(lines: ['item3', 'paragraph3'])
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+
+        def list = parser.parseList(new Block())
+
+        then:
+
+        list == expectedList
+    }
+
+    def 'unordered list with multiple items with multiple lines'() {
+        given:
+        def content = '''
+* item1
+paragraph1
+
+
+* item2
+paragraph2
++
+new paragraph
+with multiple lines
+
+
+* item3
+paragraph3
+
+[[id]
+== section
+'''
+
+        def expectedList = builder.unOrderedList(marker: '*',
+                                                 markerLevel: 1,
+                                                 level: 0) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item1', 'paragraph1'])
+                    ]
+                },
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item2', 'paragraph2']),
+                        paragraph(lines: ['new paragraph', 'with multiple lines'])
+                    ]
+                },
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item3', 'paragraph3'])
+                    ]
+                }
+            ]
+        }
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+
+        def list = parser.parseList(new Block())
+
+        then:
+
+        list == expectedList
+    }
 }
