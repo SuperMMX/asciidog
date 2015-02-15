@@ -10,7 +10,7 @@ import groovy.transform.ToString
 
 class Node {
     static enum Type {
-        COMMENT,
+        COMMENT_LINE,
         DELIMITED_BLOCK,
         DOCUMENT,
         LIST_ITEM,

@@ -293,7 +293,7 @@ $
                 }
 
                 switch (blockHeader.type) {
-                case Node.Type.COMMENT:
+                case Node.Type.COMMENT_LINE:
                     block = new CommentLine()
                     block.lines << blockHeader.properties[BlockHeader.COMMENT_LINE_COMMENT]
 
@@ -596,7 +596,7 @@ $
             // check comment line
             def comment = isCommentLine(line)
             if (comment != null) {
-                header.type = Node.Type.COMMENT
+                header.type = Node.Type.COMMENT_LINE
                 header.properties[BlockHeader.COMMENT_LINE_COMMENT] = comment
 
                 break
