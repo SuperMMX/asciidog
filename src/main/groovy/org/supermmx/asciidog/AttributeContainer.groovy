@@ -212,7 +212,7 @@ class AttributeContainer {
 
     // name, type, default value
     private static def DEFAULT_ATTR_DEFS = [
-        [ Document.DOCTYPE, Attribute.ValueType.STRING, Document.Type.article.toString() ],
+        [ Document.DOCTYPE, Attribute.ValueType.STRING, Document.DocType.article.toString() ],
         [ Document.TOC, Attribute.ValueType.STRING, 'auto' ],
     ]
 

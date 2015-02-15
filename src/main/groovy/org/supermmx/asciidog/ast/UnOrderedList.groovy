@@ -4,12 +4,12 @@ import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-@Canonical()
+@Canonical
 @EqualsAndHashCode(callSuper=true)
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 
-class Paragraph extends Block {
-    Paragraph() {
-        type = Node.Type.PARAGRAPH
+class UnOrderedList extends AdocList {
+    UnOrderedList() {
+        type = Node.Type.UNORDERED_LIST
     }
 }

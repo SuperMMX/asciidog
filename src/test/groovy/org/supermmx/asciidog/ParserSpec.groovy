@@ -3,6 +3,7 @@ package org.supermmx.asciidog
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Header
+import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 
 import spock.lang.*
@@ -67,6 +68,33 @@ class ParserSpec extends Specification {
         '[ abc =, = abc]'     | ['abc': '', '': 'abc']     | [ 'abc', '' ]
         '[ quote,  this is a quote  ]' | [quote: null, 'this is a quote': null] | [ 'quote', 'this is a quote' ]
         '[ \'at,"tr  \'=\'a, "value"  \',  style  , "  new,\'attr" = "a, \'new\' value  " ]' | ['at,"tr  ': 'a, "value"  ', style: null, '  new,\'attr': "a, 'new' value  "] | [ 'at,"tr  ', 'style', '  new,\'attr']
+    }
+
+    def 'static: is list'() {
+        expect:
+        result == Parser.isList(line)
+
+        where:
+        line               | result
+        null               | [ null, null, -1, null ]
+        ''                 | [ null, null, -1, null ]
+        '  == abc '        | [ null, null, -1, null ]
+        '*  line  '        | [ Node.Type.UNORDERED_LIST, '*', 1, 'line  ' ]
+        '   ...  line  '   | [ Node.Type.ORDERED_LIST, '.', 3, 'line  ' ]
+        '  -  line  '      | [ Node.Type.UNORDERED_LIST, '-', 1, 'line  ' ]
+    }
+
+    def 'static: is comment line'() {
+        expect:
+        comment == Parser.isCommentLine(line)
+
+        where:
+        comment         | line
+        null            | null
+        null            | ''
+        null            | '////'
+        ' comment'      | '// comment'
+        'comment'       | '//comment'
     }
 
     def 'parse: Paragraph'() {

@@ -4,12 +4,15 @@ import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-@Canonical()
+/**
+ * The list contains multiple list items with the same level.
+ */
+@Canonical
 @EqualsAndHashCode(callSuper=true)
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 
-class Paragraph extends Block {
-    Paragraph() {
-        type = Node.Type.PARAGRAPH
-    }
+abstract class AdocList extends Block {
+    String marker
+    int markerLevel
+    int level
 }

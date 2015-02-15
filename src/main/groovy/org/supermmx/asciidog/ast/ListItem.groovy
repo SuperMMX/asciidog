@@ -4,12 +4,16 @@ import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-@Canonical()
+/**
+ * A list item contains multiple blocks, which can be
+ * grouped together in the list item with a list continuation.
+ */
+@Canonical
 @EqualsAndHashCode(callSuper=true)
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 
-class Paragraph extends Block {
-    Paragraph() {
-        type = Node.Type.PARAGRAPH
+class ListItem extends Block {
+    ListItem() {
+        type = Node.Type.LIST_ITEM
     }
 }
