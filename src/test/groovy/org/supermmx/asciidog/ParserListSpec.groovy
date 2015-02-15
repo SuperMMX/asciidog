@@ -398,4 +398,46 @@ paragraph3
 
         list == expectedList
     }
+
+    def 'ordered list ended with comment line'() {
+        given:
+        def content = '''
+. item1
+. item2
+
+// this is a comment
+
+. item3
+. item4
+'''
+
+        def expectedList = builder.orderedList(marker: '.',
+                                               markerLevel: 1,
+                                               level: 0) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item1'])
+                    ]
+                },
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item2'])
+                    ]
+                }
+            ]
+        }
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+
+        def list = parser.parseList(new Block())
+
+        then:
+
+        list == expectedList
+    }
 }
