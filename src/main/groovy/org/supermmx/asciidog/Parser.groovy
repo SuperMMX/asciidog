@@ -308,10 +308,9 @@ $
                     def marker = blockHeader.properties[BlockHeader.LIST_MARKER]
                     def markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
                     def list = parent.parent
-                    if (inList
-                        && list.marker == marker
-                        && list.markerLevel == markerLevel) {
-                        // next item in the list
+
+                    if (inList && isListItem(parent, marker, markerLevel)) {
+                        // is the list item with same level
                     } else {
                         block = parseList(parent)
                     }
@@ -365,6 +364,7 @@ $
             break
         }
 
+        list.parent = parent
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
         list.level = 1
@@ -384,6 +384,15 @@ $
      */
     protected ListItem parseListItem(AdocList list) {
         if (!isList(blockHeader.type)) {
+            return null
+        }
+
+        def marker = blockHeader.properties[BlockHeader.LIST_MARKER]
+        def markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
+
+        // not the same level
+        if (marker != list.marker
+            || markerLevel != list.markerLevel) {
             return null
         }
 
@@ -967,5 +976,41 @@ $
         String comment = m[0][1]
 
         return comment
+    }
+
+    /**
+     * Whether the marker and marker level represent a new list
+     * or an item of one of the ancestor lists, by checking the
+     * marker and the marker level
+     */
+    protected boolean isListItem(Block parent, String marker, int markerLevel) {
+        boolean result = false
+        boolean found = false
+
+        while (!found && parent != null) {
+            switch (parent.type) {
+            case Node.Type.LIST_ITEM:
+                break
+            case Node.Type.ORDERED_LIST:
+            case Node.Type.UNORDERED_LIST:
+                if (parent.marker == marker
+                    && parent.markerLevel == markerLevel) {
+                    found = true
+                    result = true
+                }
+                break
+            default:
+                found = true
+                break
+            }
+
+            if (parent.parent == parent) {
+                break
+            } else {
+                parent = parent.parent
+            }
+        }
+
+        return result
     }
 }

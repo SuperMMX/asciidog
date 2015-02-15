@@ -440,4 +440,54 @@ paragraph3
 
         list == expectedList
     }
+    def 'same level items with nested list with different marker'() {
+        given:
+        def content = '''
+. item1
+* item2
+. item3
+
+new paragraph
+'''
+
+        def expectedList = builder.orderedList(marker: '.',
+                                               markerLevel: 1,
+                                               level: 1) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item1']),
+                        unOrderedList(marker: '*',
+                                      markerLevel: 1,
+                                      level: 2) {
+                            current.blocks = [
+                                listItem() {
+                                    current.blocks = [
+                                        paragraph(lines: ['item2']),
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item3'])
+                    ]
+                }
+            ]
+        }
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+
+        def list = parser.parseList(new Block())
+
+        then:
+
+        list == expectedList
+    }
 }
