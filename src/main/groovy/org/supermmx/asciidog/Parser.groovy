@@ -367,6 +367,11 @@ $
 
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
+        list.level = 1
+        if (parent.type == Node.Type.LIST_ITEM) {
+            list.level = parent.parent.level + 1
+        }
+
         println "list marker = ${list.marker}, list level = ${list.markerLevel}"
 
         // parse items
@@ -915,11 +920,11 @@ $
 
         Node.Type type = null
 
-        def listIdentifier = m[0][1]
+        def markers = m[0][1]
         String firstLine = m[0][2]
-        int listLevel = listIdentifier.length()
+        int markerLevel = markers.length()
 
-        def marker = listIdentifier[0]
+        def marker = markers[0]
         switch (marker) {
         case '*':
         case '-':
@@ -933,7 +938,7 @@ $
             break
         }
 
-        return [ type, marker, listLevel, firstLine ]
+        return [ type, marker, markerLevel, firstLine ]
     }
 
     /**

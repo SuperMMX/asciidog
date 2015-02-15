@@ -25,7 +25,7 @@ class ParserListSpec extends Specification {
 
         def expectedList = builder.unOrderedList(marker: '*',
                                                  markerLevel: 1,
-                                                 level: 0) {
+                                                 level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
@@ -58,7 +58,7 @@ new paragraph
 
         def expectedList = builder.orderedList(marker: '.',
                                                markerLevel: 1,
-                                               level: 0) {
+                                               level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
@@ -96,7 +96,7 @@ line3
 
         def expectedList = builder.unOrderedList(marker: '*',
                                                  markerLevel: 1,
-                                                 level: 0) {
+                                                 level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
@@ -133,7 +133,7 @@ line3
 
         def expectedList = builder.orderedList(marker: '.',
                                                markerLevel: 1,
-                                               level: 0) {
+                                               level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
@@ -178,21 +178,21 @@ new paragraph
 
         def expectedList = builder.orderedList(marker: '.',
                                                markerLevel: 1,
-                                               level: 0) {
+                                               level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
                         paragraph(lines: ['item1']),
                         unOrderedList(marker: '*',
                                       markerLevel: 1,
-                                      level: 0) {
+                                      level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
                                         paragraph(lines: ['item2']),
                                         unOrderedList(marker: '-',
                                                       markerLevel: 1,
-                                                      level: 0) {
+                                                      level: 3) {
                                             current.blocks = [
                                                 listItem() {
                                                     current.blocks = [
@@ -235,21 +235,21 @@ new paragraph
 
         def expectedList = builder.orderedList(marker: '.',
                                                markerLevel: 1,
-                                               level: 0) {
+                                               level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
                         paragraph(lines: ['item1']),
                         orderedList(marker: '.',
                                     markerLevel: 2,
-                                    level: 0) {
+                                    level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
                                         paragraph(lines: ['item2']),
                                         unOrderedList(marker: '*',
                                                       markerLevel: 1,
-                                                      level: 0) {
+                                                      level: 3) {
                                             current.blocks = [
                                                 listItem() {
                                                     current.blocks = [
@@ -297,21 +297,21 @@ new paragraph
 
         def expectedList = builder.orderedList(marker: '.',
                                                markerLevel: 1,
-                                               level: 0) {
+                                               level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
                         paragraph(lines: ['item1', 'paragraph1']),
                         orderedList(marker: '.',
                                     markerLevel: 2,
-                                    level: 0) {
+                                    level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
                                         paragraph(lines: ['item2', 'paragraph2']),
                                         orderedList(marker: '.',
                                                     markerLevel: 3,
-                                                    level: 0) {
+                                                    level: 3) {
                                             current.blocks = [
                                                 listItem() {
                                                     current.blocks = [
@@ -365,7 +365,7 @@ paragraph3
 
         def expectedList = builder.unOrderedList(marker: '*',
                                                  markerLevel: 1,
-                                                 level: 0) {
+                                                 level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
@@ -413,7 +413,7 @@ paragraph3
 
         def expectedList = builder.orderedList(marker: '.',
                                                markerLevel: 1,
-                                               level: 0) {
+                                               level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
