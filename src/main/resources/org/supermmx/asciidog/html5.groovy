@@ -74,6 +74,10 @@ newLine()
 
 html {
     head {
+        meta(charset: "UTF-8")
+
+        newLine()
+
         title(doc.header?.title)
     }
 
