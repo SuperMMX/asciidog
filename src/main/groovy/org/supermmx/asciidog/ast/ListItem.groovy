@@ -13,4 +13,7 @@ import groovy.transform.ToString
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 
 class ListItem extends Block {
+    ListItem() {
+        type = Node.Type.LIST_ITEM
+    }
 }

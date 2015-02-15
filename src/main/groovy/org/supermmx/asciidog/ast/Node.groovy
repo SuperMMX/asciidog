@@ -10,14 +10,15 @@ import groovy.transform.ToString
 
 class Node {
     static enum Type {
-        DOCUMENT,
-        SECTION,
-        ORDERED_LIST,
-        UNORDERED_LIST,
+        COMMENT,
         DELIMITED_BLOCK,
-        TABLE,
+        DOCUMENT,
+        LIST_ITEM,
+        ORDERED_LIST,
         PARAGRAPH,
-        COMMENT
+        SECTION,
+        TABLE,
+        UNORDERED_LIST,
     }
 
     Type type
