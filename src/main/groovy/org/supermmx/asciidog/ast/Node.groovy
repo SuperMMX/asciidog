@@ -17,6 +17,7 @@ class Node {
         DELIMITED_BLOCK,
         TABLE,
         PARAGRAPH,
+        COMMENT
     }
 
     Type type
