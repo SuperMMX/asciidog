@@ -84,6 +84,19 @@ class ParserSpec extends Specification {
         '  -  line  '      | [ Node.Type.UNORDERED_LIST, '-', 1, 'line  ' ]
     }
 
+    def 'static: is comment line'() {
+        expect:
+        comment == Parser.isCommentLine(line)
+
+        where:
+        comment         | line
+        null            | null
+        null            | ''
+        null            | '////'
+        ' comment'      | '// comment'
+        'comment'       | '//comment'
+    }
+
     def 'parse: Paragraph'() {
         given:
         def content = '''
