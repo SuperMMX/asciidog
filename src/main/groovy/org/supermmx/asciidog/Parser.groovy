@@ -140,6 +140,8 @@ $
         static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
         static final String LIST_FIRST_LINE = 'listFirstLine'
 
+        static final String COMMENT_LINE_COMMENT = 'comment'
+
         Node.Type type
         def id
         def title
@@ -585,6 +587,15 @@ $
                 reader.nextLine()
 
                 continue
+            }
+
+            // check comment line
+            def comment = isCommentLine(line)
+            if (comment != null) {
+                header.type = Node.Type.COMMENT
+                header.properties[BlockHeader.COMMENT_LINE_COMMENT] = comment
+
+                break
             }
 
             // check section

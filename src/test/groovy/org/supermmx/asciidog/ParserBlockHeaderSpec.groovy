@@ -183,4 +183,25 @@ test of multiple lines
 
         header.properties.size() == 0
     }
+
+    def 'simple comment line'() {
+        given:
+        def content =
+'''
+// comment line 
+'''
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def header = parser.parseBlockHeader()
+
+        then:
+        header.type == Node.Type.COMMENT
+
+        header.properties.size() == 1
+        header.properties[BlockHeader.COMMENT_LINE_COMMENT] == ' comment line '
+    }
 }
