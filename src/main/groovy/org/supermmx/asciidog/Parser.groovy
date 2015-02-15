@@ -329,8 +329,6 @@ $
                 // in list
                 def line = reader.peekLine()
 
-                // TODO: check comment block
-
                 // list continuation
                 if (isListContinuation(line)) {
                     reader.nextLine()
@@ -938,10 +936,16 @@ $
         return [ type, marker, listLevel, firstLine ]
     }
 
+    /**
+     * Whether a line is the list continuation
+     */
     protected static boolean isListContinuation(String line) {
         return '+' == line
     }
 
+    /**
+     * Whether a node type represents a list
+     */
     protected static boolean isList(Node.Type type) {
         return type == Node.Type.ORDERED_LIST || type == Node.Type.UNORDERED_LIST
     }
