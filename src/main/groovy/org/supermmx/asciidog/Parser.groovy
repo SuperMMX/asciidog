@@ -258,7 +258,6 @@ $
      * @return a list of blocks
      */
     protected List<Block> parseBlocks(Block parent) {
-        println "parse blocks"
         def inList = (parent instanceof ListItem)
 
         def blocks = []
@@ -269,18 +268,15 @@ $
         while (true) {
             def block = null
 
+            // first one is considered as a simple paragraph
             if (inList && first) {
-                println "in list and is first"
                 first = false
 
                 block = parseParagraph(parent)
             } else {
-                println "something else"
-
                 first = false
                 parseBlockHeader()
 
-                println "block header type = ${blockHeader.type}"
                 if (blockHeader.type == null) {
                     break
                 }
@@ -304,7 +300,6 @@ $
                     // check marker and level first
                     def marker = blockHeader.properties[BlockHeader.LIST_MARKER]
                     def markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
-                    println "current marker = ${marker}, current marker level = ${markerLevel}"
                     def list = parent.parent
                     if (inList
                         && list.marker == marker
@@ -339,12 +334,10 @@ $
             }
         }
 
-        println "parse blocks end, blocks size = ${blocks.size()}"
         return blocks
     }
 
     protected AdocList parseList(Block parent) {
-        println "parse list"
         if (blockHeader == null) {
             parseBlockHeader()
         }
@@ -372,8 +365,6 @@ $
             list.level = parent.parent.level + 1
         }
 
-        println "list marker = ${list.marker}, list level = ${list.markerLevel}"
-
         // parse items
         ListItem item = null
         while ((item = parseListItem(list)) != null) {
@@ -385,8 +376,6 @@ $
     /**
      */
     protected ListItem parseListItem(AdocList list) {
-        println "parse list item"
-
         if (!isList(blockHeader.type)) {
             return null
         }
@@ -410,7 +399,6 @@ $
             list << item
         }
 
-        println "parse list item end"
         return item
     }
 
@@ -420,7 +408,6 @@ $
      * @param parent the parent block
      */
     protected Paragraph parseParagraph(Block parent) {
-        println "parse paragraph"
         boolean inList = (parent instanceof ListItem)
 
         reader.skipBlankLines()
@@ -430,7 +417,6 @@ $
         boolean first = true
         def line = reader.peekLine()
         while (line != null && line.length() > 0) {
-            println "line = ${line}"
             if (inList && !first) {
                 if (isListContinuation(line)) {
                     break
@@ -458,7 +444,6 @@ $
             first = false
         }
 
-        println "parse paragraph end, lines = ${para?.lines}"
         return para
     }
 
