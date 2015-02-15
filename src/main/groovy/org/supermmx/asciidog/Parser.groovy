@@ -4,6 +4,7 @@ import org.supermmx.asciidog.ast.AdocList
 import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Block
+import org.supermmx.asciidog.ast.CommentLine
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
 import org.supermmx.asciidog.ast.ListItem
@@ -292,6 +293,12 @@ $
                 }
 
                 switch (blockHeader.type) {
+                case Node.Type.COMMENT:
+                    block = new CommentLine()
+                    block.lines << blockHeader.properties[BlockHeader.COMMENT_LINE_COMMENT]
+
+                    reader.nextLine()
+                    break
                 case Node.Type.PARAGRAPH:
                     block = parseParagraph(parent)
                     break

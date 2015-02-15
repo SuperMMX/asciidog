@@ -73,4 +73,30 @@ second paragraph
         lines[0].lines == [ 'new paragraph', 'with another line' ]
         lines[1].lines == [ 'second paragraph' ]
     }
+
+    def 'blocks with comment line in between'() {
+        given:
+        def content = '''
+new paragraph
+with another line
+
+// comment line 
+
+second paragraph
+
+'''
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def blocks = parser.parseBlocks(new Block())
+
+        then:
+        blocks.size() == 3
+        blocks[0].lines == [ 'new paragraph', 'with another line' ]
+        blocks[1].lines == [ ' comment line ' ]
+        blocks[2].lines == [ 'second paragraph' ]
+    }
 }
