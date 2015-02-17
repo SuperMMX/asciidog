@@ -13,3 +13,11 @@ dependencies {
 
     testCompile "org.spockframework:spock-core:1.0-groovy-2.3-SNAPSHOT"
 }
+
+apply plugin:'application'
+
+mainClassName = 'org.supermmx.asciidog.AsciiDog'
+
+run {
+    args = ['test.adoc', 'build/out.html']
+}
