@@ -11,7 +11,9 @@ class Reader {
     int bufferSize = DEFAULT_BUFFER_SIZE
 
     static Reader createFromFile(String filename) {
-        null;
+        Reader reader = new Reader(new BufferedReader(new FileReader(filename)))
+
+        return reader
     }
 
     static Reader createFromString(String content) {

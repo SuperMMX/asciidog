@@ -169,7 +169,13 @@ $
     }
 
     Document parseFile(String filename) {
-        null
+        reader = Reader.createFromFile(filename)
+
+        Document doc = parseDocument()
+
+        reader.close()
+
+        return doc
     }
 
     protected Document parseDocument() {
