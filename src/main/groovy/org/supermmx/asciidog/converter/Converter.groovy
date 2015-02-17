@@ -22,6 +22,14 @@ class Converter {
         println writer.toString()
     }
 
+    void convertToHtmlFile(Document doc, String file) {
+        Writer writer = new BufferedWriter(new FileWriter(file))
+
+        convertToHtml(doc, writer)
+
+        writer.close()
+    }
+
     void convertToHtml(Document doc, Writer writer) {
         def config = new TemplateConfiguration()
         config.with {
