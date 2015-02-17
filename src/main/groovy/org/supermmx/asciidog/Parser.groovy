@@ -139,6 +139,7 @@ $
         static final String SECTION_TITLE = 'secTitle'
         static final String SECTION_LEVEL = 'secLevel'
 
+        static final String LIST_LEAD = 'listLead'
         static final String LIST_MARKER = 'listMarker'
         static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
         static final String LIST_FIRST_LINE = 'listFirstLine'
@@ -313,11 +314,12 @@ $
                 case Node.Type.ORDERED_LIST:
                 case Node.Type.UNORDERED_LIST:
                     // check marker and level first
+                    def lead = blockHeader.properties[BlockHeader.LIST_LEAD]
                     def marker = blockHeader.properties[BlockHeader.LIST_MARKER]
                     def markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
                     def list = parent.parent
 
-                    if (inList && isListItem(parent, marker, markerLevel)) {
+                    if (inList && isListItem(parent, lead, marker, markerLevel)) {
                         // is the list item with same level
                     } else {
                         block = parseList(parent)
@@ -373,6 +375,7 @@ $
         }
 
         list.parent = parent
+        list.lead = blockHeader.properties[BlockHeader.LIST_LEAD]
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
         list.level = 1
@@ -621,9 +624,10 @@ $
             }
 
             // check list
-            def (listType, listMarker, markerLevel, listFirstLine) = isList(line)
+            def (listType, listLead, listMarker, markerLevel, listFirstLine) = isList(line)
             if (listType != null) {
                 header.type = listType
+                header.properties[BlockHeader.LIST_LEAD] = listLead
                 header.properties[BlockHeader.LIST_MARKER] = listMarker
                 header.properties[BlockHeader.LIST_MARKER_LEVEL] = markerLevel
                 header.properties[BlockHeader.LIST_FIRST_LINE] = listFirstLine
@@ -992,7 +996,7 @@ $
      * or an item of one of the ancestor lists, by checking the
      * marker and the marker level
      */
-    protected boolean isListItem(Block parent, String marker, int markerLevel) {
+    protected boolean isListItem(Block parent, String lead, String marker, int markerLevel) {
         boolean result = false
         boolean found = false
 

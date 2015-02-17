@@ -12,6 +12,10 @@ import groovy.transform.ToString
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 
 abstract class AdocList extends Block {
+    /**
+     * the leading spaces
+     */
+    String lead
     String marker
     int markerLevel
     int level
