@@ -106,14 +106,16 @@ $
 '''
     static final def LIST_PATTERN = ~'''(?x)
 ^
-\\p{Blank}*
-(                # 1, list character
+(
+  \\p{Blank}*    # 1, leading
+)
+(                # 2, list character
   -
   |
   [*.]{1,5}
 )
 \\p{Blank}+
-(                # 2, content
+(                # 3, content
   .*
 )
 $
@@ -917,18 +919,19 @@ $
      */
     protected static List isList(String line) {
         if (line == null) {
-            return [ null, null, -1, null ]
+            return [ null, null, null, -1, null ]
         }
 
         def m = LIST_PATTERN.matcher(line)
         if (!m.matches()) {
-            return [ null, null, -1, null ]
+            return [ null, null, null, -1, null ]
         }
 
         Node.Type type = null
 
-        def markers = m[0][1]
-        String firstLine = m[0][2]
+        def lead = m[0][1]
+        def markers = m[0][2]
+        String firstLine = m[0][3]
         int markerLevel = markers.length()
 
         def marker = markers[0]
@@ -945,7 +948,7 @@ $
             break
         }
 
-        return [ type, marker, markerLevel, firstLine ]
+        return [ type, lead, marker, markerLevel, firstLine ]
     }
 
     /**
