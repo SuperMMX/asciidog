@@ -576,4 +576,52 @@ new paragraph
 
         list == expectedList
     }
+
+    def 'indented nested list continuation'() {
+        given:
+        def content = '''
+. item1
+ * item2
+ +
+item3
++
+item4
+'''
+
+        def expectedList = builder.orderedList(lead: '', marker: '.',
+                                               markerLevel: 1,
+                                               level: 1) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item1']),
+                        unOrderedList(lead: ' ', marker: '*',
+                                      markerLevel: 1, level: 2) {
+                            current.blocks = [
+                                listItem() {
+                                    current.blocks = [
+                                        paragraph(lines: ['item2']),
+                                        paragraph(lines: ['item3']),
+                                    ]
+                                }
+                            ]
+                        },
+                        paragraph(lines: ['item4'])
+                    ]
+                }
+            ]
+        }
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+
+        def list = parser.parseList(new Block())
+
+        then:
+
+        list == expectedList
+    }
 }

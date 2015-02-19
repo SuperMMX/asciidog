@@ -120,6 +120,14 @@ $
 )
 $
 '''
+    static final def LIST_CONTINUATION_PATTERN = ~'''(?x)
+^
+(
+  \\p{Blank}*    # 1, leading
+)
+\\+
+$
+'''
     static final def COMMENT_LINE_PATTERN = ~'''(?x)
 ^
 //
@@ -341,7 +349,8 @@ $
                 def line = reader.peekLine()
 
                 // list continuation
-                if (isListContinuation(line)) {
+                def lead = isListContinuation(line)
+                if (lead != null && lead == parent.parent.lead) {
                     reader.nextLine()
                     listContinuation = true
                 } else {
@@ -445,7 +454,8 @@ $
         def line = reader.peekLine()
         while (line != null && line.length() > 0) {
             if (inList && !first) {
-                if (isListContinuation(line)) {
+                // is list continuation
+                if (isListContinuation(line) != null) {
                     break
                 }
 
@@ -956,10 +966,29 @@ $
     }
 
     /**
-     * Whether a line is the list continuation
+     * Whether a line is the list continuation, like
+     *
+     * +
+     *
+     * or
+     *
+     *    +
+     *
+     * @return leading spaces if is a list continuation, or null
      */
-    protected static boolean isListContinuation(String line) {
-        return '+' == line
+    protected static String isListContinuation(String line) {
+        if (line == null) {
+            return null
+        }
+
+        def m = LIST_CONTINUATION_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return null
+        }
+
+        String lead = m[0][1]
+
+        return lead
     }
 
     /**
