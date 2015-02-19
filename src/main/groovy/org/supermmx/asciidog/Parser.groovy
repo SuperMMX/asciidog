@@ -106,16 +106,26 @@ $
 '''
     static final def LIST_PATTERN = ~'''(?x)
 ^
-\\p{Blank}*
-(                # 1, list character
+(
+  \\p{Blank}*    # 1, leading
+)
+(                # 2, list character
   -
   |
   [*.]{1,5}
 )
 \\p{Blank}+
-(                # 2, content
+(                # 3, content
   .*
 )
+$
+'''
+    static final def LIST_CONTINUATION_PATTERN = ~'''(?x)
+^
+(
+  \\p{Blank}*    # 1, leading
+)
+\\+
 $
 '''
     static final def COMMENT_LINE_PATTERN = ~'''(?x)
@@ -137,6 +147,7 @@ $
         static final String SECTION_TITLE = 'secTitle'
         static final String SECTION_LEVEL = 'secLevel'
 
+        static final String LIST_LEAD = 'listLead'
         static final String LIST_MARKER = 'listMarker'
         static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
         static final String LIST_FIRST_LINE = 'listFirstLine'
@@ -311,11 +322,12 @@ $
                 case Node.Type.ORDERED_LIST:
                 case Node.Type.UNORDERED_LIST:
                     // check marker and level first
+                    def lead = blockHeader.properties[BlockHeader.LIST_LEAD]
                     def marker = blockHeader.properties[BlockHeader.LIST_MARKER]
                     def markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
                     def list = parent.parent
 
-                    if (inList && isListItem(parent, marker, markerLevel)) {
+                    if (inList && isListItem(parent, lead, marker, markerLevel)) {
                         // is the list item with same level
                     } else {
                         block = parseList(parent)
@@ -337,7 +349,8 @@ $
                 def line = reader.peekLine()
 
                 // list continuation
-                if (isListContinuation(line)) {
+                def lead = isListContinuation(line)
+                if (lead != null && lead == parent.parent.lead) {
                     reader.nextLine()
                     listContinuation = true
                 } else {
@@ -371,6 +384,7 @@ $
         }
 
         list.parent = parent
+        list.lead = blockHeader.properties[BlockHeader.LIST_LEAD]
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
         list.level = 1
@@ -440,7 +454,8 @@ $
         def line = reader.peekLine()
         while (line != null && line.length() > 0) {
             if (inList && !first) {
-                if (isListContinuation(line)) {
+                // is list continuation
+                if (isListContinuation(line) != null) {
                     break
                 }
 
@@ -619,9 +634,10 @@ $
             }
 
             // check list
-            def (listType, listMarker, markerLevel, listFirstLine) = isList(line)
+            def (listType, listLead, listMarker, markerLevel, listFirstLine) = isList(line)
             if (listType != null) {
                 header.type = listType
+                header.properties[BlockHeader.LIST_LEAD] = listLead
                 header.properties[BlockHeader.LIST_MARKER] = listMarker
                 header.properties[BlockHeader.LIST_MARKER_LEVEL] = markerLevel
                 header.properties[BlockHeader.LIST_FIRST_LINE] = listFirstLine
@@ -917,18 +933,19 @@ $
      */
     protected static List isList(String line) {
         if (line == null) {
-            return [ null, null, -1, null ]
+            return [ null, null, null, -1, null ]
         }
 
         def m = LIST_PATTERN.matcher(line)
         if (!m.matches()) {
-            return [ null, null, -1, null ]
+            return [ null, null, null, -1, null ]
         }
 
         Node.Type type = null
 
-        def markers = m[0][1]
-        String firstLine = m[0][2]
+        def lead = m[0][1]
+        def markers = m[0][2]
+        String firstLine = m[0][3]
         int markerLevel = markers.length()
 
         def marker = markers[0]
@@ -945,14 +962,33 @@ $
             break
         }
 
-        return [ type, marker, markerLevel, firstLine ]
+        return [ type, lead, marker, markerLevel, firstLine ]
     }
 
     /**
-     * Whether a line is the list continuation
+     * Whether a line is the list continuation, like
+     *
+     * +
+     *
+     * or
+     *
+     *    +
+     *
+     * @return leading spaces if is a list continuation, or null
      */
-    protected static boolean isListContinuation(String line) {
-        return '+' == line
+    protected static String isListContinuation(String line) {
+        if (line == null) {
+            return null
+        }
+
+        def m = LIST_CONTINUATION_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return null
+        }
+
+        String lead = m[0][1]
+
+        return lead
     }
 
     /**
@@ -989,7 +1025,7 @@ $
      * or an item of one of the ancestor lists, by checking the
      * marker and the marker level
      */
-    protected boolean isListItem(Block parent, String marker, int markerLevel) {
+    protected boolean isListItem(Block parent, String lead, String marker, int markerLevel) {
         boolean result = false
         boolean found = false
 

@@ -23,7 +23,7 @@ class ParserListSpec extends Specification {
         given:
         def content = '* list item'
 
-        def expectedList = builder.unOrderedList(marker: '*',
+        def expectedList = builder.unOrderedList(lead:'', marker: '*',
                                                  markerLevel: 1,
                                                  level: 1) {
             current.blocks = [
@@ -56,7 +56,7 @@ multiple lines
 new paragraph
 '''
 
-        def expectedList = builder.orderedList(marker: '.',
+        def expectedList = builder.orderedList(lead: '', marker: '.',
                                                markerLevel: 1,
                                                level: 1) {
             current.blocks = [
@@ -94,7 +94,7 @@ line3
 == section
 '''
 
-        def expectedList = builder.unOrderedList(marker: '*',
+        def expectedList = builder.unOrderedList(lead: '', marker: '*',
                                                  markerLevel: 1,
                                                  level: 1) {
             current.blocks = [
@@ -131,7 +131,7 @@ line3
 == section
 '''
 
-        def expectedList = builder.orderedList(marker: '.',
+        def expectedList = builder.orderedList(lead: '', marker: '.',
                                                markerLevel: 1,
                                                level: 1) {
             current.blocks = [
@@ -176,21 +176,21 @@ line3
 new paragraph
 '''
 
-        def expectedList = builder.orderedList(marker: '.',
+        def expectedList = builder.orderedList(lead: '', marker: '.',
                                                markerLevel: 1,
                                                level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
                         paragraph(lines: ['item1']),
-                        unOrderedList(marker: '*',
+                        unOrderedList(lead: '', marker: '*',
                                       markerLevel: 1,
                                       level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
                                         paragraph(lines: ['item2']),
-                                        unOrderedList(marker: '-',
+                                        unOrderedList(lead: '', marker: '-',
                                                       markerLevel: 1,
                                                       level: 3) {
                                             current.blocks = [
@@ -233,21 +233,21 @@ new paragraph
 new paragraph
 '''
 
-        def expectedList = builder.orderedList(marker: '.',
+        def expectedList = builder.orderedList(lead: '', marker: '.',
                                                markerLevel: 1,
                                                level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
                         paragraph(lines: ['item1']),
-                        orderedList(marker: '.',
+                        orderedList(lead: '', marker: '.',
                                     markerLevel: 2,
                                     level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
                                         paragraph(lines: ['item2']),
-                                        unOrderedList(marker: '*',
+                                        unOrderedList(lead: '', marker: '*',
                                                       markerLevel: 1,
                                                       level: 3) {
                                             current.blocks = [
@@ -295,21 +295,21 @@ paragraph3
 new paragraph
 '''
 
-        def expectedList = builder.orderedList(marker: '.',
+        def expectedList = builder.orderedList(lead: '', marker: '.',
                                                markerLevel: 1,
                                                level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
                         paragraph(lines: ['item1', 'paragraph1']),
-                        orderedList(marker: '.',
+                        orderedList(lead: '', marker: '.',
                                     markerLevel: 2,
                                     level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
                                         paragraph(lines: ['item2', 'paragraph2']),
-                                        orderedList(marker: '.',
+                                        orderedList(lead: '', marker: '.',
                                                     markerLevel: 3,
                                                     level: 3) {
                                             current.blocks = [
@@ -363,7 +363,7 @@ paragraph3
 == section
 '''
 
-        def expectedList = builder.unOrderedList(marker: '*',
+        def expectedList = builder.unOrderedList(lead: '', marker: '*',
                                                  markerLevel: 1,
                                                  level: 1) {
             current.blocks = [
@@ -411,7 +411,7 @@ paragraph3
 . item4
 '''
 
-        def expectedList = builder.orderedList(marker: '.',
+        def expectedList = builder.orderedList(lead: '', marker: '.',
                                                markerLevel: 1,
                                                level: 1) {
             current.blocks = [
@@ -453,7 +453,7 @@ paragraph3
 . item4
 '''
 
-        def expectedList = builder.orderedList(marker: '.',
+        def expectedList = builder.orderedList(lead: '', marker: '.',
                                                markerLevel: 1,
                                                level: 1) {
             current.blocks = [
@@ -493,14 +493,14 @@ paragraph3
 new paragraph
 '''
 
-        def expectedList = builder.orderedList(marker: '.',
+        def expectedList = builder.orderedList(lead: '', marker: '.',
                                                markerLevel: 1,
                                                level: 1) {
             current.blocks = [
                 listItem() {
                     current.blocks = [
                         paragraph(lines: ['item1']),
-                        unOrderedList(marker: '*',
+                        unOrderedList(lead: '', marker: '*',
                                       markerLevel: 1,
                                       level: 2) {
                             current.blocks = [
@@ -516,6 +516,97 @@ new paragraph
                 listItem() {
                     current.blocks = [
                         paragraph(lines: ['item3'])
+                    ]
+                }
+            ]
+        }
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+
+        def list = parser.parseList(new Block())
+
+        then:
+
+        list == expectedList
+    }
+
+    def 'indented dash elements using spaces'() {
+        given:
+        def content = '''
+ - Foo
+ - Bar
+ - Baz
+'''
+
+        def expectedList = builder.unOrderedList(lead: ' ', marker: '-',
+                                                 markerLevel: 1,
+                                                 level: 1) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['Foo'])
+                    ]
+                },
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['Bar'])
+                    ]
+                },
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['Baz'])
+                    ]
+                }
+            ]
+        }
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+
+        def list = parser.parseList(new Block())
+
+        then:
+
+        list == expectedList
+    }
+
+    def 'indented nested list continuation'() {
+        given:
+        def content = '''
+. item1
+ * item2
+ +
+item3
++
+item4
+'''
+
+        def expectedList = builder.orderedList(lead: '', marker: '.',
+                                               markerLevel: 1,
+                                               level: 1) {
+            current.blocks = [
+                listItem() {
+                    current.blocks = [
+                        paragraph(lines: ['item1']),
+                        unOrderedList(lead: ' ', marker: '*',
+                                      markerLevel: 1, level: 2) {
+                            current.blocks = [
+                                listItem() {
+                                    current.blocks = [
+                                        paragraph(lines: ['item2']),
+                                        paragraph(lines: ['item3']),
+                                    ]
+                                }
+                            ]
+                        },
+                        paragraph(lines: ['item4'])
                     ]
                 }
             ]
