@@ -4,10 +4,14 @@ import org.supermmx.asciidog.ast.Document
 
 import groovy.text.markup.MarkupTemplateEngine
 import groovy.text.markup.TemplateConfiguration
+import groovy.util.logging.Slf4j
+
+import org.slf4j.Logger
 
 /**
  * Converter control engine
  */
+@Slf4j
 class Converter {
     // Attribute names
 
@@ -15,6 +19,8 @@ class Converter {
     static String TOC = 'toc'
 
     void convert(Document doc) {
+        log.info('Converting document and output to console...')
+
         def writer = new StringWriter()
 
         convertToHtml(doc, writer)
@@ -23,6 +29,7 @@ class Converter {
     }
 
     void convertToHtmlFile(Document doc, String file) {
+        log.info('Converting document to HTML5 file {}...', file)
         Writer writer = new BufferedWriter(new FileWriter(file))
 
         convertToHtml(doc, writer)
