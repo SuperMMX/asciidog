@@ -195,17 +195,18 @@ $
     }
 
     protected Document parseDocument() {
-        Document doc = new Document()
         log.debug('Start parsing document...')
 
-        if (reader.peekLine() == null) {
-            return doc
-        }
+        Document doc = new Document()
 
         doc.header = parseHeader()
 
         def doctypeAttr = attrContainer.getAttribute(Document.DOCTYPE)
         doc.docType = Document.DocType.valueOf(doctypeAttr.value)
+
+        if (doc.header == null) {
+            return doc
+        }
 
         // get type
         def type = doc.docType
@@ -246,9 +247,9 @@ $
         }
 
         // check whether the next line is a section
-        def id = blockHeader?.id
-        def level = blockHeader?.properties[BlockHeader.SECTION_LEVEL]
-        def title = blockHeader?.properties[BlockHeader.SECTION_TITLE]
+        def id = blockHeader.id
+        def level = blockHeader.properties[BlockHeader.SECTION_LEVEL]
+        def title = blockHeader.properties[BlockHeader.SECTION_TITLE]
 
         if (level == -1) {
             // not a section
@@ -263,14 +264,18 @@ $
             return null
         }
 
-        reader.nextLine()
-
         // current section
         Section section = new Section(parent: parent,
                                       id: id,
                                       document: parent.document,
                                       level: level,
                                       title: title)
+        if (parent != null) {
+            parent << section
+        }
+
+        // go over section line
+        reader.nextLine()
 
         // blocks in the section
         log.debug('Start parsing section blocks...')
@@ -280,7 +285,6 @@ $
         log.debug('Start parsing subsections...')
         def subSection = null
         while ((subSection = parseSection(section, level + 1)) != null) {
-            section << subSection
         }
 
         log.debug('End parsing section for expectected level {}, parent type: {}',
@@ -362,7 +366,9 @@ $
             }
 
             blocks << block
-            parent << block
+            if (parent != null) {
+                parent << block
+            }
 
             if (inList) {
                 // in list
