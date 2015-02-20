@@ -14,6 +14,11 @@ import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Section
 import org.supermmx.asciidog.ast.UnOrderedList
 
+import groovy.util.logging.Slf4j
+
+import org.slf4j.Logger
+
+@Slf4j
 class Parser {
     static final def AUTHOR_NAME_REGEX = '\\w[\\w\\-\'\\.]*'
     static final def AUTHOR_NAME_PATTERN = ~AUTHOR_NAME_REGEX
@@ -191,6 +196,7 @@ $
 
     protected Document parseDocument() {
         Document doc = new Document()
+        log.debug('Start parsing document...')
 
         if (reader.peekLine() == null) {
             return doc
@@ -204,9 +210,11 @@ $
         // get type
         def type = doc.docType
 
-        // preamble, as a section content
-        def preambleBlocks = parseBlocks(doc)
+        // preamble blocks
+        log.debug('Start parsing document preamble blocks...')
+        parseBlocks(doc)
 
+        log.debug('Start arsing document sections...')
         // sections
         int startingLevel = 1
         if (type == Document.DocType.book) {
@@ -215,9 +223,9 @@ $
 
         Section section = null
         while ((section = parseSection(doc, startingLevel)) != null) {
-            doc << section
         }
 
+        log.debug('End parsing document')
         return doc
     }
 
@@ -230,7 +238,10 @@ $
      * @return the parsed section, null if section is not found
      */
     protected Section parseSection(Block parent, int expectedLevel) {
-        if (blockHeader?.type != Node.Type.SECTION) {
+        log.debug('Start parsing section for expectected level {}, parent type: {}',
+                  expectedLevel, parent.type)
+
+        if (blockHeader.type != Node.Type.SECTION) {
             return null
         }
 
@@ -246,6 +257,9 @@ $
 
         if (level != expectedLevel) {
             // wrong section level
+            log.error('The section level {} is wrong, expected level is {}',
+                      level, expectedLevel)
+
             return null
         }
 
@@ -259,14 +273,18 @@ $
                                       title: title)
 
         // blocks in the section
+        log.debug('Start parsing section blocks...')
         def blocks = parseBlocks(section)
 
         // parse sub sections
+        log.debug('Start parsing subsections...')
         def subSection = null
         while ((subSection = parseSection(section, level + 1)) != null) {
             section << subSection
         }
 
+        log.debug('End parsing section for expectected level {}, parent type: {}',
+                  expectedLevel, parent.type)
         return section
     }
 
@@ -276,6 +294,8 @@ $
      * @return a list of blocks
      */
     protected List<Block> parseBlocks(Block parent) {
+        log.debug('Start parsing blocks, parent type: {}', parent.type)
+
         def inList = (parent instanceof ListItem)
 
         def blocks = []
@@ -359,10 +379,13 @@ $
             }
         }
 
+        log.debug('End parsing blocks, parent type: {}', parent.type)
         return blocks
     }
 
     protected AdocList parseList(Block parent) {
+        log.debug('Start parsing list, parent type: {}', parent.type)
+
         if (blockHeader == null) {
             parseBlockHeader()
         }
@@ -397,12 +420,16 @@ $
         while ((item = parseListItem(list)) != null) {
         }
 
+        log.debug('End parsing list, parent type: {}', parent.type)
         return list
     }
 
     /**
+     * Parse next list item
      */
     protected ListItem parseListItem(AdocList list) {
+        log.debug('Start parsing list item, parent type: {}', list.type)
+
         if (!isList(blockHeader.type)) {
             return null
         }
@@ -435,6 +462,7 @@ $
             list << item
         }
 
+        log.debug('End parsing list item, parent type: {}', list.type)
         return item
     }
 
@@ -444,6 +472,8 @@ $
      * @param parent the parent block
      */
     protected Paragraph parseParagraph(Block parent) {
+        log.debug('Start parsing paragraph, parent type: {}', parent.type)
+
         boolean inList = (parent instanceof ListItem)
 
         reader.skipBlankLines()
@@ -481,6 +511,7 @@ $
             first = false
         }
 
+        log.debug('End parsing paragraph, parent type: {}', parent.type)
         return para
     }
 
@@ -488,6 +519,8 @@ $
      * Parse document header
      */
     protected Header parseHeader() {
+        log.debug('Start parsing document header...')
+
         Header header = null
 
         reader.skipBlankLines()
@@ -525,6 +558,8 @@ $
             header << attr
         }
 
+        log.debug('End parsing document header')
+
         return header
     }
 
@@ -532,6 +567,8 @@ $
      * Parse authors from current line
      */
     protected List<Author> parseAuthors() {
+        log.debug('Start parsing document authors...')
+
         def line = reader.peekLine()
 
         if (line == null) {
@@ -548,6 +585,8 @@ $
         line.split(";").each {
             authors << createAuthor(it)
         }
+
+        log.debug('End parsing document authors')
         return authors
     }
 
@@ -557,6 +596,8 @@ $
      * @return the parsed attribute, null if not an attribute
      */
     protected AttributeEntry parseAttribute() {
+        log.debug('Start parsing attribute...')
+
         def line = reader.peekLine()
 
         def (name, value) = isAttribute(line)
@@ -570,6 +611,8 @@ $
 
         AttributeEntry attr = new AttributeEntry([ name: name, value: value ])
 
+        log.debug('End parsing attribute')
+
         return attr
     }
 
@@ -578,6 +621,8 @@ $
      * The id, attribute, title are read, but not the block start line.
      */
     protected BlockHeader parseBlockHeader() {
+        log.debug('Start parsing block header...')
+
         reader.skipBlankLines()
 
         BlockHeader header = new BlockHeader()
@@ -653,6 +698,8 @@ $
         }
 
         blockHeader = header
+
+        log.debug('End parsing block header')
 
         return header
     }
