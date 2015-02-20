@@ -199,7 +199,7 @@ test of multiple lines
         def header = parser.parseBlockHeader()
 
         then:
-        header.type == Node.Type.COMMENT
+        header.type == Node.Type.COMMENT_LINE
 
         header.properties.size() == 1
         header.properties[BlockHeader.COMMENT_LINE_COMMENT] == ' comment line '
