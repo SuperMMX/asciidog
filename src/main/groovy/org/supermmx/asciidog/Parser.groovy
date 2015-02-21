@@ -561,7 +561,10 @@ $
         header.title = title
 
         // parse author
-        header.authors = parseAuthors()
+        def authors = parseAuthors()
+        if (authors != null) {
+            header.authors = authors
+        }
 
         // FIXME: parse revision
 

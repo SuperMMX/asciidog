@@ -77,4 +77,29 @@ and a new paragraph
             header(title: 'Document Title')
         }
     }
+
+    def 'wrong section level in book'() {
+        given:
+        def content = '''
+= Document Title
+:doctype: book
+
+== Section
+'''
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def doc = parser.parseDocument()
+
+        then:
+        doc == builder.document(docType: Document.DocType.book) {
+            header(title: 'Document Title') {
+                current.blocks = [
+                    attributeEntry(name: 'doctype', value: 'book')
+                ]
+            }
+        }
+    }
 }
