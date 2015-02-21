@@ -1,8 +1,13 @@
 package org.supermmx.asciidog.ast
 
+import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 
-@EqualsAndHashCode(includeFields=true)
+@Canonical
+@EqualsAndHashCode(callSuper=true)
+@ToString(includeSuper=true, includePackage=false, includeNames=true)
+
 class AttributeEntry extends Block {
     /**
      * Attribute name, read-only

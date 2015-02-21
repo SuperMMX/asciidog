@@ -17,6 +17,10 @@ dependencies {
     runtime 'ch.qos.logback:logback-classic:1.1.2'
 }
 
+test {
+    systemProperties System.properties
+}
+
 apply plugin:'application'
 
 mainClassName = 'org.supermmx.asciidog.AsciiDog'
