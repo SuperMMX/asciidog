@@ -30,7 +30,13 @@ class ParserDocumentSpec extends Specification {
         def doc = parser.parseDocument()
 
         then:
-        doc.docType == Document.DocType.book
+        doc == builder.document(docType: Document.DocType.book) {
+            header(title: 'Document Title') {
+                current.blocks = [
+                    attributeEntry(name: 'doctype', value: 'book')
+                ]
+            }
+        }
     }
 
     def 'parse: document: preamble'() {
@@ -53,9 +59,15 @@ and a new paragraph
         def doc = parser.parseDocument()
 
         then:
-        doc.blocks.size() == 2
-        doc.blocks[0].lines == [ 'this is the paragraph', 'in the preamble', 'of the document' ]
-        doc.blocks[1].lines == [ 'and a new paragraph' ]
+        doc == builder.document(docType: Document.DocType.article) {
+            header(title: 'Document Title')
+            current.blocks = [
+                paragraph(lines: ['this is the paragraph',
+                                  'in the preamble',
+                                  'of the document']),
+                paragraph(lines: ['and a new paragraph'])
+            ]
+        }
     }
 
     def 'wrong section level in article'() {
