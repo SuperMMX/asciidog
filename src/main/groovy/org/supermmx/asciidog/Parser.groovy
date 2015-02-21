@@ -216,7 +216,7 @@ $
         log.debug('Start parsing document preamble blocks...')
         parseBlocks(doc)
 
-        log.debug('Start arsing document sections...')
+        log.debug('Start parsing document sections...')
         // sections
         int startingLevel = 1
         if (type == Document.DocType.book) {
@@ -260,10 +260,18 @@ $
         if (level != expectedLevel) {
             if (level > expectedLevel) {
                 // wrong section level
-                log.error('The section level {} is wrong, expected level is {}',
-                          level, expectedLevel)
+                log.error('{}: Wrong section level {}, expected level is {}',
+                          reader.cursor, level, expectedLevel)
+                userLog.error('{}: Wrong section level {}, expected level is {}',
+                              reader.cursor, level, expectedLevel)
+            } else {
+                if (parent.type == Node.Type.DOCUMENT) {
+                    log.error('{}: Wrong section level {}, expected level is {}',
+                              reader.cursor, level, expectedLevel)
+                    userLog.error('{}: Wrong section level {}, expected level is {}',
+                                  reader.cursor, level, expectedLevel)
+                }
             }
-
             return null
         }
 
@@ -707,6 +715,11 @@ $
         }
 
         blockHeader = header
+
+        log.debug('  Type: {}, ID: {}, Title: {}',
+                  header.type, header.id, header.title)
+        log.debug('  Attributes: {}', header.attributes)
+        log.debug('  Properties: {}', header.properties)
 
         log.debug('End parsing block header')
 

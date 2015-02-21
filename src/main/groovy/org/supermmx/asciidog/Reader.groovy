@@ -14,6 +14,10 @@ class Reader {
         Cursor() {
             lineno = 1
         }
+
+        String toString() {
+            return "line ${lineno}"
+        }
     }
 
     private BufferedReader reader
