@@ -23,4 +23,6 @@ mainClassName = 'org.supermmx.asciidog.AsciiDog'
 
 run {
     args = ['test.adoc', 'build/out.html']
+
+    systemProperties System.properties
 }
