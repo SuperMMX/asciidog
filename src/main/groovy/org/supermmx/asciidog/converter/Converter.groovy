@@ -12,6 +12,7 @@ import org.slf4j.Logger
  * Converter control engine
  */
 @Slf4j
+@Slf4j(value='userLog', category="AsciiDog")
 class Converter {
     // Attribute names
 

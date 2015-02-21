@@ -17,6 +17,8 @@ def setupLoggers() {
 
     def rootLevel = INFO
 
+    // logger "AsciiDog" is for user messages
+
     // looking for *.level in system properties
     System.properties.each { k, v ->
         def m = pattern.matcher(k)

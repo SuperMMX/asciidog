@@ -7,7 +7,7 @@ import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger
 
-@Slf4j
+@Slf4j(category='AsciiDog')
 class AsciiDog {
     static void main(String[] args) {
         if (args.length < 2) {
