@@ -17,6 +17,7 @@ class ParserListSpec extends Specification {
 
     def setupSpec() {
         builder.classNameResolver = "org.supermmx.asciidog.ast"
+        builder.identifierResolver = "uid"
     }
 
     def 'unordered list with one line paragraph'() {

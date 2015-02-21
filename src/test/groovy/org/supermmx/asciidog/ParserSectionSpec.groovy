@@ -8,6 +8,14 @@ import org.supermmx.asciidog.ast.Paragraph
 import spock.lang.*
 
 class ParserSectionSpec extends Specification {
+    @Shared
+    def builder = new ObjectGraphBuilder()
+
+    def setupSpec() {
+        builder.classNameResolver = "org.supermmx.asciidog.ast"
+        builder.identifierResolver = "uid"
+    }
+
     def 'static: is section'() {
         expect:
         [ level, title ] == Parser.isSection(line)
@@ -51,25 +59,28 @@ class ParserSectionSpec extends Specification {
 
     def 'parse: section: empty section'() {
         given:
+
         def content = '''
 
 ==   Section Title   
 
 '''
+        def expectedSection = builder.section(title: 'Section Title',
+                                              level: 1)
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
 
         when:
+
         parser.parseBlockHeader()
 
         def section = parser.parseSection(new Block(), 1)
 
         then:
-        section != null
-        section.title == 'Section Title'
-        section.blocks.size() == 0
+
+        section == expectedSection
     }
 
     def 'parse: section: with id'() {
@@ -80,6 +91,9 @@ class ParserSectionSpec extends Specification {
 ==   Section Title   
 
 '''
+        def expectedSection = builder.section(id: 'section-id',
+                                              title: 'Section Title',
+                                              level: 1)
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
@@ -90,14 +104,13 @@ class ParserSectionSpec extends Specification {
         def section = parser.parseSection(new Block(), 1)
 
         then:
-        section != null
-        section.title == 'Section Title'
-        section.id == 'section-id'
-        section.blocks.size() == 0
+
+        section == expectedSection
     }
 
     def 'parse: section: simple paragraph block'() {
         given:
+
         def content = '''
 
 == Section Title
@@ -109,33 +122,26 @@ New paragraph
 
 
 '''
+        def expectedSection = builder.section(title: 'Section Title',
+                                              level: 1) {
+            current.blocks = [
+                paragraph(lines: ['this is a paragraph', 'with another line']),
+                paragraph(lines: ['New paragraph'])
+            ]
+        }
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
 
         when:
+
         parser.parseBlockHeader()
         def section = parser.parseSection(new Block(), 1)
 
         then:
-        section != null
-        section.title == 'Section Title'
-        section.blocks.size() == 2
 
-        when:
-        def para = section.blocks[0]
-
-        then:
-        para != null
-        para.lines == [ 'this is a paragraph', 'with another line' ]
-
-        when:
-        para = section.blocks[1]
-
-        then:
-        para != null
-        para.lines == [ 'New paragraph' ]
+        section == expectedSection
     }
 
     def 'parse: section: with sub section'() {
@@ -152,6 +158,17 @@ with another line
 paragraph for the subsection
 
 '''
+        def expectedSection = builder.section(title: 'Section Title',
+                                              level: 1) {
+            current.blocks = [
+                paragraph(lines: ['this is a paragraph', 'with another line']),
+                section(title: 'Subsection Title') {
+                    current.blocks = [
+                        paragraph(lines: ['paragraph for the subsection'])
+                    ]
+                }
+            ]
+        }
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
@@ -162,32 +179,7 @@ paragraph for the subsection
         def section = parser.parseSection(new Block(), 1)
 
         then:
-        section != null
-        section.title == 'Section Title'
-        section.blocks.size() == 2
-
-        when:
-        def para = section.blocks[0]
-
-        then:
-        para != null
-        para.class == Paragraph.class
-        para.lines == [ 'this is a paragraph', 'with another line' ]
-
-        when:
-        def subsection = section.blocks[1]
-
-        then:
-        subsection != null
-        subsection.title == 'Subsection Title'
-        subsection.blocks.size() == 1
-
-        when:
-        para = subsection.blocks[0]
-
-        then:
-        para.class == Paragraph.class
-        para.lines == [ 'paragraph for the subsection' ]
+        section == expectedSection
     }
 
     def 'parse: section: with sibling section'() {
@@ -204,27 +196,25 @@ with another line
 paragraph for the subsection
 
 '''
+        def expectedSection = builder.section(title: 'Section Title',
+                                              level: 1) {
+            current.blocks = [
+                paragraph(lines: ['this is a paragraph', 'with another line'])
+            ]
+        }
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
         parser.reader = reader
 
         when:
+
         parser.parseBlockHeader()
         def section = parser.parseSection(new Block(), 1)
 
         then:
-        section != null
-        section.title == 'Section Title'
-        section.blocks.size() == 1
 
-        when:
-        def para = section.blocks[0]
-
-        then:
-        para != null
-        para.class == Paragraph.class
-        para.lines == [ 'this is a paragraph', 'with another line' ]
+        section == expectedSection
     }
 
     def 'parse: section: with upper section'() {
@@ -236,6 +226,9 @@ paragraph for the subsection
 == Upper Section Title
 
 '''
+        def expectedSection = builder.section(title: 'Section Title',
+                                              level: 2) {
+        }
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
@@ -244,12 +237,12 @@ paragraph for the subsection
         parser.parseBlockHeader()
 
         when:
+
         def section = parser.parseSection(new Block(), 2)
 
         then:
-        section != null
-        section.title == 'Section Title'
-        section.blocks.size() == 0
+
+        section == expectedSection
     }
 
     def 'parse: section: with sub section with id'() {
@@ -261,6 +254,13 @@ paragraph for the subsection
 [[subid]]
 === Subsection Title
 '''
+        def expectedSection = builder.section(title: 'Section Title',
+                                              level: 1) {
+            current.blocks = [
+                section(title: 'Subsection Title',
+                        id: 'subid')
+            ]
+        }
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
@@ -269,21 +269,12 @@ paragraph for the subsection
         parser.parseBlockHeader()
 
         when:
+
         def section = parser.parseSection(new Block(), 1)
 
         then:
-        section != null
-        section.title == 'Section Title'
-        section.blocks.size() == 1
 
-        when:
-        def subsection = section.blocks[0]
-
-        then:
-        subsection != null
-        subsection.title == 'Subsection Title'
-        subsection.id == 'subid'
-        subsection.blocks.size() == 0
+        section == expectedSection
     }
 
     def 'parse: section: with sibling section with id'() {
@@ -295,6 +286,8 @@ paragraph for the subsection
 [[sec-id]]
 == Next Section Title
 '''
+        def expectedSection = builder.section(title: 'Section Title',
+                                              level: 1)
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
@@ -303,12 +296,12 @@ paragraph for the subsection
         parser.parseBlockHeader()
 
         when:
+
         def section = parser.parseSection(new Block(), 1)
 
         then:
-        section != null
-        section.title == 'Section Title'
-        section.blocks.size() == 0
+
+        section == expectedSection
     }
 
     def 'parse: section: with upper section with id'() {
@@ -321,6 +314,8 @@ paragraph for the subsection
 == Upper Section Title
 
 '''
+        def expectedSection = builder.section(title: 'Section Title',
+                                              level: 2)
 
         def parser = new Parser()
         def reader = Reader.createFromString(content)
@@ -329,11 +324,11 @@ paragraph for the subsection
         parser.parseBlockHeader()
 
         when:
+
         def section = parser.parseSection(new Block(), 2)
 
         then:
-        section != null
-        section.title == 'Section Title'
-        section.blocks.size() == 0
+
+        section == expectedSection
     }
 }

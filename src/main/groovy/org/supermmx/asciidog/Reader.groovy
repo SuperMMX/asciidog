@@ -1,5 +1,10 @@
 package org.supermmx.asciidog
 
+import groovy.util.logging.Slf4j
+
+import org.slf4j.Logger
+
+@Slf4j
 class Reader {
     public static final int DEFAULT_BUFFER_SIZE = 1000
 
@@ -114,6 +119,9 @@ class Reader {
     }
 
     private void readMoreLines() {
+        log.debug('Reading more lines from file, lines to read: {}',
+                  bufferSize - lines.size())
+
         (bufferSize - lines.size()).times {
             String nextLine = reader.readLine()
             if (nextLine == null) {
