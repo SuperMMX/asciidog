@@ -257,7 +257,7 @@ $
             return null
         }
 
-        if (level != expectedLevel) {
+        if (level > expectedLevel) {
             // wrong section level
             log.error('The section level {} is wrong, expected level is {}',
                       level, expectedLevel)
