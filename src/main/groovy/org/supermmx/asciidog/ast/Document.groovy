@@ -13,4 +13,7 @@ class Document extends Block {
     DocType docType
     Header header
 
+    Document() {
+        type = Node.Type.DOCUMENT
+    }
 }
