@@ -127,4 +127,66 @@ line5  abc
         reader.skipBlankLines() == 4
         reader.nextLine() == null
     }
+
+    def 'line number'() {
+        given:
+
+        def reader = Reader.createFromString('''line1
+line2
+line3
+line4
+line5
+''');
+
+        // start
+        expect:
+
+        reader.cursor.lineno == 1
+
+        // peek one line
+        when:
+
+        def line = reader.peekLine()
+
+        then:
+
+        reader.cursor.lineno == 1
+
+        // read one line
+        when:
+
+        line = reader.nextLine()
+
+        then:
+
+        reader.cursor.lineno == 2
+
+        // peek next three lines
+        when:
+
+        reader.peekLines(3)
+
+        then:
+
+        reader.cursor.lineno == 2
+
+        // read next three lines
+        when:
+
+        reader.nextLines(3)
+
+        then:
+
+        reader.cursor.lineno == 5
+
+        // read next three lines
+        // no more lines
+        when:
+
+        reader.nextLines(3)
+
+        then:
+
+        reader.cursor.lineno == -1
+    }
 }

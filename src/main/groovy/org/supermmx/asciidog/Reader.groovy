@@ -8,12 +8,22 @@ import org.slf4j.Logger
 class Reader {
     public static final int DEFAULT_BUFFER_SIZE = 1000
 
+    static class Cursor {
+        int lineno
+
+        Cursor() {
+            lineno = 1
+        }
+    }
+
     private BufferedReader reader
     // lines buffer
     private List<String> lines
-
     // buffer size
-    int bufferSize = DEFAULT_BUFFER_SIZE
+    private int bufferSize = DEFAULT_BUFFER_SIZE
+
+    // the cursor pointing at next line
+    Cursor cursor
 
     static Reader createFromFile(String filename) {
         Reader reader = new Reader(new BufferedReader(new FileReader(filename)))
@@ -34,6 +44,7 @@ class Reader {
     private Reader(BufferedReader reader) {
         this.reader = reader
         lines = [] as List<String>
+        cursor = new Cursor()
     }
 
     void close() {
@@ -44,6 +55,7 @@ class Reader {
         def line = peekLine()
 
         if (line != null) {
+            cursor.lineno ++
             lines.remove(0)
         }
 
@@ -71,8 +83,19 @@ class Reader {
      */
     String[] nextLines(int size) {
         String[] nextLines = peekLines(size)
+
+        boolean noData = false
+        if (lines.size() < nextLines.size()) {
+            noData = true
+        }
+
         Math.min(nextLines.size(), lines.size()).times {
             lines.remove(0)
+            cursor.lineno ++
+        }
+
+        if (noData) {
+            cursor.lineno = -1
         }
 
         return nextLines
