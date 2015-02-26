@@ -36,7 +36,7 @@ class SingleReader {
     }
 
     protected initFromFile(String file) {
-        this.file = file
+        this.uri = file
         reader = new BufferedReader(new FileReader(file))
         lineno = 0
     }
