@@ -57,6 +57,7 @@ line2
 
     def 'read next line with include directive'() {
         given:
+
         def includeContent = '''include-1
 include-2
 '''
@@ -86,6 +87,64 @@ line3
         then:
 
         line == null
+    }
+
+    def 'peek lines'() {
+        given:
+
+        def content = '''line1
+line2
+line3
+line4
+line5
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        expect:
+
+        segment.peekLines(1) == ['line1']
+        segment.peekLines(2) == ['line1', 'line2']
+        segment.peekLines(3) == ['line1', 'line2', 'line3']
+    }
+
+    def 'peek lines with include'() {
+        given:
+
+        def includeContent = '''include-1
+include-2
+'''
+        GroovyMock(FileReader, global: true)
+        new FileReader(_ as String) >> new StringReader(includeContent)
+
+        def content = '''line1
+line2
+include::include.adoc[]
+line4
+line5
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        expect:
+
+        segment.peekLines(2) == ['line1', 'line2']
+        segment.peekLines(3) == ['line1', 'line2']
+
+        when:
+
+        def includeSegment = segment.nextSegment
+        def continuousSegment = includeSegment.nextSegment
+
+        then:
+
+        includeSegment.cursor.uri == 'include.adoc'
+        continuousSegment.cursor.uri == segment.cursor.uri
+
+        expect:
+
+        includeSegment.readNextLine() == 'include-1'
+        continuousSegment.readNextLine() == 'line4'
     }
 }
 

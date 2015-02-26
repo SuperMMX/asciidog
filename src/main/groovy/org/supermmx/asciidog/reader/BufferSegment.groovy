@@ -102,6 +102,9 @@ $
         return lines[0..(size - 1)]
     }
 
+    /**
+     * Read more lines to fill the buffer
+     */
     protected void readMoreLines() {
         // will not read more if include directive is processed 
         if (hasInclude) {
@@ -109,16 +112,19 @@ $
         }
 
         // fill the buffer
-        (bufferSize - lines.size()).times {
+        for (int i = 0; i < bufferSize - lines.size(); i ++) {
             def line = readNextLine()
 
             if (line == null) {
-                return
+                break
             }
             lines.add(line)
         }
     }
 
+    /**
+     * Read the next line from the reader
+     */
     protected String readNextLine() {
         String line = reader.readLine()
 
@@ -153,18 +159,19 @@ $
     /**
      * Process the include directive
      */
-    protected void processInclueDirective() {
+    protected void processIncludeDirective() {
         // TODO: check the file existence
+        // TODO: process attributes, like lines or tags
 
         // process include directive
 
         // create the new segment for included uri
-        def includeReader = SingleReader.createFromFile(file)
-        BufferSegment includeSegment = new BufferSegment(includeReader)
+        def includeReader = SingleReader.createFromFile(uri)
+        def includeSegment = new BufferSegment(includeReader)
 
         // create the segment for the same file
         // after the include directive
-        BufferSegment continuousSegment = new BufferSegment(reader)
+        def continuousSegment = new BufferSegment(reader)
 
         // set up the links correctly
         continuousSegment.nextSegment = nextSegment
