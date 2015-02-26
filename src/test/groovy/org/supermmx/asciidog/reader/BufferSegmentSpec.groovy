@@ -86,31 +86,6 @@ line3
         then:
 
         line == null
-
-        when:
-
-        def includeSegment = segment.nextSegment
-        def continuousSegment = includeSegment.nextSegment
-
-        then:
-        includeSegment != null
-        continuousSegment != null
-
-        when:
-
-        line = includeSegment.readNextLine()
-
-        then:
-        
-        line == 'include-1'
-
-        when:
-
-        line = continuousSegment.readNextLine()
-
-        then:
-        
-        line == 'line3'
     }
 }
 

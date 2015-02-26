@@ -44,6 +44,10 @@ $
     // true if a include directive is processed,
     // and the buffer will not be updated.
     private boolean hasInclude = false
+    // include directive metadata
+    private String uri
+    private String attrs
+    private boolean isComment
 
     private List<String> lines = []
 
@@ -81,12 +85,18 @@ $
     }
 
     String[] peekLines(int size) {
+        // only read more data when this is no include directive
+        // and there is not enough data
         if (!hasInclude && lines.size() < size) {
             readMoreLines()
         }
 
         if (lines.size() <= size) {
-            return lines
+            if (hasInclude) {
+                processIncludeDirective()
+            }
+
+            return lines[0..-1]
         }
 
         return lines[0..(size - 1)]
@@ -121,29 +131,17 @@ $
         }
 
         // check wether the next line is include
-        def (file, attributes, isComment) = isInclude(line)
+        (uri, attrs, isComment) = isInclude(line)
 
-        if (file != null) {
+        if (uri != null) {
             if (isComment) {
                 // comment
-                if (attributes == null) {
-                    attributes = ''
+                if (attrs == null) {
+                    attrs = ''
                 }
-                line = "include::${file}[${attributes}]"
+                line = "include::$uri[$attrs]"
             } else {
-                // TODO: process when the include line is actually peeked
-
-                // TODO: check the file existence
-                
-                // process include directive
-                def includeReader = SingleReader.createFromFile(file)
-                BufferSegment includeSegment = new BufferSegment(includeReader)
-                
-
-                BufferSegment continuousSegment = new BufferSegment(reader)
-                continuousSegment.nextSegment = nextSegment
-                nextSegment = includeSegment
-                includeSegment.nextSegment = continuousSegment
+                hasInclude = true
 
                 line = null
             }
@@ -153,6 +151,31 @@ $
     }
 
     /**
+     * Process the include directive
+     */
+    protected void processInclueDirective() {
+        // TODO: check the file existence
+
+        // process include directive
+
+        // create the new segment for included uri
+        def includeReader = SingleReader.createFromFile(file)
+        BufferSegment includeSegment = new BufferSegment(includeReader)
+
+        // create the segment for the same file
+        // after the include directive
+        BufferSegment continuousSegment = new BufferSegment(reader)
+
+        // set up the links correctly
+        continuousSegment.nextSegment = nextSegment
+        nextSegment = includeSegment
+        includeSegment.nextSegment = continuousSegment
+    }
+
+    /**
+     * Check whether the line represents a include directive or
+     * a include directive comment
+     *
      * @return uri
      *         attributes
      *         isComment
