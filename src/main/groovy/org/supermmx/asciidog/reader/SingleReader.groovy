@@ -47,8 +47,13 @@ class SingleReader {
         lineno = -1
     }
 
+    boolean isClosed() {
+        return (lineno == -1)
+    }
+
     String readLine() {
-        if (reader == null) {
+        if (reader == null
+            || isClosed()) {
             return null
         }
 
