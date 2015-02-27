@@ -39,7 +39,6 @@ $
     SingleReader reader
 
     Cursor cursor
-
     // whether the lines has include directive,
     // true if a include directive is processed,
     // and the buffer will not be updated.
@@ -85,7 +84,7 @@ $
     }
 
     String[] peekLines(int size) {
-        // only read more data when this is no include directive
+        // only read more data when there is no include directive,
         // and there is not enough data
         if (!hasInclude && lines.size() < size) {
             readMoreLines()
@@ -115,6 +114,10 @@ $
             return
         }
 
+        if (reader.isClosed()) {
+            return
+        }
+
         // fill the buffer
         for (int i = 0; i < bufferSize - lines.size(); i ++) {
             def line = readNextLine()
@@ -130,6 +133,10 @@ $
      * Read the next line from the reader
      */
     protected String readNextLine() {
+        if (reader.isClosed()) {
+            return null
+        }
+
         String line = reader.readLine()
 
         if (line == null) {

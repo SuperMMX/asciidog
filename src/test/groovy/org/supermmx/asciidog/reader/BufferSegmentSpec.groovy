@@ -200,5 +200,26 @@ line5
         includeSegment.readNextLine() == 'include-1'
         continuousSegment.readNextLine() == 'line4'
     }
+
+    def 'next line'() {
+        given:
+
+        def content = '''line1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        expect:
+
+        segment.nextLine() == 'line1'
+        segment.cursor.lineno == 1
+
+        segment.nextLine() == 'line2'
+        segment.cursor.lineno == 2
+
+        segment.nextLine() == null
+        segment.cursor.lineno == -1
+    }
 }
 
