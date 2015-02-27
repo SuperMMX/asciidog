@@ -146,5 +146,59 @@ line5
         includeSegment.readNextLine() == 'include-1'
         continuousSegment.readNextLine() == 'line4'
     }
+
+    def 'peek line'() {
+        given:
+
+        def content = '''line1
+line2
+line3
+line4
+line5
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        expect:
+
+        segment.peekLine() == 'line1'
+        segment.peekLine() == 'line1'
+    }
+
+    def 'peek line with include'() {
+        given:
+
+        def includeContent = '''include-1
+include-2
+'''
+        GroovyMock(FileReader, global: true)
+        new FileReader(_ as String) >> new StringReader(includeContent)
+
+        def content = '''include::include.adoc[]
+line4
+line5
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        expect:
+
+        segment.peekLine() == null
+
+        when:
+
+        def includeSegment = segment.nextSegment
+        def continuousSegment = includeSegment.nextSegment
+
+        then:
+
+        includeSegment.cursor.uri == 'include.adoc'
+        continuousSegment.cursor.uri == segment.cursor.uri
+
+        expect:
+
+        includeSegment.readNextLine() == 'include-1'
+        continuousSegment.readNextLine() == 'line4'
+    }
 }
 

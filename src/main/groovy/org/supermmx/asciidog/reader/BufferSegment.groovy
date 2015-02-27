@@ -96,7 +96,11 @@ $
                 processIncludeDirective()
             }
 
-            return lines[0..-1]
+            if (lines.size() == 0) {
+                return []
+            } else {
+                return lines[0..-1]
+            }
         }
 
         return lines[0..(size - 1)]
