@@ -221,5 +221,49 @@ line2
         segment.nextLine() == null
         segment.cursor.lineno == -1
     }
+
+    def 'next line with include'() {
+        given:
+
+        def includeContent = '''include-1
+include-2
+'''
+        GroovyMock(FileReader, global: true)
+        new FileReader(_ as String) >> new StringReader(includeContent)
+
+        def content = '''line1
+include::include.adoc[]
+line3
+line4
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        expect:
+
+        segment.nextLine() == 'line1'
+        segment.cursor.lineno == 1
+
+        segment.nextLine() == null
+        segment.cursor.lineno == -1
+
+        when:
+
+        def includeSegment = segment.nextSegment
+        def continuousSegment = includeSegment.nextSegment
+
+        then:
+
+        includeSegment.cursor.uri == 'include.adoc'
+        continuousSegment.cursor.uri == segment.cursor.uri
+
+        expect:
+
+        includeSegment.nextLine() == 'include-1'
+        includeSegment.cursor.lineno == 1
+
+        continuousSegment.nextLine() == 'line3'
+        continuousSegment.cursor.lineno == 3
+    }
 }
 
