@@ -21,7 +21,7 @@ import org.slf4j.Logger
 @Slf4j
 @Slf4j(value='userLog', category="AsciiDog")
 class Parser {
-    static final def AUTHOR_NAME_REGEX = '\\w[\\w\\-\'\\.]*'
+    static final def AUTHOR_NAME_REGEX = '(?U)\\w[\\w\\-\'\\.]*'
     static final def AUTHOR_NAME_PATTERN = ~AUTHOR_NAME_REGEX
     static final def AUTHOR_REGEX = """(?x)
 \\p{Blank}*

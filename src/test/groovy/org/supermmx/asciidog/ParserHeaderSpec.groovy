@@ -81,6 +81,7 @@ class ParserHeaderSpec extends Specification {
 
         where:
         author            |  result
+        '张三'           |  [ '张三', '张三', null, null, null ]
         'First'           |  [ 'First', 'First', null, null, null ]
         ' First. '           |  [ ' First. ', 'First.', null, null, null ]
         ' First  Last '   |  [ ' First  Last ', 'First', 'Last', null, null ]
@@ -94,6 +95,8 @@ class ParserHeaderSpec extends Specification {
 
         where:
         line            |  result
+        '张三'          |  true
+        '张三 <zhang.san@email.com>'          |  true
         'First Last <abc@def.com>' |  true
         'First <abc@def.com> ; Second Last <test@test.org>' |  true
         'First Second Third Forth' | false
@@ -124,11 +127,13 @@ class ParserHeaderSpec extends Specification {
 
         where:
         content << [
+            '张三 <zhang.san@email.com>',
             'Name',
             ' First   Last   <abc@def.com> ',
             'First Last <abc@def.com> ; First.   Middle-    Last_  <test@email.com>  '
         ]
         expectedAuthors << [
+            [ new Author('张三', '张三', null, null, '张', 'zhang.san@email.com') ],
             [ new Author('Name', 'Name', null, null, 'N', null) ],
             [ new Author('First Last', 'First', null, 'Last', 'FL', 'abc@def.com') ],
             [
