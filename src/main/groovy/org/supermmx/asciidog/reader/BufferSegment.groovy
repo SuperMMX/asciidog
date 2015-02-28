@@ -37,8 +37,11 @@ $
      * The real reader that this buffer segment is associated with
      */
     SingleReader reader
-
+    /**
+     * The cursor of the line that is just read
+     */
     Cursor cursor
+
     // whether the lines has include directive,
     // true if a include directive is processed,
     // and the buffer will not be updated.
@@ -76,8 +79,6 @@ $
         if (lines.size() > 0) {
             lines.remove(0)
             cursor.lineno ++
-        } else {
-            cursor.lineno = -1
         }
 
         return line
@@ -103,6 +104,18 @@ $
         }
 
         return lines[0..(size - 1)]
+    }
+
+    String[] nextLines(int size) {
+        def retLines = peekLines(size)
+
+        (retLines.size()).times {
+            lines.remove(0)
+
+            cursor.lineno ++
+        }
+
+        return retLines
     }
 
     /**

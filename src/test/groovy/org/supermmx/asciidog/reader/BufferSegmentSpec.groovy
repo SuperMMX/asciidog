@@ -219,7 +219,7 @@ line2
         segment.cursor.lineno == 2
 
         segment.nextLine() == null
-        segment.cursor.lineno == -1
+        segment.cursor.lineno == 2
     }
 
     def 'next line with include'() {
@@ -245,7 +245,7 @@ line4
         segment.cursor.lineno == 1
 
         segment.nextLine() == null
-        segment.cursor.lineno == -1
+        segment.cursor.lineno == 1
 
         when:
 
@@ -264,6 +264,71 @@ line4
 
         continuousSegment.nextLine() == 'line3'
         continuousSegment.cursor.lineno == 3
+    }
+
+    def 'next lines'() {
+        given:
+
+        def content = '''line1
+line2
+line3
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        expect:
+
+        segment.nextLines(2) == ['line1', 'line2']
+        segment.cursor.lineno == 2
+
+        segment.nextLines(2) == ['line3']
+        segment.cursor.lineno == 3
+    }
+
+    def 'next lines with include'() {
+        given:
+
+        def includeContent = '''include-1
+include-2
+'''
+        GroovyMock(FileReader, global: true)
+        new FileReader(_ as String) >> new StringReader(includeContent)
+
+        def content = '''line1
+line2
+line3
+include::include.adoc[]
+line5
+line6
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        expect:
+
+        segment.nextLines(2) == ['line1', 'line2']
+        segment.cursor.lineno == 2
+
+        segment.nextLines(2) == ['line3']
+        segment.cursor.lineno == 3
+
+        when:
+
+        def includeSegment = segment.nextSegment
+        def continuousSegment = includeSegment.nextSegment
+
+        then:
+
+        includeSegment.cursor.uri == 'include.adoc'
+        continuousSegment.cursor.uri == segment.cursor.uri
+
+        expect:
+
+        includeSegment.nextLine() == 'include-1'
+        includeSegment.cursor.lineno == 1
+
+        continuousSegment.nextLine() == 'line5'
+        continuousSegment.cursor.lineno == 5
     }
 }
 
