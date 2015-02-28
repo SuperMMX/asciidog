@@ -2,8 +2,6 @@ package org.supermmx.asciidog.reader
 
 import groovy.util.logging.Slf4j
 
-import org.slf4j.Logger
-
 /**
  * The buffer segment that contains lines from only one file,
  * and stops at the include directive if there is one.
@@ -43,9 +41,11 @@ $
     Cursor cursor
 
     // whether the lines has include directive,
-    // true if a include directive is processed,
+    // true if a include directive exists
     // and the buffer will not be updated.
     private boolean hasInclude = false
+    // whether the include directive has been processed
+    private boolean includeProcessed = false
     // include directive metadata
     private String uri
     private String attrs
@@ -91,8 +91,8 @@ $
             readMoreLines()
         }
 
-        if (lines.size() <= size) {
-            if (hasInclude) {
+        if (lines.size() < size) {
+            if (hasInclude && !includeProcessed) {
                 processIncludeDirective()
             }
 
@@ -154,7 +154,6 @@ $
 
         if (line == null) {
             // end of the file
-
             reader.close()
 
             return line
@@ -201,6 +200,8 @@ $
         continuousSegment.nextSegment = nextSegment
         nextSegment = includeSegment
         includeSegment.nextSegment = continuousSegment
+
+        includeProcessed = true
     }
 
     /**

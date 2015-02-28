@@ -145,6 +145,10 @@ line5
 
         includeSegment.readNextLine() == 'include-1'
         continuousSegment.readNextLine() == 'line4'
+
+        // make sure the include directive is only processed once
+        segment.peekLines(5) == ['line1', 'line2']
+        segment.nextSegment == includeSegment
     }
 
     def 'peek line'() {
