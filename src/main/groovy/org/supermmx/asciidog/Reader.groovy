@@ -10,8 +10,6 @@ import org.slf4j.Logger
 
 @Slf4j
 class Reader {
-    Cursor cursor
-
     private BufferSegment segment
 
     static Reader createFromFile(String filename) {
@@ -42,18 +40,25 @@ class Reader {
 
     private init(SingleReader reader) {
         segment = new BufferSegment(reader)
-        cursor = segment.cursor
+    }
+
+    /**
+     * Get the current cursor
+     */
+    Cursor getCursor() {
+        return segment.cursor
     }
 
     String nextLine() {
         def line = null
 
-        while (segment != null
-               && (line = segment.nextLine()) == null) {
-            segment = segment.nextSegment
-
-            if (segment != null) {
-                cursor = segment.cursor
+        while ((line = segment.nextLine()) == null) {
+            // keep the last segment ?
+            def nextSegment = segment.nextSegment
+            if (nextSegment != null) {
+                segment = segment.nextSegment
+            } else {
+                break
             }
         }
 
@@ -76,16 +81,19 @@ class Reader {
     String[] nextLines(int size) {
         def lines = []
 
+        def nextSegment = segment
+
         int totalSize = size
-        while (segment != null
+        while (nextSegment != null
                && totalSize > 0) {
             def segmentLines = segment.nextLines(totalSize)
 
             // not enough data in current segment, try next
             if (segmentLines.size() < totalSize) {
-                segment = segment.nextSegment
-                if (segment != null) {
-                    cursor = segment.cursor
+                // keep the last segment ?
+                nextSegment = segment.nextSegment
+                if (nextSegment != null) {
+                    segment = segment.nextSegment
                 }
             }
 
