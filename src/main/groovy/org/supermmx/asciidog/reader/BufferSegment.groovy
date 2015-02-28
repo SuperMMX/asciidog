@@ -4,7 +4,7 @@ import groovy.util.logging.Slf4j
 
 /**
  * The buffer segment that contains lines from only one file,
- * and stops at the include directive if there is one.
+ * and stops at include directives.
  */
 @Slf4j
 class BufferSegment {
@@ -32,13 +32,13 @@ $
      */
     BufferSegment nextSegment
     /**
-     * The real reader that this buffer segment is associated with
-     */
-    SingleReader reader
-    /**
      * The cursor of the line that is just read
      */
     Cursor cursor
+    /**
+     * The real reader that this buffer segment is associated with
+     */
+    private SingleReader reader
 
     // whether the lines has include directive,
     // true if a include directive exists
@@ -62,6 +62,12 @@ $
                             lineno: reader.lineno)
     }
 
+    /**
+     * Peek the next line.
+     *
+     * @return the next line, null if there is no more data
+     *         or there is an include directive
+     */
     String peekLine() {
         def line = null
         def retLines = peekLines(1)
@@ -73,6 +79,12 @@ $
         return line
     }
 
+    /**
+     * Read the next line.
+     *
+     * @return the next line, null if there is no more data
+     *         or there is an include directive
+     */
     String nextLine() {
         def line = peekLine()
 
@@ -84,6 +96,14 @@ $
         return line
     }
 
+    /**
+     * Peek the specified number of lines
+     *
+     * @param size how many lines to peek
+     *
+     * @return next lines in the buffer segment,
+     *         there may be less lines than the specified number
+     */
     String[] peekLines(int size) {
         // only read more data when there is no include directive,
         // and there is not enough data
@@ -106,6 +126,14 @@ $
         return lines[0..(size - 1)]
     }
 
+    /**
+     * Read the specified number of lines
+     *
+     * @param size how many lines to read
+     *
+     * @return next lines in the buffer segment,
+     *         there may be less lines than the specified number
+     */
     String[] nextLines(int size) {
         def retLines = peekLines(size)
 
