@@ -1,8 +1,11 @@
 package org.supermmx.asciidog.reader
 
+import groovy.util.logging.Slf4j
+
 /**
  * The real reader for a single file
  */
+@Slf4j
 class SingleReader {
     /**
      * The content reader
