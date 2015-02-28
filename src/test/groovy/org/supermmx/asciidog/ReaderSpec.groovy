@@ -78,6 +78,50 @@ line2
         line == 'line1'
     }
 
+    def 'peek lines with include'() {
+        given:
+
+        def includeContent = '''include-1
+include-2
+'''
+        GroovyMock(FileReader, global: true)
+        new FileReader(_ as String) >> new StringReader(includeContent)
+
+        def content = '''line1
+line2
+include::include.adoc[]
+line4
+line5
+'''
+
+        def reader = Reader.createFromString(content)
+
+        expect:
+
+        reader.peekLines(2) == ['line1', 'line2']
+        reader.peekLines(3) == ['line1', 'line2', 'include-1']
+        reader.peekLines(5) == ['line1', 'line2', 'include-1', 'include-2', 'line4']
+    }
+
+    def 'next lines without enough data'() {
+        given:
+        def reader = Reader.createFromString('''line1
+line2
+''');
+
+        when:
+        def lines = reader.nextLines(3)
+
+        then:
+        lines == [ 'line1', 'line2', null ]
+
+        when:
+        def line = reader.nextLine()
+
+        then:
+        line == null
+    }
+
     def 'next lines'() {
         given:
         Reader reader = Reader.createFromString('''line1
@@ -141,7 +185,7 @@ line5
         // start
         expect:
 
-        reader.cursor.lineno == 1
+        reader.cursor.lineno == 0
 
         // peek one line
         when:
@@ -150,7 +194,7 @@ line5
 
         then:
 
-        reader.cursor.lineno == 1
+        reader.cursor.lineno == 0
 
         // read one line
         when:
@@ -159,7 +203,7 @@ line5
 
         then:
 
-        reader.cursor.lineno == 2
+        reader.cursor.lineno == 1
 
         // peek next three lines
         when:
@@ -168,7 +212,7 @@ line5
 
         then:
 
-        reader.cursor.lineno == 2
+        reader.cursor.lineno == 1
 
         // read next three lines
         when:
@@ -177,7 +221,7 @@ line5
 
         then:
 
-        reader.cursor.lineno == 5
+        reader.cursor.lineno == 4
 
         // read next three lines
         // no more lines
@@ -187,6 +231,6 @@ line5
 
         then:
 
-        reader.cursor.lineno == -1
+        reader.cursor.lineno == 5
     }
 }

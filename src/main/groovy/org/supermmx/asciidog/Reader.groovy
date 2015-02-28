@@ -1,36 +1,22 @@
 package org.supermmx.asciidog
 
+import org.supermmx.asciidog.reader.BufferSegment
+import org.supermmx.asciidog.reader.Cursor
+import org.supermmx.asciidog.reader.SingleReader
+
 import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger
 
 @Slf4j
 class Reader {
-    public static final int DEFAULT_BUFFER_SIZE = 1000
-
-    static class Cursor {
-        int lineno
-
-        Cursor() {
-            lineno = 1
-        }
-
-        String toString() {
-            return "line ${lineno}"
-        }
-    }
-
-    private BufferedReader reader
-    // lines buffer
-    private List<String> lines
-    // buffer size
-    private int bufferSize = DEFAULT_BUFFER_SIZE
-
-    // the cursor pointing at next line
     Cursor cursor
 
+    private BufferSegment segment
+
     static Reader createFromFile(String filename) {
-        Reader reader = new Reader(new BufferedReader(new FileReader(filename)))
+        Reader reader = new Reader()
+        reader.initFromFile(filename)
 
         return reader
     }
@@ -40,42 +26,44 @@ class Reader {
             content = ''
         }
 
-        Reader reader = new Reader(new BufferedReader(new StringReader(content)))
+        Reader reader = new Reader()
+        reader.initFromString(content)
 
         return reader
     }
 
-    private Reader(BufferedReader reader) {
-        this.reader = reader
-        lines = [] as List<String>
-        cursor = new Cursor()
+    private initFromFile(String file) {
+        init(SingleReader.createFromFile(file))
     }
 
-    void close() {
-        reader.close()
+    private initFromString(String content) {
+        init(SingleReader.createFromString(content))
+    }
+
+    private init(SingleReader reader) {
+        segment = new BufferSegment(reader)
+        cursor = segment.cursor
     }
 
     String nextLine() {
-        def line = peekLine()
+        def line = null
 
-        if (line != null) {
-            cursor.lineno ++
-            lines.remove(0)
+        while (segment != null
+               && (line = segment.nextLine()) == null) {
+            segment = segment.nextSegment
+
+            if (segment != null) {
+                cursor = segment.cursor
+            }
         }
 
         return line
     }
 
     String peekLine() {
-        if (lines.size() == 0) {
-            readMoreLines()
-        }
+        def (line) = peekLines(1)
 
-        if (lines.size() == 0) {
-            return null
-        } else {
-            return lines[0]
-        }
+        return line
     }
 
     /**
@@ -86,23 +74,30 @@ class Reader {
      * @return the next lines, null appended if there are not enough data
      */
     String[] nextLines(int size) {
-        String[] nextLines = peekLines(size)
+        def lines = []
 
-        boolean noData = false
-        if (lines.size() < nextLines.size()) {
-            noData = true
+        int totalSize = size
+        while (segment != null
+               && totalSize > 0) {
+            def segmentLines = segment.nextLines(totalSize)
+
+            // not enough data in current segment, try next
+            if (segmentLines.size() < totalSize) {
+                segment = segment.nextSegment
+                if (segment != null) {
+                    cursor = segment.cursor
+                }
+            }
+
+            lines.addAll(segmentLines)
+            totalSize -= segmentLines.length
         }
 
-        Math.min(nextLines.size(), lines.size()).times {
-            lines.remove(0)
-            cursor.lineno ++
+        totalSize.times {
+            lines.add(null)
         }
 
-        if (noData) {
-            cursor.lineno = -1
-        }
-
-        return nextLines
+        return lines
     }
 
     /**
@@ -113,15 +108,29 @@ class Reader {
      * @return the next lines, null appended if there are not enough data
      */
     String[] peekLines(int size) {
-        if (lines.size() < size) {
-            readMoreLines()
+        def lines = []
+
+        def seg = segment
+        def totalSize = size
+
+        while (seg != null
+               && totalSize > 0) {
+            def segmentLines = seg.peekLines(totalSize)
+
+            // no data in current segment, try next
+            if (segmentLines.size() < totalSize) {
+                seg = seg.nextSegment
+            }
+
+            lines.addAll(segmentLines)
+            totalSize -= segmentLines.length
         }
 
-        if (lines.size() >= size) {
-            return lines[0..(size - 1)]
-        } else {
-            return lines + (1..(size - lines.size())).collect { null }
+        totalSize.times {
+            lines.add(null)
         }
+
+        return lines
     }
 
     /**
@@ -143,18 +152,5 @@ class Reader {
         }
 
         return skipped
-    }
-
-    private void readMoreLines() {
-        log.debug('Reading more lines from file, lines to read: {}',
-                  bufferSize - lines.size())
-
-        (bufferSize - lines.size()).times {
-            String nextLine = reader.readLine()
-            if (nextLine == null) {
-                return
-            }
-            lines.add(nextLine)
-        }
     }
 }
