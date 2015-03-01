@@ -33,7 +33,23 @@ blocks = { blks ->
 }
 
 section = { Section sec ->
-    h2(sec.title)
+    switch (sec.level) {
+    case 0:
+        h1(sec.title)
+        break
+    case 1:
+        h2(sec.title)
+        break
+    case 2:
+        h3(sec.title)
+        break
+    case 3:
+        h4(sec.title)
+        break
+    case 4:
+        h5(sec.title)
+        break
+    }
 
     newLine()
 
