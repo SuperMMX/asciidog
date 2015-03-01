@@ -46,11 +46,13 @@ class AttributeContainer {
         }
 
         def defAttr = getDefaultAttribute(name)
+        def defValue = null
 
         // determine the type
         ValueType type = ValueType.STRING
         if (defAttr != null) {
             type = defAttr.type
+            defValue = defValue
         }
 
         def finalValue = null
@@ -58,7 +60,7 @@ class AttributeContainer {
         // determine the value
         if (value == null || value.length() == 0) {
             // use default value if null or blank
-            finalValue = defAttr.value
+            finalValue = defValue
         } else {
             // get the value with correct type
             switch (type) {

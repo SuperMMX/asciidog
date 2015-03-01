@@ -204,6 +204,7 @@ $
 
         def doctypeAttr = attrContainer.getAttribute(Document.DOCTYPE)
         doc.docType = Document.DocType.valueOf(doctypeAttr.value)
+        log.info("Document Type is ${doc.docType}")
 
         if (doc.header == null) {
             return doc
@@ -222,6 +223,8 @@ $
         if (type == Document.DocType.book) {
             startingLevel = 0
         }
+
+        log.trace("Document section starting level is ${startingLevel}")
 
         Section section = null
         while ((section = parseSection(doc, startingLevel)) != null) {
@@ -544,6 +547,7 @@ $
 
         def line = reader.peekLine()
 
+        log.trace("Header Line is $line")
         if (line == null) {
             return null
         }
@@ -562,6 +566,7 @@ $
 
         // parse author
         def authors = parseAuthors()
+        log.info("Authors = $authors")
         if (authors != null) {
             header.authors = authors
         }
@@ -571,6 +576,7 @@ $
         // parse attributes
         AttributeEntry attr = null
         while ((attr = parseAttribute()) != null) {
+            log.trace("Header Attribute ${attr.name} = ${attr.value}")
             // update the latest value
             attrContainer.setAttribute(attr.name, attr.value)
 
@@ -591,6 +597,7 @@ $
 
         def line = reader.peekLine()
 
+        log.trace("Author line is $line")
         if (line == null) {
             return null
         }
