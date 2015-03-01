@@ -190,8 +190,6 @@ $
 
         Document doc = parseDocument()
 
-        reader.close()
-
         return doc
     }
 
