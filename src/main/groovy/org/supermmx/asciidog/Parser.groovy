@@ -7,11 +7,15 @@ import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.CommentLine
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
+import org.supermmx.asciidog.ast.Inline
+import org.supermmx.asciidog.ast.InlineContainer
 import org.supermmx.asciidog.ast.ListItem
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.OrderedList
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Section
+import org.supermmx.asciidog.ast.TextNode
+import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.UnOrderedList
 
 import groovy.util.logging.Slf4j
@@ -144,6 +148,44 @@ $
   .*
 )
 $
+'''
+    static final def STRONG_UNCONSTRAINED_PATTERN = ~'''(?Uxm)
+(\\\\?)
+\\*\\*
+(.+?)
+\\*\\*
+'''
+    static final def STRONG_CONSTRAINED_PATTERN = ~'''(?Usxm)
+(?<=
+  ^ | [^\\w;:}]
+)
+(\\\\?)             # 1, escape
+\\*
+(                   # 2, text
+  \\S
+  |
+  \\S .*? \\S
+)
+\\*
+(?!
+  \\w
+)
+'''
+    static final def EMPHASIS_CONSTRAINED_PATTERN = ~'''(?Usxm)
+(?<=
+  ^ | [^\\w;:}]
+)
+(\\\\?)             # 1, escape
+_
+(                   # 2, text
+  \\S
+  |
+  \\S .*? \\S
+)
+_
+(?!
+  \\w
+)
 '''
 
     /**
@@ -498,6 +540,8 @@ $
 
         Paragraph para = null
 
+        def lines = []
+
         boolean first = true
         def line = reader.peekLine()
         while (line != null && line.length() > 0) {
@@ -520,7 +564,7 @@ $
                 para.parent = parent
                 para.document = parent.document
             }
-            para.lines << line
+            lines << line
 
             reader.nextLine()
 
@@ -528,6 +572,9 @@ $
 
             first = false
         }
+
+        // parse the inline nodes
+        parseInlineNodes(para, lines.join('\n'))
 
         log.debug('End parsing paragraph, parent type: {}', parent.type)
         return para
@@ -732,6 +779,142 @@ $
         log.debug('End parsing block header')
 
         return header
+    }
+
+    static INLINE_PATTERNS = [
+        (Inline.InlineType.STRONG_CONSTRAINED): STRONG_CONSTRAINED_PATTERN,
+        (Inline.InlineType.EMPHASIS_CONSTRAINED): EMPHASIS_CONSTRAINED_PATTERN
+    ]
+
+    protected static List<Inline> parseInlineNodes(InlineContainer parent, String text) {
+        parent.start = 0
+        parent.end = text.length()
+        parent.contentStart = parent.start
+        parent.contentEnd = parent.end
+
+        log.info("Starting parsing inlines")
+
+        def inlinesInfo = []
+
+        // parse
+        INLINE_PATTERNS.each { type, pattern ->
+            def m = pattern.matcher(text)
+            m.each { groups ->
+                def info = type.parse(m, groups)
+                inlinesInfo << info
+            }
+        }
+
+        // sort the inline info
+        inlinesInfo.sort { it.start }
+
+        println inlinesInfo
+
+        // common functions
+        def findParent
+        findParent = { container, info ->
+            log.info("container start = ${container.start}, end = ${container.end}")
+            def result = null
+            for (def child : container.nodes) {
+                if (child instanceof InlineContainer) {
+                    result = findParent(child, info)
+                }
+                if (result != null) {
+                    break
+                }
+            }
+
+            if (result == null) {
+                if (info.start >= container.start
+                    && info.end <= container.end) {
+                    result = container
+                }
+            }
+
+            return result
+        }
+
+        // fill gap
+        def fillGap
+        fillGap = { InlineContainer container, info ->
+            if (info == null) {
+                container.nodes.each { child ->
+                    if (child instanceof InlineContainer) {
+                        fillGap(child, info)
+                    }
+                }
+            }
+
+            def lastEnd = container.contentStart
+            def lastNode = null
+            if (container.nodes.size() > 0) {
+                lastNode = container.nodes.last()
+            }
+            if (lastNode != null) {
+                lastEnd = lastNode.end
+            }
+
+            def thisEnd = container.contentEnd
+            if (info != null) {
+                thisEnd = info.start
+            }
+            if (lastEnd < thisEnd) {
+                def node = new TextNode(parent: container,
+                                        text: text.substring(lastEnd, thisEnd))
+                node.with {
+                    start = lastEnd
+                    end = thisEnd
+                    contentStart = start
+                    contentEnd = end
+                }
+                container << node
+            }
+        }
+
+        inlinesInfo.each { info ->
+            log.info("info = $info")
+            def container = findParent(parent, info)
+
+            // fill gap from last sibling node
+            fillGap(container, info)
+
+            def node = new FormattingNode(parent: container)
+            node.with {
+                tfType = info.type.baseType
+
+                start = info.start
+                end = info.end
+                contentStart = info.contentStart
+                contentEnd = info.contentEnd
+            }
+
+            container << node
+        }
+
+        fillGap(parent, null)
+
+        //println parent.nodes
+        def printInline
+        printInline = { inline ->
+            println "start = ${inline.start}, end = ${inline.end}, content start = ${inline.contentStart}, content end = ${inline.contentEnd}"
+            if (inline instanceof TextNode) {
+                println "text = '${inline.text}'"
+                println ""
+            } else if (inline instanceof InlineContainer) {
+                if (inline instanceof FormattingNode) {
+                    println "base type: ${inline.tfType}"
+                }
+
+                inline.nodes.each { node ->
+                    printInline(node)
+                }
+            }
+        }
+
+        printInline(parent)
+
+        return []
+
     }
 
     /**
