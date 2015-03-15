@@ -8,7 +8,7 @@ import groovy.transform.ToString
 @EqualsAndHashCode(callSuper=true)
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 
-class Paragraph extends Block {
+class Paragraph extends Block implements InlineContainer  {
     Paragraph() {
         type = Node.Type.PARAGRAPH
     }
