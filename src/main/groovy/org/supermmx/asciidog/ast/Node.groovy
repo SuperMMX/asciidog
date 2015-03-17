@@ -13,6 +13,7 @@ class Node {
         COMMENT_LINE,
         DELIMITED_BLOCK,
         DOCUMENT,
+        INLINE,
         LIST_ITEM,
         ORDERED_LIST,
         PARAGRAPH,
