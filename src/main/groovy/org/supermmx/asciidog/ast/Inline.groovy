@@ -14,12 +14,4 @@ import groovy.transform.ToString
  * Base inline with inline information
  */
 abstract class Inline extends Node implements InlineInfo {
-    static enum Type {
-        ATTRIBUTE_REFERENCES,
-        MACROS,
-        SPECIAL_CHARACTERS,
-        REPLACEMENTS,
-        TEXT,
-        TEXT_FORMATTING,
-    }
 }

@@ -13,13 +13,25 @@ class Node {
         COMMENT_LINE,
         DELIMITED_BLOCK,
         DOCUMENT,
-        INLINE,
+        INLINE_ATTRIBUTE_REFERENCE,
+        INLINE_FORMATTED_TEXT,
+        INLINE_MACRO,
+        INLINE_REPLACEMENT,
+        INLINE_TEXT,
         LIST_ITEM,
         ORDERED_LIST,
         PARAGRAPH,
         SECTION,
         TABLE,
-        UNORDERED_LIST,
+        UNORDERED_LIST
+
+        boolean isInline() {
+            return name().startsWith('INLINE_')
+        }
+
+        boolean isList() {
+            return name().endsWith('_LIST')
+        }
     }
 
     Type type
