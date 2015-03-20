@@ -20,4 +20,8 @@ class FormattingNode extends InlineContainerNode {
     }
 
     Type formattingType
+
+    FormattingNode() {
+        type = Node.Type.INLINE_FORMATTED_TEXT
+    }
 }
