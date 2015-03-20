@@ -11,5 +11,13 @@ import groovy.transform.ToString
  * An inline node with formatted text
  */
 class FormattingNode extends InlineContainerNode {
-    Inline.InlineBaseType tfType
+    static enum Type {
+        STRONG,
+        EMPHASIS,
+        MONOSPACED,
+        SUPERSCRIPT,
+        SUBSCRIPT
+    }
+
+    Type formattingType
 }
