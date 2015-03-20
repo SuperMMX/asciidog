@@ -18,8 +18,9 @@ import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.UnOrderedList
 
-import org.supermmx.asciidog.plugin.PluginRegistry
 import org.supermmx.asciidog.plugin.InlineParserPlugin
+import org.supermmx.asciidog.plugin.Plugin
+import org.supermmx.asciidog.plugin.PluginRegistry
 import org.supermmx.asciidog.plugin.TextFormattingInlineParserPlugin
 
 import groovy.util.logging.Slf4j
