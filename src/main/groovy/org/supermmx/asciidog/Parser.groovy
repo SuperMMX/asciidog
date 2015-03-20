@@ -18,6 +18,10 @@ import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.UnOrderedList
 
+import org.supermmx.asciidog.plugin.PluginRegistry
+import org.supermmx.asciidog.plugin.InlineParserPlugin
+import org.supermmx.asciidog.plugin.TextFormattingInlineParserPlugin
+
 import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger
@@ -233,6 +237,20 @@ _
         Document doc = parseDocument()
 
         return doc
+    }
+
+    private static void registerPlugins() {
+        PluginRegistry.instance.register(
+            new TextFormattingInlineParserPlugin(id: 'strong_constrained',
+                                                 formattingType: FormattingNode.Type.STRONG,
+                                                 constrained: true,
+                                                 pattern: Parser.STRONG_CONSTRAINED_PATTERN))
+        PluginRegistry.instance.register(
+            new TextFormattingInlineParserPlugin(id: 'emphasis_constrained',
+                                                 formattingType: FormattingNode.Type.EMPHASIS,
+                                                 constrained: true,
+                                                 pattern: Parser.EMPHASIS_CONSTRAINED_PATTERN))
+
     }
 
     protected Document parseDocument() {
@@ -781,12 +799,12 @@ _
         return header
     }
 
-    static INLINE_PATTERNS = [
-        (Inline.InlineType.STRONG_CONSTRAINED): STRONG_CONSTRAINED_PATTERN,
-        (Inline.InlineType.EMPHASIS_CONSTRAINED): EMPHASIS_CONSTRAINED_PATTERN
-    ]
-
+    /**
+     * Parse inline nodes from a text and construct the node tree
+     */
     protected static List<Inline> parseInlineNodes(InlineContainer parent, String text) {
+        registerPlugins()
+
         parent.start = 0
         parent.end = text.length()
         parent.contentStart = parent.start
@@ -794,30 +812,38 @@ _
 
         log.info("Starting parsing inlines")
 
-        def inlinesInfo = []
-
-        // parse
-        INLINE_PATTERNS.each { type, pattern ->
-            def m = pattern.matcher(text)
+        // go through all inline plugins
+        def inlineNodes = []
+        PluginRegistry.instance.getInlineParserPlugins().each { plugin ->
+            log.info "Parse inline with plugin: ${plugin.id}"
+            def m = plugin.pattern.matcher(text)
             m.each { groups ->
-                def info = type.parse(m, groups)
-                inlinesInfo << info
+                def node = plugin.parse(m, groups)
+                if (node != null) {
+                    node.start = m.start()
+                    node.end = m.end()
+
+                    inlineNodes << node
+                }
             }
         }
 
-        // sort the inline info
-        inlinesInfo.sort { it.start }
+        // sort the result
+        inlineNodes.sort { it.start }
 
-        println inlinesInfo
+        println inlineNodes
+
+        // construct the object tree
 
         // common functions
+        // find the appropriate inline container
         def findParent
-        findParent = { container, info ->
+        findParent = { container, inline ->
             log.info("container start = ${container.start}, end = ${container.end}")
             def result = null
             for (def child : container.nodes) {
                 if (child instanceof InlineContainer) {
-                    result = findParent(child, info)
+                    result = findParent(child, inline)
                 }
                 if (result != null) {
                     break
@@ -825,8 +851,8 @@ _
             }
 
             if (result == null) {
-                if (info.start >= container.start
-                    && info.end <= container.end) {
+                if (inline.start >= container.start
+                    && inline.end <= container.end) {
                     result = container
                 }
             }
@@ -836,11 +862,11 @@ _
 
         // fill gap
         def fillGap
-        fillGap = { InlineContainer container, info ->
-            if (info == null) {
+        fillGap = { InlineContainer container, inline ->
+            if (inline == null) {
                 container.nodes.each { child ->
                     if (child instanceof InlineContainer) {
-                        fillGap(child, info)
+                        fillGap(child, inline)
                     }
                 }
             }
@@ -855,8 +881,8 @@ _
             }
 
             def thisEnd = container.contentEnd
-            if (info != null) {
-                thisEnd = info.start
+            if (inline != null) {
+                thisEnd = inline.start
             }
             if (lastEnd < thisEnd) {
                 def node = new TextNode(parent: container,
@@ -871,24 +897,19 @@ _
             }
         }
 
-        inlinesInfo.each { info ->
-            log.info("info = $info")
-            def container = findParent(parent, info)
+        def resultInlines = []
+        inlineNodes.each { inline ->
+            log.info("info = $inline")
+            def container = findParent(parent, inline)
 
             // fill gap from last sibling node
-            fillGap(container, info)
+            fillGap(container, inline)
 
-            def node = new FormattingNode(parent: container)
-            node.with {
-                tfType = info.type.baseType
+            container << inline
 
-                start = info.start
-                end = info.end
-                contentStart = info.contentStart
-                contentEnd = info.contentEnd
+            if (container == parent) {
+                resultInlines << inline
             }
-
-            container << node
         }
 
         fillGap(parent, null)
@@ -902,7 +923,7 @@ _
                 println ""
             } else if (inline instanceof InlineContainer) {
                 if (inline instanceof FormattingNode) {
-                    println "base type: ${inline.tfType}"
+                    println "base type: ${inline.formattingType}"
                 }
 
                 inline.nodes.each { node ->
@@ -913,7 +934,7 @@ _
 
         printInline(parent)
 
-        return []
+        return resultInlines
 
     }
 
