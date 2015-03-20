@@ -14,9 +14,6 @@ abstract class InlineParserPlugin extends ParserPlugin {
     boolean constrained
     Pattern pattern
 
-    InlineParserPlugin() {
-        nodeType = Node.Type.INLINE
-    }
     /**
      * Parse the matched part.
      *
