@@ -11,4 +11,12 @@ abstract class Plugin {
     String id
     Type type
     Node.Type nodeType
+
+    boolean isParserPlugin() {
+        type == Type.PARSER
+    }
+
+    boolean isRendererPlugin() {
+        type == Type.RENDERER
+    }
 }
