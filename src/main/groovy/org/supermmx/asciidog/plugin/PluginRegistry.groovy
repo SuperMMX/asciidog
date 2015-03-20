@@ -7,30 +7,27 @@ import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger
 
+/**
+ * Plugin registry
+ */
 @Slf4j
 @Singleton
 class PluginRegistry {
-    Map<Node.Type, List<Plugin>> plugins = [:]
+    List<Plugin> plugins = []
 
     void register(Plugin plugin) {
-        Node.Type type = plugin.nodeType
+        log.info "Registering plugin ID: '${plugin.id}', Type: ${plugin.type}, Node Type: ${plugin.nodeType}"
 
-        log.info "Registering plugin ID: '${plugin.id}', Node Type: ${type}"
-        def list = plugins[(type)]
-        if (list == null) {
-            list = [] as List<Plugin>
-            plugins[(type)] = list
-        }
+        plugins << plugin
+    }
 
-        list << plugin
+    List<Plugin> getPlugins(Closure condition) {
+        return plugins.findAll(condition)
     }
 
     List<InlineParserPlugin> getInlineParserPlugins() {
-        def list = plugins[(Node.Type.INLINE)]
-        def resultList = list.findAll { plugin ->
-            plugin instanceof InlineParserPlugin
+        return plugins.findAll { plugin ->
+            plugin.nodeType.isInline() && plugin.isParserPlugin()
         }
-
-        return resultList
     }
 }
