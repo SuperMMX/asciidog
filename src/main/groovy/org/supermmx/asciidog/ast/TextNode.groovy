@@ -12,4 +12,8 @@ import groovy.transform.ToString
  */
 class TextNode extends Inline {
     String text
+
+    TextNode() {
+        type = Node.Type.INLINE_TEXT
+    }
 }
