@@ -834,6 +834,8 @@ _
 
         println inlineNodes
 
+        def resultInlines = []
+
         // construct the object tree
 
         // common functions
@@ -895,10 +897,12 @@ _
                     contentEnd = end
                 }
                 container << node
+                if (container == parent) {
+                    resultInlines << node
+                }
             }
         }
 
-        def resultInlines = []
         inlineNodes.each { inline ->
             log.info("info = $inline")
             def container = findParent(parent, inline)
@@ -935,6 +939,7 @@ _
 
         printInline(parent)
 
+        println "inlines = ${resultInlines}"
         return resultInlines
 
     }
