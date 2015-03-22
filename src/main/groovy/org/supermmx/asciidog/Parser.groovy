@@ -154,7 +154,7 @@ $
 )
 $
 '''
-    static final def STRONG_UNCONSTRAINED_PATTERN = ~'''(?Uxm)
+    static final def STRONG_UNCONSTRAINED_PATTERN = ~'''(?Usxm)
 (\\\\?)
 \\*\\*
 (.+?)
@@ -176,6 +176,12 @@ $
   \\w
 )
 '''
+    static final def EMPHASIS_UNCONSTRAINED_PATTERN = ~'''(?Usxm)
+(\\\\?)
+__
+(.+?)
+__
+'''
     static final def EMPHASIS_CONSTRAINED_PATTERN = ~'''(?Usxm)
 (?<=
   ^ | [^\\w;:}]
@@ -192,6 +198,13 @@ _
   \\w
 )
 '''
+    static final def TEXT_FORMATTING_PLUGIN_DATA = [
+        // id, format type, is constrained, pattern
+        [ 'strong_constrained', FormattingNode.Type.STRONG, true, STRONG_CONSTRAINED_PATTERN ],
+        [ 'strong_unconstrained', FormattingNode.Type.STRONG, false, STRONG_UNCONSTRAINED_PATTERN ],
+        [ 'emphasis_constrained', FormattingNode.Type.STRONG, true, EMPHASIS_CONSTRAINED_PATTERN ],
+        [ 'emphasis_unconstrained', FormattingNode.Type.STRONG, false, EMPHASIS_UNCONSTRAINED_PATTERN ],
+    ]
 
     /**
      * internal class
