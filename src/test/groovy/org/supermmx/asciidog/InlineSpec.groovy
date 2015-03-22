@@ -20,102 +20,39 @@ class InlineSpec extends Specification {
         builder.identifierResolver = "uid"
     }
 
-    def 'regex: strong constrained'() {
+    def 'regex: single-line unconstrained strong chars'() {
+        given:
+        def text = '**Git**Hub'
+
         expect:
-        Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == result
-
-        where:
-        text << [
-            // positive
-            '*abc*',
-            ': *abc* def',
-            '*中文*',
-            '：*中文*。',
-            // escape
-            '\\*abc*',
-            ': \\*abc* def',
-            '\\*中文*',
-            '：\\*中文*。',
-            // multi-line
-            '*ab\nc*',
-            'def *ab\ncd* def',
-            '*中\n文*',
-            '  *中\n文*。',
-            
-            // negative
-            'a*b*c',
-            '中*文*中文'
-        ]
-
-        result << [
-            true, true, true, true,
-            true, true, true, true,
-            true, true, true, true,
-            false, false
-        ]
+        Parser.STRONG_UNCONSTRAINED_PATTERN.matcher(text).find() == true
     }
 
-    def 'regex: strong unconstrained'() {
+    def 'regex: escaped single-line unconstrained strong chars'() {
+        given:
+        def text = '\\**Git**Hub'
+
         expect:
-        Parser.STRONG_UNCONSTRAINED_PATTERN.matcher(text).find() == result
-
-        where:
-        text << [
-            // positive
-            '**abc**',
-            '**中文**',
-            'ab**cd**ef',
-            '中**文支**持',
-            // escape
-            '\\**abc**',
-            '\\**中文**',
-            // multi-line
-            '**ab\ncd\n**ef',
-            '**中\n文\n**支持',
-        ]
-
-        result << [
-            true, true, true, true,
-            true, true,
-            true, true
-        ]
+        Parser.STRONG_UNCONSTRAINED_PATTERN.matcher(text).find() == true
     }
 
-    def 'regex: emphasis constrained'() {
+    def 'regex: multi-line unconstrained strong chars'() {
+        given:
+        def text = '**G\ni\nt\n**Hub'
+
         expect:
-        Parser.EMPHASIS_CONSTRAINED_PATTERN.matcher(text).find() == result
-
-        where:
-        text << [
-            // positive
-            '_abc_',
-            ': _abc_ def',
-            '_中文_',
-            '：_中文_。',
-            // escape
-            '\\_abc_',
-            ': \\_abc_ def',
-            '\\_中文_',
-            '：\\_中文_。',
-            // multi-line
-            '_ab\nc_',
-            'def _ab\ncd_ def',
-            '_中\n文_',
-            '  _中\n文_。',
-            
-            // negative
-            'a_b_c',
-            '中_文_中文'
-        ]
-
-        result << [
-            true, true, true, true,
-            true, true, true, true,
-            true, true, true, true,
-            false, false
-        ]
+        Parser.STRONG_UNCONSTRAINED_PATTERN.matcher(text).find() == true
     }
 
+    def 'regex: unconstrained strong chars with inline asterisk'() {
+        given:
+        def text = '**bl*ck**-eye'
+
+        expect:
+        Parser.STRONG_UNCONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    /*
     def 'simple nodes'() {
         expect:
         Parser.parseInlineNodes(new Paragraph(), text) == [ node ]
@@ -145,4 +82,5 @@ class InlineSpec extends Specification {
             }
         ]
     }
+    */
 }
