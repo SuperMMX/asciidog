@@ -16,13 +16,15 @@ class TextFormattingInlineParserPlugin extends InlineParserPlugin {
     Inline parse(Matcher m, List<String> groups) {
         FormattingNode inline = new FormattingNode()
 
-        inline.escaped = (groups[1] != '')
-
-        inline.constrained = constrained
         inline.formattingType = formattingType
 
-        inline.contentStart = m.start(2)
-        inline.contentEnd = m.end(2)
+        inline.info.with {
+            escaped = (groups[1] != '')
+            constrained = this.constrained
+
+            contentStart = m.start(2)
+            contentEnd = m.end(2)
+        }
 
         return inline
     }

@@ -155,9 +155,14 @@ $
 $
 '''
     static final def STRONG_UNCONSTRAINED_PATTERN = ~'''(?Usxm)
-(\\\\?)
+(\\\\?)             # 1, escaped
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
 \\*\\*
-(.+?)
+(.+?)               # 3, content
 \\*\\*
 '''
     static final def STRONG_CONSTRAINED_PATTERN = ~'''(?Usxm)
@@ -819,10 +824,12 @@ _
     protected static List<Inline> parseInlineNodes(InlineContainer parent, String text) {
         registerPlugins()
 
-        parent.start = 0
-        parent.end = text.length()
-        parent.contentStart = parent.start
-        parent.contentEnd = parent.end
+        parent.info.with {
+            start = 0
+            end = text.length()
+            contentStart = parent.info.start
+            contentEnd = parent.info.end
+        }
 
         log.info("Starting parsing inlines")
 
@@ -834,8 +841,8 @@ _
             m.each { groups ->
                 def node = plugin.parse(m, groups)
                 if (node != null) {
-                    node.start = m.start()
-                    node.end = m.end()
+                    node.info.start = m.start()
+                    node.info.end = m.end()
 
                     inlineNodes << node
                 }
@@ -843,9 +850,9 @@ _
         }
 
         // sort the result
-        inlineNodes.sort { it.start }
+        inlineNodes.sort { it.info.start }
 
-        println inlineNodes
+        println "parsed inline nodes = $inlineNodes"
 
         def resultInlines = []
 
@@ -855,9 +862,9 @@ _
         // find the appropriate inline container
         def findParent
         findParent = { container, inline ->
-            log.info("container start = ${container.start}, end = ${container.end}")
+            log.info("container start = ${container.info.start}, end = ${container.info.end}")
             def result = null
-            for (def child : container.nodes) {
+            for (def child : container.inlineNodes) {
                 if (child instanceof InlineContainer) {
                     result = findParent(child, inline)
                 }
@@ -867,8 +874,8 @@ _
             }
 
             if (result == null) {
-                if (inline.start >= container.start
-                    && inline.end <= container.end) {
+                if (inline.info.start >= container.info.start
+                    && inline.info.end <= container.info.end) {
                     result = container
                 }
             }
@@ -880,30 +887,30 @@ _
         def fillGap
         fillGap = { InlineContainer container, inline ->
             if (inline == null) {
-                container.nodes.each { child ->
+                container.inlineNodes.each { child ->
                     if (child instanceof InlineContainer) {
                         fillGap(child, inline)
                     }
                 }
             }
 
-            def lastEnd = container.contentStart
+            def lastEnd = container.info.contentStart
             def lastNode = null
-            if (container.nodes.size() > 0) {
-                lastNode = container.nodes.last()
+            if (container.inlineNodes.size() > 0) {
+                lastNode = container.inlineNodes.last()
             }
             if (lastNode != null) {
-                lastEnd = lastNode.end
+                lastEnd = lastNode.info.end
             }
 
-            def thisEnd = container.contentEnd
+            def thisEnd = container.info.contentEnd
             if (inline != null) {
-                thisEnd = inline.start
+                thisEnd = inline.info.start
             }
             if (lastEnd < thisEnd) {
                 def node = new TextNode(parent: container,
                                         text: text.substring(lastEnd, thisEnd))
-                node.with {
+                node.info.with {
                     start = lastEnd
                     end = thisEnd
                     contentStart = start
@@ -935,7 +942,7 @@ _
         //println parent.nodes
         def printInline
         printInline = { inline ->
-            println "start = ${inline.start}, end = ${inline.end}, content start = ${inline.contentStart}, content end = ${inline.contentEnd}"
+            println "start = ${inline.info.start}, end = ${inline.info.end}, content start = ${inline.info.contentStart}, content end = ${inline.info.contentEnd}"
             if (inline instanceof TextNode) {
                 println "text = '${inline.text}'"
                 println ""
@@ -944,7 +951,7 @@ _
                     println "base type: ${inline.formattingType}"
                 }
 
-                inline.nodes.each { node ->
+                inline.inlineNodes.each { node ->
                     printInline(node)
                 }
             }
