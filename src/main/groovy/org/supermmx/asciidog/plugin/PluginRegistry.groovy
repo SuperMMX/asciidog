@@ -18,7 +18,9 @@ class PluginRegistry {
     void register(Plugin plugin) {
         log.info "Registering plugin ID: '${plugin.id}', Type: ${plugin.type}, Node Type: ${plugin.nodeType}"
 
-        plugins << plugin
+        if (plugins.find { it.id == plugin.id } == null) {
+            plugins << plugin
+        }
     }
 
     List<Plugin> getPlugins(Closure condition) {
