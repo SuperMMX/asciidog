@@ -10,4 +10,11 @@ import groovy.transform.ToString
 @EqualsAndHashCode(callSuper=true)
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 class InlineContainerNode extends Inline implements InlineContainer {
+    List<Inline> inlineNodes = []
+
+    InlineContainer leftShift(Inline inline) {
+        inlineNodes << inline
+
+        return this
+    }
 }

@@ -13,5 +13,6 @@ import groovy.transform.ToString
 /**
  * Base inline with inline information
  */
-abstract class Inline extends Node implements InlineInfo {
+abstract class Inline extends Node {
+    InlineInfo info = new InlineInfo()
 }

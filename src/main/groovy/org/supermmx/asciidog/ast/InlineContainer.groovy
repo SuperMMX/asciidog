@@ -7,16 +7,8 @@ import groovy.transform.ToString
 /**
  * An inline container that contains multiple inline nodes.
  */
-@Canonical
-@EqualsAndHashCode(callSuper=false)
-@ToString(includeSuper=false, includePackage=false, includeNames=true)
+interface InlineContainer {
+    List<Inline> getInlineNodes()
 
-trait InlineContainer extends InlineInfo {
-    List<Inline> nodes = []
-
-    InlineContainer leftShift(Inline inline) {
-        nodes << inline
-
-        return this
-    }
+    InlineInfo getInfo()
 }

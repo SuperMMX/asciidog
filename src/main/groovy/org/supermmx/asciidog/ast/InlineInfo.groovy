@@ -1,9 +1,16 @@
 package org.supermmx.asciidog.ast
 
+import groovy.transform.Canonical
+import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
+
 /**
- * An inline container that contains multiple inline nodes.
+ * Information about the inline node
  */
-trait InlineInfo {
+@Canonical
+@EqualsAndHashCode
+@ToString(includePackage=false, includeNames=true)
+class InlineInfo {
     boolean constrained
 
     boolean escaped
