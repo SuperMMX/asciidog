@@ -52,7 +52,6 @@ class InlineSpec extends Specification {
         Parser.STRONG_UNCONSTRAINED_PATTERN.matcher(text).find() == true
     }
 
-    /*
     def 'simple nodes'() {
         expect:
         Parser.parseInlineNodes(new Paragraph(), text) == [ node ]
@@ -65,22 +64,24 @@ class InlineSpec extends Specification {
 
         node << [
             builder.textNode(type: Node.Type.INLINE_TEXT,
-                             text: ' text node ',
-                             start: 0, end: 11,
-                             contentStart: 0, contentEnd: 11),
+                             text: ' text node ') {
+                current.info = inlineInfo(constrained: false, escaped: false,
+                                          start: 0, end: 11, contentStart: 0, contentEnd: 11)
+            },
+
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   start: 0, end: 8,
-                                   contentStart: 1, contentEnd: 7,
                                    formattingType: FormattingNode.Type.STRONG) {
-                current.nodes = [
+                current.info = inlineInfo(constrained: true, escaped:false,
+                                          start: 0, end: 7, contentStart: 1, contentEnd: 6)
+
+                current.inlineNodes = [
                     textNode(type: Node.Type.INLINE_TEXT,
-                             // FIXME: equals with traits doesn't work yet
-                             text: 'abc中文',
-                             start: 1, end: 7,
-                             contentStart: 1, contentEnd: 7)
+                             text: 'abc中文') {
+                        current.info = inlineInfo(constrained: false, escaped: false,
+                                                  start: 1, end: 6, contentStart: 1, contentEnd: 6)
+                    }
                 ]
             }
         ]
     }
-    */
 }
