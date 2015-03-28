@@ -40,10 +40,10 @@ class PluginRegistry {
 
     final static def TEXT_FORMATTING_PLUGINS_DATA = [
         // id, formatting type, constrained, pattern
-        [ 'strong_constrained', FormattingNode.Type.STRONG, true, Parser.STRONG_CONSTRAINED_PATTERN ],
         [ 'strong_unconstrained', FormattingNode.Type.STRONG, false, Parser.STRONG_UNCONSTRAINED_PATTERN ],
-        [ 'emphasis_constrained', FormattingNode.Type.EMPHASIS, true, Parser.EMPHASIS_CONSTRAINED_PATTERN ],
+        [ 'strong_constrained', FormattingNode.Type.STRONG, true, Parser.STRONG_CONSTRAINED_PATTERN ],
         [ 'emphasis_unconstrained', FormattingNode.Type.EMPHASIS, false, Parser.EMPHASIS_UNCONSTRAINED_PATTERN ],
+        [ 'emphasis_constrained', FormattingNode.Type.EMPHASIS, true, Parser.EMPHASIS_CONSTRAINED_PATTERN ],
     ]
 
     private void registerDefaultPlugins() {
