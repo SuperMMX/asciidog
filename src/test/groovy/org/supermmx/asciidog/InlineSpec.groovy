@@ -20,6 +20,7 @@ class InlineSpec extends Specification {
         builder.identifierResolver = "uid"
     }
 
+    /* === Strong Unconstrained === */
     def 'regex: single-line unconstrained strong chars'() {
         given:
         def text = '**Git**Hub'
@@ -50,6 +51,79 @@ class InlineSpec extends Specification {
 
         expect:
         Parser.STRONG_UNCONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    def 'regex: unconstrained strong chars with role'() {
+        given:
+        def text = 'Git[blue]**Hub**'
+
+        expect:
+        Parser.STRONG_UNCONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    def 'regex: escaped unconstrained strong chars with role'() {
+        given:
+        def text = 'Git\\[blue]**Hub**'
+
+        expect:
+        Parser.STRONG_UNCONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    /* === Strong Constrained === */
+    def 'regex: single-line constrained strong string'() {
+        given:
+        def text = '*a few strong words*'
+
+        expect:
+        Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    def 'regex: escaped single-line constrained strong string'() {
+        given:
+        def text = '\\*a few strong words*'
+
+        expect:
+        Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    def 'regex: multi-line constrained strong string'() {
+        given:
+        def text = '*a few\nstrong words*'
+
+        expect:
+        Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    def 'regex: constrained strong string containing an asterisk'() {
+        given:
+        def text = '*bl*ck*-eye'
+
+        expect:
+        Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    def 'regex: constrained strong string containing an asterisk and multibyte word chars'() {
+        given:
+        def text = '*黑*眼圈*'
+
+        expect:
+        Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    def 'regex: constrained strong string with role'() {
+        given:
+        def text = '[blue]*a few strong words*'
+
+        expect:
+        Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == true
+    }
+
+    def 'regex: escaped constrained strong string with role'() {
+        given:
+        def text = '\\[blue]*a few strong words*'
+
+        expect:
+        Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == true
     }
 
     def 'simple nodes'() {

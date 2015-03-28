@@ -168,8 +168,13 @@ $
   ^ | [^\\w;:}]
 )
 (\\\\?)             # 1, escape
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
 \\*
-(                   # 2, text
+(                   # 3, text
   \\S
   |
   \\S .*? \\S
@@ -180,9 +185,14 @@ $
 )
 '''
     static final def EMPHASIS_UNCONSTRAINED_PATTERN = ~'''(?Usxm)
-(\\\\?)
+(\\\\?)             # 1, escape
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
 __
-(.+?)
+(.+?)               # 3, text
 __
 '''
     static final def EMPHASIS_CONSTRAINED_PATTERN = ~'''(?Usxm)
@@ -190,8 +200,13 @@ __
   ^ | [^\\w;:}]
 )
 (\\\\?)             # 1, escape
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
 _
-(                   # 2, text
+(                   # 3, text
   \\S
   |
   \\S .*? \\S

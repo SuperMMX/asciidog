@@ -22,8 +22,8 @@ class TextFormattingInlineParserPlugin extends InlineParserPlugin {
             escaped = (groups[1] != '')
             constrained = this.constrained
 
-            contentStart = m.start(2)
-            contentEnd = m.end(2)
+            contentStart = m.start(3)
+            contentEnd = m.end(3)
         }
 
         return inline
