@@ -181,7 +181,7 @@ $
 )
 \\*
 (?!
-  \\w
+  [\\w\\*]
 )
 '''
     static final def EMPHASIS_UNCONSTRAINED_PATTERN = ~'''(?Usxm)
@@ -923,6 +923,19 @@ _
         inlineNodes.each { inline ->
             log.info("info = $inline")
             def container = findParent(parent, inline)
+
+            // FIXME: the parsed inlines may overlap
+
+            // no container is found, normally not possible
+            if (container == null) {
+                return
+            }
+
+            // the parent doesn't fully conver the child
+            if (inline.info.start < container.info.contentStart
+                && inline.info.end > container.info.contentEnd) {
+                return
+            }
 
             // fill gap from last sibling node
             fillGap(container, inline)
