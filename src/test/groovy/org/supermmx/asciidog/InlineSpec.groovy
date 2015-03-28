@@ -126,6 +126,116 @@ class InlineSpec extends Specification {
         Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == true
     }
 
+    /* === Node: Strong Unconstrained === */
+
+    def 'single-line unconstrained strong chars'() {
+        given:
+        def text = '**Git**Hub'
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: false, escaped:false,
+                                          start: 0, end: 7, contentStart: 2, contentEnd: 5)
+                current.inlineNodes = [
+                    textNode(type: Node.Type.INLINE_TEXT,
+                             text: 'Git') {
+                        current.info = inlineInfo(constrained: false, escaped: false,
+                                                  start: 2, end: 5, contentStart: 2, contentEnd: 5)
+                    }
+                ]
+            },
+            builder.textNode(type: Node.Type.INLINE_TEXT,
+                             text: 'Hub') {
+                current.info = inlineInfo(constrained: false, escaped: false,
+                                          start: 7, end: 10, contentStart: 7, contentEnd: 10)
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
+    def 'escaped single-line unconstrained strong chars'() {
+        given:
+        def text = '\\**Git**Hub'
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: false, escaped:true,
+                                          start: 0, end: 8, contentStart: 3, contentEnd: 6)
+                current.inlineNodes = [
+                    textNode(type: Node.Type.INLINE_TEXT,
+                             text: 'Git') {
+                        current.info = inlineInfo(constrained: false, escaped: false,
+                                                  start: 3, end: 6, contentStart: 3, contentEnd: 6)
+                    }
+                ]
+            },
+            builder.textNode(type: Node.Type.INLINE_TEXT,
+                             text: 'Hub') {
+                current.info = inlineInfo(constrained: false, escaped: false,
+                                          start: 8, end: 11, contentStart: 8, contentEnd: 11)
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
+    def 'multi-line unconstrained strong chars'() {
+        given:
+        def text = '**G\ni\nt\n**Hub'
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: false, escaped:false,
+                                          start: 0, end: 10, contentStart: 2, contentEnd: 8)
+                current.inlineNodes = [
+                    textNode(type: Node.Type.INLINE_TEXT,
+                             text: 'G\ni\nt\n') {
+                        current.info = inlineInfo(constrained: false, escaped: false,
+                                                  start: 2, end: 8, contentStart: 2, contentEnd: 8)
+                    }
+                ]
+            },
+            builder.textNode(type: Node.Type.INLINE_TEXT,
+                             text: 'Hub') {
+                current.info = inlineInfo(constrained: false, escaped: false,
+                                          start: 10, end: 13, contentStart:10, contentEnd: 13)
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
+    def 'unconstrained strong chars with inline asterisk'() {
+        given:
+        def text = '**bl*ck**-eye'
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: false, escaped:false,
+                                          start: 0, end: 9, contentStart: 2, contentEnd: 7)
+                current.inlineNodes = [
+                    textNode(type: Node.Type.INLINE_TEXT,
+                             text: 'bl*ck') {
+                        current.info = inlineInfo(constrained: false, escaped: false,
+                                                  start: 2, end: 7, contentStart: 2, contentEnd: 7)
+                    }
+                ]
+            },
+            builder.textNode(type: Node.Type.INLINE_TEXT,
+                             text: '-eye') {
+                current.info = inlineInfo(constrained: false, escaped: false,
+                                          start: 9, end: 13, contentStart:9, contentEnd: 13)
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
     def 'simple nodes'() {
         expect:
         Parser.parseInlineNodes(new Paragraph(), text) == [ node ]
@@ -157,5 +267,11 @@ class InlineSpec extends Specification {
                 ]
             }
         ]
+    }
+
+    def 'test'() {
+        given:
+        Parser.parseInlineNodes(new Paragraph(),
+                               '**abc*def**-abc')
     }
 }
