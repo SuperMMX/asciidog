@@ -18,10 +18,8 @@ import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.UnOrderedList
 
-import org.supermmx.asciidog.plugin.InlineParserPlugin
 import org.supermmx.asciidog.plugin.Plugin
 import org.supermmx.asciidog.plugin.PluginRegistry
-import org.supermmx.asciidog.plugin.TextFormattingInlineParserPlugin
 
 import groovy.util.logging.Slf4j
 
@@ -256,20 +254,6 @@ _
         Document doc = parseDocument()
 
         return doc
-    }
-
-    private static void registerPlugins() {
-        PluginRegistry.instance.register(
-            new TextFormattingInlineParserPlugin(id: 'strong_constrained',
-                                                 formattingType: FormattingNode.Type.STRONG,
-                                                 constrained: true,
-                                                 pattern: Parser.STRONG_CONSTRAINED_PATTERN))
-        PluginRegistry.instance.register(
-            new TextFormattingInlineParserPlugin(id: 'emphasis_constrained',
-                                                 formattingType: FormattingNode.Type.EMPHASIS,
-                                                 constrained: true,
-                                                 pattern: Parser.EMPHASIS_CONSTRAINED_PATTERN))
-
     }
 
     protected Document parseDocument() {
@@ -822,8 +806,6 @@ _
      * Parse inline nodes from a text and construct the node tree
      */
     protected static List<Inline> parseInlineNodes(InlineContainer parent, String text) {
-        registerPlugins()
-
         parent.info.with {
             start = 0
             end = text.length()
