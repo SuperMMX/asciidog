@@ -931,7 +931,7 @@ _
                 return
             }
 
-            // the parent doesn't fully conver the child
+            // the parent doesn't fully cover the child
             if (inline.info.start < container.info.contentStart
                 && inline.info.end > container.info.contentEnd) {
                 return
