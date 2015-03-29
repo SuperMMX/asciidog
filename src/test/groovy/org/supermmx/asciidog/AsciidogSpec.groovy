@@ -17,6 +17,9 @@ class AsciidogSpec extends Specification {
         builder.identifierResolver = "uid"
     }
 
+    /**
+     * Create a simple paragraph from the text
+     */
     def para(def text) {
         def length = text.length()
         def para = builder.paragraph() {
