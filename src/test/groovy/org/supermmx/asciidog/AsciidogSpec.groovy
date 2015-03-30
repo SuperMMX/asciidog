@@ -18,6 +18,17 @@ class AsciidogSpec extends Specification {
     }
 
     /**
+     * Create a parser reading from a text
+     */
+    def parser(def text) {
+        def parser = new Parser()
+        def reader = Reader.createFromString(text)
+        parser.reader = reader
+
+        return parser
+    }
+
+    /**
      * Create a simple paragraph from the text
      */
     def para(def text) {
