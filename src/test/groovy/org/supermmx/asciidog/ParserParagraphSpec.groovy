@@ -12,12 +12,8 @@ class ParserParagraphSpec extends AsciidogSpec {
         given:
         def content = 'paragraph'
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         expect:
-        parser.parseParagraph(new Block()) == para(content)
+        parser(content).parseParagraph(new Block()) == para(content)
     }
 
     def 'parse: paragraph: single line starting with leading blank lines'() {
@@ -28,12 +24,8 @@ class ParserParagraphSpec extends AsciidogSpec {
 
 $text"""
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         expect:
-        parser.parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == para(text)
     }
 
     def 'parse: paragraph: multiple lines starting with leading blank lines'() {
@@ -46,12 +38,8 @@ line3'''
 
 $text"""
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         expect:
-        parser.parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == para(text)
     }
 
     def 'parse: paragraph: no new line in the end'() {
@@ -62,12 +50,8 @@ line3'''
         def content = """
 $text"""
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         expect:
-        parser.parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == para(text)
     }
 
     def 'parse: paragraph: new line in the end'() {
@@ -79,12 +63,8 @@ line3'''
 $text
 """
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         expect:
-        parser.parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == para(text)
     }
 
     def 'parse: paragraph: blank line after'() {
@@ -97,12 +77,8 @@ $text
 
 """
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         expect:
-        parser.parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == para(text)
     }
 
     def 'parse: paragraph: another paragraph after'() {
@@ -116,11 +92,7 @@ $text
 abc
 """
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         expect:
-        parser.parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == para(text)
     }
 }
