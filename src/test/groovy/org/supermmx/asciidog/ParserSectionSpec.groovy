@@ -7,15 +7,7 @@ import org.supermmx.asciidog.ast.Paragraph
 
 import spock.lang.*
 
-class ParserSectionSpec extends Specification {
-    @Shared
-    def builder = new ObjectGraphBuilder()
-
-    def setupSpec() {
-        builder.classNameResolver = "org.supermmx.asciidog.ast"
-        builder.identifierResolver = "uid"
-    }
-
+class ParserSectionSpec extends AsciidogSpec {
     def 'static: is section'() {
         expect:
         [ level, title ] == Parser.isSection(line)
@@ -43,10 +35,7 @@ class ParserSectionSpec extends Specification {
 
 '''
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
+        def parser = parser(content)
         parser.parseBlockHeader()
 
         when:
@@ -67,10 +56,7 @@ class ParserSectionSpec extends Specification {
 '''
         def expectedSection = builder.section(title: 'Section Title',
                                               level: 1)
-
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
+        def parser = parser(content)
 
         when:
 
@@ -94,10 +80,7 @@ class ParserSectionSpec extends Specification {
         def expectedSection = builder.section(id: 'section-id',
                                               title: 'Section Title',
                                               level: 1)
-
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
+        def parser = parser(content)
 
         when:
         parser.parseBlockHeader()
@@ -111,28 +94,28 @@ class ParserSectionSpec extends Specification {
     def 'parse: section: simple paragraph block'() {
         given:
 
-        def content = '''
+        def text1 = '''this is a paragraph
+with another line'''
+        def text2 = 'New paragraph'
+        def content = """
 
 == Section Title
 
-this is a paragraph
-with another line
+$text1
 
-New paragraph
+$text2
 
 
-'''
+"""
         def expectedSection = builder.section(title: 'Section Title',
                                               level: 1) {
             current.blocks = [
-                paragraph(lines: ['this is a paragraph', 'with another line']),
-                paragraph(lines: ['New paragraph'])
+                para(text1),
+                para(text2)
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
+        def parser = parser(content)
 
         when:
 
@@ -146,33 +129,33 @@ New paragraph
 
     def 'parse: section: with sub section'() {
         given:
-        def content = '''
+        def text1 = '''this is a paragraph
+with another line'''
+        def text2 = 'paragraph for the subsection'
+        def content = """
 
 == Section Title
 
-this is a paragraph
-with another line
+$text1
 
 === Subsection Title
 
-paragraph for the subsection
+$text2
 
-'''
+"""
         def expectedSection = builder.section(title: 'Section Title',
                                               level: 1) {
             current.blocks = [
-                paragraph(lines: ['this is a paragraph', 'with another line']),
+                para(text1),
                 section(title: 'Subsection Title') {
                     current.blocks = [
-                        paragraph(lines: ['paragraph for the subsection'])
+                        para(text2)
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
+        def parser = parser(content)
 
         when:
         parser.parseBlockHeader()
@@ -184,28 +167,28 @@ paragraph for the subsection
 
     def 'parse: section: with sibling section'() {
         given:
-        def content = '''
+        def text1 = '''this is a paragraph
+with another line'''
+        def text2 = 'paragraph for the subsection'
+        def content = """
 
 == Section Title
 
-this is a paragraph
-with another line
+$text1
 
 == Next Section Title
 
-paragraph for the subsection
+$text2
 
-'''
+"""
         def expectedSection = builder.section(title: 'Section Title',
                                               level: 1) {
             current.blocks = [
-                paragraph(lines: ['this is a paragraph', 'with another line'])
+                para(text1)
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
+        def parser = parser(content)
 
         when:
 
@@ -230,9 +213,7 @@ paragraph for the subsection
                                               level: 2) {
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
+        def parser = parser(content)
 
         parser.parseBlockHeader()
 
@@ -262,9 +243,7 @@ paragraph for the subsection
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
+        def parser = parser(content)
 
         parser.parseBlockHeader()
 
@@ -289,10 +268,7 @@ paragraph for the subsection
         def expectedSection = builder.section(title: 'Section Title',
                                               level: 1)
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
+        def parser = parser(content)
         parser.parseBlockHeader()
 
         when:
@@ -317,10 +293,7 @@ paragraph for the subsection
         def expectedSection = builder.section(title: 'Section Title',
                                               level: 2)
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
+        def parser = parser(content)
         parser.parseBlockHeader()
 
         when:
