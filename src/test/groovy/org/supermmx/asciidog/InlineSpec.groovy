@@ -137,18 +137,10 @@ class InlineSpec extends Specification {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 0, end: 7, contentStart: 2, contentEnd: 5)
                 current.inlineNodes = [
-                    textNode(type: Node.Type.INLINE_TEXT,
-                             text: 'Git') {
-                        current.info = inlineInfo(constrained: false, escaped: false,
-                                                  start: 2, end: 5, contentStart: 2, contentEnd: 5)
-                    }
+                    new TextNode('Git', 2)
                 ]
             },
-            builder.textNode(type: Node.Type.INLINE_TEXT,
-                             text: 'Hub') {
-                current.info = inlineInfo(constrained: false, escaped: false,
-                                          start: 7, end: 10, contentStart: 7, contentEnd: 10)
-            }
+            new TextNode('Hub', 7)
         ]
 
         expect:
@@ -164,18 +156,10 @@ class InlineSpec extends Specification {
                 current.info = inlineInfo(constrained: false, escaped:true,
                                           start: 0, end: 8, contentStart: 3, contentEnd: 6)
                 current.inlineNodes = [
-                    textNode(type: Node.Type.INLINE_TEXT,
-                             text: 'Git') {
-                        current.info = inlineInfo(constrained: false, escaped: false,
-                                                  start: 3, end: 6, contentStart: 3, contentEnd: 6)
-                    }
+                    new TextNode('Git', 3)
                 ]
             },
-            builder.textNode(type: Node.Type.INLINE_TEXT,
-                             text: 'Hub') {
-                current.info = inlineInfo(constrained: false, escaped: false,
-                                          start: 8, end: 11, contentStart: 8, contentEnd: 11)
-            }
+            new TextNode('Hub', 8)
         ]
 
         expect:
@@ -191,18 +175,10 @@ class InlineSpec extends Specification {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 0, end: 10, contentStart: 2, contentEnd: 8)
                 current.inlineNodes = [
-                    textNode(type: Node.Type.INLINE_TEXT,
-                             text: 'G\ni\nt\n') {
-                        current.info = inlineInfo(constrained: false, escaped: false,
-                                                  start: 2, end: 8, contentStart: 2, contentEnd: 8)
-                    }
+                    new TextNode('G\ni\nt\n', 2)
                 ]
             },
-            builder.textNode(type: Node.Type.INLINE_TEXT,
-                             text: 'Hub') {
-                current.info = inlineInfo(constrained: false, escaped: false,
-                                          start: 10, end: 13, contentStart:10, contentEnd: 13)
-            }
+            new TextNode('Hub', 10)
         ]
 
         expect:
@@ -218,18 +194,10 @@ class InlineSpec extends Specification {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 0, end: 9, contentStart: 2, contentEnd: 7)
                 current.inlineNodes = [
-                    textNode(type: Node.Type.INLINE_TEXT,
-                             text: 'bl*ck') {
-                        current.info = inlineInfo(constrained: false, escaped: false,
-                                                  start: 2, end: 7, contentStart: 2, contentEnd: 7)
-                    }
+                    new TextNode('bl*ck', 2)
                 ]
             },
-            builder.textNode(type: Node.Type.INLINE_TEXT,
-                             text: '-eye') {
-                current.info = inlineInfo(constrained: false, escaped: false,
-                                          start: 9, end: 13, contentStart:9, contentEnd: 13)
-            }
+            new TextNode('-eye', 9)
         ]
 
         expect:
@@ -240,11 +208,7 @@ class InlineSpec extends Specification {
         given:
         def text = 'Git[blue]**Hub**'
         def nodes = [
-            builder.textNode(type: Node.Type.INLINE_TEXT,
-                             text: 'Git') {
-                current.info = inlineInfo(constrained: false, escaped: false,
-                                          start: 0, end: 3, contentStart:0, contentEnd: 3)
-            },
+            new TextNode('Git', 0),
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
                                    formattingType: FormattingNode.Type.STRONG,
                                    attributes: ['blue': null]) {
@@ -271,23 +235,14 @@ class InlineSpec extends Specification {
         ]
 
         node << [
-            builder.textNode(type: Node.Type.INLINE_TEXT,
-                             text: ' text node ') {
-                current.info = inlineInfo(constrained: false, escaped: false,
-                                          start: 0, end: 11, contentStart: 0, contentEnd: 11)
-            },
-
+            new TextNode(' text node ', 0),
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
                                    formattingType: FormattingNode.Type.STRONG) {
                 current.info = inlineInfo(constrained: true, escaped:false,
                                           start: 0, end: 7, contentStart: 1, contentEnd: 6)
 
                 current.inlineNodes = [
-                    textNode(type: Node.Type.INLINE_TEXT,
-                             text: 'abc中文') {
-                        current.info = inlineInfo(constrained: false, escaped: false,
-                                                  start: 1, end: 6, contentStart: 1, contentEnd: 6)
-                    }
+                    new TextNode('abc中文', 1)
                 ]
             }
         ]
