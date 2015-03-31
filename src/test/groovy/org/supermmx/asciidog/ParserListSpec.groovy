@@ -11,15 +11,7 @@ import org.supermmx.asciidog.ast.UnOrderedList
 
 import spock.lang.*
 
-class ParserListSpec extends Specification {
-    @Shared
-    def builder = new ObjectGraphBuilder()
-
-    def setupSpec() {
-        builder.classNameResolver = "org.supermmx.asciidog.ast"
-        builder.identifierResolver = "uid"
-    }
-
+class ParserListSpec extends AsciidogSpec {
     def 'unordered list with one line paragraph'() {
         given:
         def content = '* list item'
@@ -30,32 +22,26 @@ class ParserListSpec extends Specification {
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['list item'])
+                        para('list item')
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'ordered list with multiple-line paragraph'() {
         given:
-        def content = '''
-. list item with
-multiple lines
+        def text1 = '''list item with
+multiple lines'''
+        def text2 = 'new paragraph'
+        def content = """
+. $text1
 
-new paragraph
-'''
+$text2
+"""
 
         def expectedList = builder.orderedList(lead: '', marker: '.',
                                                markerLevel: 1,
@@ -63,37 +49,30 @@ new paragraph
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['list item with', 'multiple lines'])
+                        para(text1)
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'unordered list with list continuation'() {
         given:
-        def content = '''
-* list item with
-multiple lines
-+
-line1
+        def text1 = '''list item with
+multiple lines'''
+        def text2 = '''line1
 line2
-line3
+line3'''
+        def content = """
+* $text1
++
+$text2
 
 == section
-'''
+"""
 
         def expectedList = builder.unOrderedList(lead: '', marker: '*',
                                                  markerLevel: 1,
@@ -101,25 +80,15 @@ line3
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['list item with',
-                                          'multiple lines']),
-                        paragraph(lines: ['line1', 'line2', 'line3'])
+                        para(text1),
+                        para(text2)
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'ordered list with multiple items'() {
@@ -138,33 +107,24 @@ line3
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item1'])
+                        para('item1')
                     ]
                 },
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item2'])
+                        para('item2')
                     ]
                 },
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item3'])
+                        para('item3')
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'nested list with different markers'() {
@@ -183,21 +143,21 @@ new paragraph
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item1']),
+                        para('item1'),
                         unOrderedList(lead: '', marker: '*',
                                       markerLevel: 1,
                                       level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
-                                        paragraph(lines: ['item2']),
+                                        para('item2'),
                                         unOrderedList(lead: '', marker: '-',
                                                       markerLevel: 1,
                                                       level: 3) {
                                             current.blocks = [
                                                 listItem() {
                                                     current.blocks = [
-                                                        paragraph(lines: ['item3'])
+                                                        para('item3')
                                                     ]
                                                 }
                                             ]
@@ -211,17 +171,8 @@ new paragraph
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'nested list with same marker'() {
@@ -240,21 +191,21 @@ new paragraph
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item1']),
+                        para('item1'),
                         orderedList(lead: '', marker: '.',
                                     markerLevel: 2,
                                     level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
-                                        paragraph(lines: ['item2']),
+                                        para('item2'),
                                         unOrderedList(lead: '', marker: '*',
                                                       markerLevel: 1,
                                                       level: 3) {
                                             current.blocks = [
                                                 listItem() {
                                                     current.blocks = [
-                                                        paragraph(lines: ['item3'])
+                                                        para('item3')
                                                     ]
                                                 }
                                             ]
@@ -268,17 +219,8 @@ new paragraph
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'nested list with same marker with blank lines'() {
@@ -302,21 +244,21 @@ new paragraph
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item1', 'paragraph1']),
+                        para('item1\nparagraph1'),
                         orderedList(lead: '', marker: '.',
                                     markerLevel: 2,
                                     level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
-                                        paragraph(lines: ['item2', 'paragraph2']),
+                                        para('item2\nparagraph2'),
                                         orderedList(lead: '', marker: '.',
                                                     markerLevel: 3,
                                                     level: 3) {
                                             current.blocks = [
                                                 listItem() {
                                                     current.blocks = [
-                                                        paragraph(lines: ['item3', 'paragraph3'])
+                                                        para('item3\nparagraph3')
                                                     ]
                                                 }
                                             ]
@@ -330,17 +272,8 @@ new paragraph
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'unordered list with multiple items with multiple lines'() {
@@ -370,34 +303,25 @@ paragraph3
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item1', 'paragraph1'])
+                        para('item1\nparagraph1')
                     ]
                 },
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item2', 'paragraph2']),
-                        paragraph(lines: ['new paragraph', 'with multiple lines'])
+                        para('item2\nparagraph2'),
+                        para('new paragraph\nwith multiple lines')
                     ]
                 },
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item3', 'paragraph3'])
+                        para('item3\nparagraph3')
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'ordered list ended with comment line'() {
@@ -418,28 +342,19 @@ paragraph3
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item1'])
+                        para('item1')
                     ]
                 },
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item2'])
+                        para('item2')
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'ordered list ended with comment line'() {
@@ -460,28 +375,19 @@ paragraph3
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item1'])
+                        para('item1')
                     ]
                 },
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item2'])
+                        para('item2')
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'same level items with nested list with different marker'() {
@@ -500,14 +406,14 @@ new paragraph
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item1']),
+                        para('item1'),
                         unOrderedList(lead: '', marker: '*',
                                       markerLevel: 1,
                                       level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
-                                        paragraph(lines: ['item2']),
+                                        para('item2')
                                     ]
                                 }
                             ]
@@ -516,23 +422,14 @@ new paragraph
                 },
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item3'])
+                        para('item3')
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'indented dash elements using spaces'() {
@@ -549,33 +446,24 @@ new paragraph
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['Foo'])
+                        para('Foo')
                     ]
                 },
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['Bar'])
+                        para('Bar')
                     ]
                 },
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['Baz'])
+                        para('Baz')
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 
     def 'indented nested list continuation'() {
@@ -595,34 +483,25 @@ item4
             current.blocks = [
                 listItem() {
                     current.blocks = [
-                        paragraph(lines: ['item1']),
+                        para('item1'),
                         unOrderedList(lead: ' ', marker: '*',
                                       markerLevel: 1, level: 2) {
                             current.blocks = [
                                 listItem() {
                                     current.blocks = [
-                                        paragraph(lines: ['item2']),
-                                        paragraph(lines: ['item3']),
+                                        para('item2'),
+                                        para('item3')
                                     ]
                                 }
                             ]
                         },
-                        paragraph(lines: ['item4'])
+                        para('item4')
                     ]
                 }
             ]
         }
 
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
-        when:
-
-        def list = parser.parseList(new Block())
-
-        then:
-
-        list == expectedList
+        expect:
+        parser(content).parseList(new Block()) == expectedList
     }
 }
