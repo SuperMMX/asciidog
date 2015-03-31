@@ -236,6 +236,30 @@ class InlineSpec extends Specification {
         Parser.parseInlineNodes(new Paragraph(), text) == nodes
     }
 
+    def 'unconstrained strong chars with role'() {
+        given:
+        def text = 'Git[blue]**Hub**'
+        def nodes = [
+            builder.textNode(type: Node.Type.INLINE_TEXT,
+                             text: 'Git') {
+                current.info = inlineInfo(constrained: false, escaped: false,
+                                          start: 0, end: 3, contentStart:0, contentEnd: 3)
+            },
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG,
+                                   attributes: ['blue': null]) {
+                current.info = inlineInfo(constrained: false, escaped:false,
+                                          start: 3, end: 16, contentStart: 11, contentEnd: 14)
+                current.inlineNodes = [
+                    new TextNode('Hub', 11)
+                ]
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
     def 'simple nodes'() {
         expect:
         Parser.parseInlineNodes(new Paragraph(), text) == [ node ]
