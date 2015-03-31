@@ -1129,6 +1129,17 @@ _
 
         line = m[0][1]
 
+        return parseAttributes(line)
+    }
+
+    /**
+     * Parse general attributes, not the document attributes.
+     *
+     * @param text the attributes text with []
+     */
+    protected static Map<String, String> parseAttributes(String text) {
+        def line = text
+
         def attrs = [:] as LinkedHashMap<String, String>
 
         // size of the attribute line
