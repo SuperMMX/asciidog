@@ -553,7 +553,6 @@ _
             item = null
         } else {
             Paragraph para = item.blocks[0]
-            para.lines[0] = line
 
             list << item
         }
@@ -581,17 +580,25 @@ _
         boolean first = true
         def line = reader.peekLine()
         while (line != null && line.length() > 0) {
-            if (inList && !first) {
-                // is list continuation
-                if (isListContinuation(line) != null) {
-                    break
-                }
+            if (inList) {
+                if (first) {
+                    // only get the content of the first line that comes from a list item
+                    def firstLine = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
+                    if (firstLine != null) {
+                        line = firstLine
+                    }
+                } else {
+                    // is list continuation
+                    if (isListContinuation(line) != null) {
+                        break
+                    }
 
-                // check block header for every line
-                parseBlockHeader()
+                    // check block header for every line
+                    parseBlockHeader()
 
-                if (isList(blockHeader.type)) {
-                    break
+                    if (isList(blockHeader.type)) {
+                        break
+                    }
                 }
             }
 
