@@ -36,16 +36,8 @@ class Node {
 
     Type type
     String id
-    Map<String, AttributeEntry> attributes = [:]
+    Map<String, String> attributes = [:]
     Node parent
 
     Document document
-
-    void setAttribute(AttributeEntry attr) {
-        attributes[attr.name] = attr
-    }
-
-    void unsetAttribute(AttributeEntry attr) {
-        attributes.remove(attr.name)
-    }
 }
