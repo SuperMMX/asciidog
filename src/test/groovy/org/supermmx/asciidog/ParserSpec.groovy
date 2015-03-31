@@ -8,7 +8,7 @@ import org.supermmx.asciidog.ast.Paragraph
 
 import spock.lang.*
 
-class ParserSpec extends Specification {
+class ParserSpec extends AsciidogSpec {
     def 'static: is attribute, value of single line'() {
         expect:
         [ name, value ] == Parser.isAttribute(line)
@@ -99,31 +99,23 @@ class ParserSpec extends Specification {
 
     def 'parse: Paragraph'() {
         given:
-        def content = '''
-
-line1
+        def text1 = '''line1
 line2
-line3
+line3'''
+        def text2 = '''line4
+line5'''
+        def content = """
 
-line4
-line5
+$text1
+
+$text2
 
 
-'''
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
+"""
+        def parser = parser(content)
 
-        when:
-        def para = parser.parseParagraph(new Block())
-
-        then:
-        para.lines == [ 'line1', 'line2', 'line3']
-
-        when:
-        para = parser.parseParagraph(new Block())
-
-        then:
-        para.lines == [ 'line4', 'line5']
+        expect:
+        parser.parseParagraph(new Block()) == para(text1)
+        parser.parseParagraph(new Block()) == para(text2)
     }
 }
