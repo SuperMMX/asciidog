@@ -11,15 +11,7 @@ import org.supermmx.asciidog.ast.TextNode
 
 import spock.lang.*
 
-class InlineSpec extends Specification {
-    @Shared
-    def builder = new ObjectGraphBuilder()
-
-    def setupSpec() {
-        builder.classNameResolver = "org.supermmx.asciidog.ast"
-        builder.identifierResolver = "uid"
-    }
-
+class InlineSpec extends AsciidogSpec {
     /* === Strong Unconstrained === */
     def 'regex: single-line unconstrained strong chars'() {
         given:
@@ -223,6 +215,160 @@ class InlineSpec extends Specification {
         expect:
         Parser.parseInlineNodes(new Paragraph(), text) == nodes
     }
+
+    def 'escaped single-line unconstrained strong chars'() {
+        given:
+        def text = '\\**Git**Hub'
+        def nodes = [
+            new TextNode('Git', 0),
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG,
+                                   attributes: ['blue': null]) {
+                current.info = inlineInfo(constrained: false, escaped:false,
+                                          start: 3, end: 16, contentStart: 11, contentEnd: 14)
+                current.inlineNodes = [
+                    new TextNode('Hub', 11)
+                ]
+            }
+        ]
+
+        // FIXME: escaped
+    }
+
+    def 'escaped unconstrained strong chars with role'() {
+        given:
+        def text = 'Git\\[blue]**Hub**'
+        def nodes = [
+            new TextNode('Git', 0),
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG,
+                                   attributes: ['blue': null]) {
+                current.info = inlineInfo(constrained: false, escaped:false,
+                                          start: 3, end: 16, contentStart: 11, contentEnd: 14)
+                current.inlineNodes = [
+                    new TextNode('Hub', 11)
+                ]
+            }
+        ]
+
+        // FIXME: escaped
+    }
+
+    /* === Strong Constrained === */
+    def 'single-line constrained strong string'() {
+        given:
+        def content = 'a few strong words'
+        def text = "*$content*"
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: true, escaped:false,
+                                          start: 0, end: text.length(), contentStart: 1, contentEnd: text.length() - 1)
+                current.inlineNodes = [
+                    new TextNode(content, 1)
+                ]
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
+    def 'escaped single-line constrained strong string'() {
+        given:
+        def content = 'a few strong words'
+        def text = "\\*$content*"
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: true, escaped:false,
+                                          start: 0, end: text.length(), contentStart: 1, contentEnd: text.length() - 1)
+                current.inlineNodes = [
+                    new TextNode(content, 1)
+                ]
+            }
+        ]
+
+        // FIXME
+        //expect:
+        //Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
+    def 'multi-line constrained strong string'() {
+        given:
+        def content = 'a few\nstrong words'
+        def text = "*$content*"
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: true, escaped:false,
+                                          start: 0, end: text.length(), contentStart: 1, contentEnd: text.length() - 1)
+                current.inlineNodes = [
+                    new TextNode(content, 1)
+                ]
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
+    def 'constrained strong string containing an asterisk'() {
+        given:
+        def text = '*bl*ck*-eye'
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: true, escaped:false,
+                                          start: 0, end: 7, contentStart: 1, contentEnd: 6)
+                current.inlineNodes = [
+                    new TextNode('bl*ck', 1)
+                ]
+            },
+            new TextNode('-eye', 7)
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
+    def 'constrained strong string containing an asterisk and multibyte word chars'() {
+        given:
+        def text = '*黑*眼圈*'
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: true, escaped:false,
+                                          start: 0, end: 6, contentStart: 1, contentEnd: 5)
+                current.inlineNodes = [
+                    new TextNode('黑*眼圈', 1)
+                ]
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
+    def 'constrained strong string with role'() {
+        given:
+        def text = '[blue]*a few strong words*'
+        def nodes = [
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG,
+                                   attributes: [ 'blue':null ]) {
+                current.info = inlineInfo(constrained: true, escaped:false,
+                                          start: 0, end: 26, contentStart: 7, contentEnd: 25)
+                current.inlineNodes = [
+                    new TextNode('a few strong words', 7)
+                ]
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
 
     def 'simple nodes'() {
         expect:
