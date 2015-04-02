@@ -22,7 +22,7 @@ another preamble paragraph
 
 == Section 1
 
-中文段落 this is a chinese paragraph
+中**文段**落 this is a ch**ine**se paragraph
 多行段落
 
 没有啥事
