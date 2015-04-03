@@ -173,6 +173,9 @@ $
      ([^\\]]+?)     # 2, Attributes
   \\]
 )?
+(?<!
+  [\\w\\*]
+)
 \\*
 (                   # 3, text
   \\S
@@ -843,6 +846,7 @@ _
             log.info "Parse inline with plugin: ${plugin.id}"
             def m = plugin.pattern.matcher(text)
             m.each { groups ->
+                log.info "matching ${groups[0]}"
                 def node = plugin.parse(m, groups)
                 if (node != null) {
                     node.info.start = m.start()
@@ -866,7 +870,7 @@ _
         // find the appropriate inline container
         def findParent
         findParent = { container, inline ->
-            log.info("container start = ${container.info.start}, end = ${container.info.end}")
+            log.info("container constrained = ${container.info.constrained}, start = ${container.info.start}, end = ${container.info.end}")
             def result = null
             for (def child : container.inlineNodes) {
                 if (child instanceof InlineContainer) {
@@ -959,13 +963,13 @@ _
         //println parent.nodes
         def printInline
         printInline = { inline ->
-            println "start = ${inline.info.start}, end = ${inline.info.end}, content start = ${inline.info.contentStart}, content end = ${inline.info.contentEnd}"
+            log.info "constrained = ${inline.info.constrained}, start = ${inline.info.start}, end = ${inline.info.end}, content start = ${inline.info.contentStart}, content end = ${inline.info.contentEnd}"
             if (inline instanceof TextNode) {
-                println "text = '${inline.text}'"
-                println ""
+                log.info "text = '${inline.text}'"
+                log.info ""
             } else if (inline instanceof InlineContainer) {
                 if (inline instanceof FormattingNode) {
-                    println "base type: ${inline.formattingType}"
+                    log.info "base type: ${inline.formattingType}"
                 }
 
                 inline.inlineNodes.each { node ->
@@ -976,7 +980,7 @@ _
 
         printInline(parent)
 
-        println "inlines = ${resultInlines}"
+        log.info "inlines = ${resultInlines}"
         return resultInlines
 
     }

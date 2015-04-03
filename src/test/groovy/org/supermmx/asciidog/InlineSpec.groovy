@@ -216,6 +216,43 @@ class InlineSpec extends AsciidogSpec {
         Parser.parseInlineNodes(new Paragraph(), text) == nodes
     }
 
+    def 'mixed unconstrained and constrained strong inlines'() {
+        given:
+        def text = '中**文段**落 with o**th**er words\n*abc*'
+        def nodes = [
+            new TextNode('中', 0),
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: false, escaped:false,
+                                          start: 1, end: 7, contentStart: 3, contentEnd: 5)
+                current.inlineNodes = [
+                    new TextNode('文段', 3)
+                ]
+            },
+            new TextNode('落 with o', 7),
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: false, escaped:false,
+                                          start: 15, end: 21, contentStart: 17, contentEnd: 19)
+                current.inlineNodes = [
+                    new TextNode('th', 17)
+                ]
+            },
+            new TextNode('er words\n', 21),
+            builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
+                                   formattingType: FormattingNode.Type.STRONG) {
+                current.info = inlineInfo(constrained: true, escaped:false,
+                                          start: 30, end: 35, contentStart: 31, contentEnd: 34)
+                current.inlineNodes = [
+                    new TextNode('abc', 31)
+                ]
+            },
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
     def 'escaped single-line unconstrained strong chars'() {
         given:
         def text = '\\**Git**Hub'
@@ -397,6 +434,6 @@ class InlineSpec extends AsciidogSpec {
     def 'test'() {
         given:
         Parser.parseInlineNodes(new Paragraph(),
-                               '**abc*def**-abc')
+                               '中**文段**落 this is a ch**ine**se paragraph\n*多行段落*')
     }
 }
