@@ -23,7 +23,7 @@ another preamble paragraph
 == Section 1
 
 中**文段**落 this is a ch**ine**se paragraph
-多行段落
+*多行段落*
 
 没有啥事
 
