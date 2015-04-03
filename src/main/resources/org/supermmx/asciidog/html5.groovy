@@ -109,6 +109,9 @@ format_text = { tfNode ->
     case FormattingNode.Type.STRONG:
       strong { inline_container(tfNode) }
       break
+    case FormattingNode.Type.EMPHASIS:
+      em { inline_container(tfNode) }
+      break
     }
 }
 
