@@ -9,16 +9,19 @@ repositories {
 }
 
 dependencies {
-    compile localGroovy()
-
     compile 'org.slf4j:slf4j-api:1.7.10'
-    testCompile "org.spockframework:spock-core:1.0-groovy-2.3-SNAPSHOT"
+    compile 'org.codehaus.groovy:groovy-all:2.4.3'
+
+    testCompile("org.spockframework:spock-core:1.0-groovy-2.4") {
+        exclude group:'org.codehaus.groovy'
+    }
 
     runtime 'ch.qos.logback:logback-classic:1.1.2'
 }
 
 test {
     systemProperties System.properties
+    testLogging.showStandardStreams = true
 }
 
 apply plugin:'application'
@@ -26,7 +29,8 @@ apply plugin:'application'
 mainClassName = 'org.supermmx.asciidog.AsciiDog'
 
 run {
-    args = ['test.adoc', 'build/out.html']
+    // -Pdoc=
+    args = [ doc, 'build/out.html']
 
     systemProperties System.properties
 }
