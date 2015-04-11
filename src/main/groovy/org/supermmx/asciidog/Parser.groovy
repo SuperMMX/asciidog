@@ -219,6 +219,17 @@ _
   \\w
 )
 '''
+    static final def CROSS_REFERENCE_PATTERN = ~'''(?Usxm)
+(\\\\?)             # 1, escape
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
+<<
+(.+?)               # 3, id
+>>
+'''
     static final def TEXT_FORMATTING_PLUGIN_DATA = [
         // id, format type, is constrained, pattern
         [ 'strong_constrained', FormattingNode.Type.STRONG, true, STRONG_CONSTRAINED_PATTERN ],

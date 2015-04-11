@@ -406,6 +406,21 @@ class InlineSpec extends AsciidogSpec {
         Parser.parseInlineNodes(new Paragraph(), text) == nodes
     }
 
+    /* ==== Cross Reference ==== */
+    def 'xref using angled bracket syntax'() {
+        given:
+        def text = '<<tigers>>'
+        def nodes = [
+            builder.crossReferenceNode(type: Node.Type.INLINE_CROSS_REFERENCE,
+                                       xrefId: 'tigers') {
+                current.info = inlineInfo(constrained: false, escaped:false,
+                                          start: 0, end: 10, contentStart: 2, contentEnd: 8)
+            }
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
 
     def 'simple nodes'() {
         expect:
