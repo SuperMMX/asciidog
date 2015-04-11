@@ -7,12 +7,19 @@ import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.CommentLine
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
+import org.supermmx.asciidog.ast.Inline
+import org.supermmx.asciidog.ast.InlineContainer
 import org.supermmx.asciidog.ast.ListItem
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.OrderedList
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Section
+import org.supermmx.asciidog.ast.TextNode
+import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.UnOrderedList
+
+import org.supermmx.asciidog.plugin.Plugin
+import org.supermmx.asciidog.plugin.PluginRegistry
 
 import groovy.util.logging.Slf4j
 
@@ -145,6 +152,91 @@ $
 )
 $
 '''
+    static final def STRONG_UNCONSTRAINED_PATTERN = ~'''(?Usxm)
+(\\\\?)             # 1, escaped
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
+\\*\\*
+(.+?)               # 3, content
+\\*\\*
+'''
+    static final def STRONG_CONSTRAINED_PATTERN = ~'''(?Usxm)
+(?<=
+  ^ | [^\\w;:}]
+)
+(\\\\?)             # 1, escape
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
+(?<!
+  [\\w\\*]
+)
+\\*
+(                   # 3, text
+  \\S
+  |
+  \\S .*? \\S
+)
+\\*
+(?!
+  [\\w\\*]
+)
+'''
+    static final def EMPHASIS_UNCONSTRAINED_PATTERN = ~'''(?Usxm)
+(\\\\?)             # 1, escape
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
+__
+(.+?)               # 3, text
+__
+'''
+    static final def EMPHASIS_CONSTRAINED_PATTERN = ~'''(?Usxm)
+(?<=
+  ^ | [^\\w;:}]
+)
+(\\\\?)             # 1, escape
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
+_
+(                   # 3, text
+  \\S
+  |
+  \\S .*? \\S
+)
+_
+(?!
+  \\w
+)
+'''
+    static final def CROSS_REFERENCE_PATTERN = ~'''(?Usxm)
+(\\\\?)             # 1, escape
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
+<<
+(.+?)               # 3, id
+>>
+'''
+    static final def TEXT_FORMATTING_PLUGIN_DATA = [
+        // id, format type, is constrained, pattern
+        [ 'strong_constrained', FormattingNode.Type.STRONG, true, STRONG_CONSTRAINED_PATTERN ],
+        [ 'strong_unconstrained', FormattingNode.Type.STRONG, false, STRONG_UNCONSTRAINED_PATTERN ],
+        [ 'emphasis_constrained', FormattingNode.Type.STRONG, true, EMPHASIS_CONSTRAINED_PATTERN ],
+        [ 'emphasis_unconstrained', FormattingNode.Type.STRONG, false, EMPHASIS_UNCONSTRAINED_PATTERN ],
+    ]
 
     /**
      * internal class
@@ -475,7 +567,6 @@ $
             item = null
         } else {
             Paragraph para = item.blocks[0]
-            para.lines[0] = line
 
             list << item
         }
@@ -498,20 +589,30 @@ $
 
         Paragraph para = null
 
+        def lines = []
+
         boolean first = true
         def line = reader.peekLine()
         while (line != null && line.length() > 0) {
-            if (inList && !first) {
-                // is list continuation
-                if (isListContinuation(line) != null) {
-                    break
-                }
+            if (inList) {
+                if (first) {
+                    // only get the content of the first line that comes from a list item
+                    def firstLine = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
+                    if (firstLine != null) {
+                        line = firstLine
+                    }
+                } else {
+                    // is list continuation
+                    if (isListContinuation(line) != null) {
+                        break
+                    }
 
-                // check block header for every line
-                parseBlockHeader()
+                    // check block header for every line
+                    parseBlockHeader()
 
-                if (isList(blockHeader.type)) {
-                    break
+                    if (isList(blockHeader.type)) {
+                        break
+                    }
                 }
             }
 
@@ -520,7 +621,7 @@ $
                 para.parent = parent
                 para.document = parent.document
             }
-            para.lines << line
+            lines << line
 
             reader.nextLine()
 
@@ -528,6 +629,9 @@ $
 
             first = false
         }
+
+        // parse the inline nodes
+        parseInlineNodes(para, lines.join('\n'))
 
         log.debug('End parsing paragraph, parent type: {}', parent.type)
         return para
@@ -735,6 +839,164 @@ $
     }
 
     /**
+     * Parse inline nodes from a text and construct the node tree
+     */
+    protected static List<Inline> parseInlineNodes(InlineContainer parent, String text) {
+        parent.info.with {
+            start = 0
+            end = text.length()
+            contentStart = parent.info.start
+            contentEnd = parent.info.end
+        }
+
+        log.info("Starting parsing inlines")
+
+        // go through all inline plugins
+        def inlineNodes = []
+        PluginRegistry.instance.getInlineParserPlugins().each { plugin ->
+            log.info "Parse inline with plugin: ${plugin.id}"
+            def m = plugin.pattern.matcher(text)
+            m.each { groups ->
+                log.info "matching ${groups[0]}"
+                def node = plugin.parse(m, groups)
+                if (node != null) {
+                    node.info.start = m.start()
+                    node.info.end = m.end()
+
+                    inlineNodes << node
+                }
+            }
+        }
+
+        // sort the result
+        inlineNodes.sort { it.info.start }
+
+        println "parsed inline nodes = $inlineNodes"
+
+        def resultInlines = []
+
+        // construct the object tree
+
+        // common functions
+        // find the appropriate inline container
+        def findParent
+        findParent = { container, inline ->
+            log.info("container constrained = ${container.info.constrained}, start = ${container.info.start}, end = ${container.info.end}")
+            def result = null
+            for (def child : container.inlineNodes) {
+                if (child instanceof InlineContainer) {
+                    result = findParent(child, inline)
+                }
+                if (result != null) {
+                    break
+                }
+            }
+
+            if (result == null) {
+                if (inline.info.start >= container.info.start
+                    && inline.info.end <= container.info.end) {
+                    result = container
+                }
+            }
+
+            return result
+        }
+
+        // fill gap
+        def fillGap
+        fillGap = { InlineContainer container, inline ->
+            if (inline == null) {
+                container.inlineNodes.each { child ->
+                    if (child instanceof InlineContainer) {
+                        fillGap(child, inline)
+                    }
+                }
+            }
+
+            def lastEnd = container.info.contentStart
+            def lastNode = null
+            if (container.inlineNodes.size() > 0) {
+                lastNode = container.inlineNodes.last()
+            }
+            if (lastNode != null) {
+                lastEnd = lastNode.info.end
+            }
+
+            def thisEnd = container.info.contentEnd
+            if (inline != null) {
+                thisEnd = inline.info.start
+            }
+            if (lastEnd < thisEnd) {
+                def node = new TextNode(parent: container,
+                                        text: text.substring(lastEnd, thisEnd))
+                node.info.with {
+                    start = lastEnd
+                    end = thisEnd
+                    contentStart = start
+                    contentEnd = end
+                }
+                container << node
+                if (container == parent) {
+                    resultInlines << node
+                }
+            }
+        }
+
+        inlineNodes.each { inline ->
+            log.info("info = $inline")
+            def container = findParent(parent, inline)
+
+            // FIXME: the parsed inlines may overlap
+
+            // no container is found, normally not possible
+            if (container == null) {
+                return
+            }
+
+            // the parent doesn't fully cover the child
+            if (inline.info.start < container.info.contentStart
+                && inline.info.end > container.info.contentEnd) {
+                return
+            }
+
+            // fill gap from last sibling node
+            fillGap(container, inline)
+
+            container << inline
+
+            if (container == parent) {
+                resultInlines << inline
+            }
+        }
+
+        fillGap(parent, null)
+
+        //println parent.nodes
+        def printInline
+        printInline = { inline ->
+            log.info "constrained = ${inline.info.constrained}, start = ${inline.info.start}, end = ${inline.info.end}, content start = ${inline.info.contentStart}, content end = ${inline.info.contentEnd}"
+            if (inline instanceof TextNode) {
+                log.info "text = '${inline.text}'"
+                log.info ""
+            } else if (inline instanceof InlineContainer) {
+                if (inline instanceof FormattingNode) {
+                    log.info "base type: ${inline.formattingType}"
+                }
+
+                inline.inlineNodes.each { node ->
+                    printInline(node)
+                }
+            }
+        }
+
+        printInline(parent)
+
+        log.info "inlines = ${resultInlines}"
+        return resultInlines
+
+    }
+
+    /**
      * Create an author from a string
      */
     protected static Author createAuthor(String authorText) {
@@ -881,6 +1143,17 @@ $
         }
 
         line = m[0][1]
+
+        return parseAttributes(line)
+    }
+
+    /**
+     * Parse general attributes, not the document attributes.
+     *
+     * @param text the attributes text with []
+     */
+    protected static Map<String, String> parseAttributes(String text) {
+        def line = text
 
         def attrs = [:] as LinkedHashMap<String, String>
 

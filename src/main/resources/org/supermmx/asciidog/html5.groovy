@@ -1,6 +1,7 @@
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Section
+import org.supermmx.asciidog.ast.FormattingNode
 
 def blocks
 def section
@@ -8,9 +9,12 @@ def paragraph
 def ulist
 def olist
 def list_items
+def inline_node
+def inline_container
+def format_text
 
 paragraph = { Paragraph para ->
-    p(para.lines.join('\n'))
+    p { inline_container(para) }
     newLine()
 }
 
@@ -81,6 +85,34 @@ list_items = { items ->
         newLine()
     }
 
+}
+
+inline_container = { inlineContainer ->
+    inlineContainer.inlineNodes.each { inline ->
+        inline_node(inline)
+    }
+}
+
+inline_node = { inline ->
+    switch (inline.type) {
+    case Node.Type.INLINE_TEXT:
+        yield inline.text
+        break
+    case Node.Type.INLINE_FORMATTED_TEXT:
+        format_text(inline)
+        break
+    }
+}
+
+format_text = { tfNode ->
+    switch (tfNode.formattingType) {
+    case FormattingNode.Type.STRONG:
+      strong { inline_container(tfNode) }
+      break
+    case FormattingNode.Type.EMPHASIS:
+      em { inline_container(tfNode) }
+      break
+    }
 }
 
 // main content

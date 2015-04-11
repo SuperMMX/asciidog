@@ -13,26 +13,32 @@ class Node {
         COMMENT_LINE,
         DELIMITED_BLOCK,
         DOCUMENT,
+        INLINE_ATTRIBUTE_REFERENCE,
+        INLINE_CROSS_REFERENCE,
+        INLINE_FORMATTED_TEXT,
+        INLINE_MACRO,
+        INLINE_REPLACEMENT,
+        INLINE_TEXT,
         LIST_ITEM,
         ORDERED_LIST,
         PARAGRAPH,
         SECTION,
         TABLE,
-        UNORDERED_LIST,
+        UNORDERED_LIST
+
+        boolean isInline() {
+            return name().startsWith('INLINE_')
+        }
+
+        boolean isList() {
+            return name().endsWith('_LIST')
+        }
     }
 
     Type type
     String id
-    Map<String, AttributeEntry> attributes = [:]
+    Map<String, String> attributes = [:]
     Node parent
 
     Document document
-
-    void setAttribute(AttributeEntry attr) {
-        attributes[attr.name] = attr
-    }
-
-    void unsetAttribute(AttributeEntry attr) {
-        attributes.remove(attr.name)
-    }
 }

@@ -6,15 +6,7 @@ import org.supermmx.asciidog.ast.Header
 
 import spock.lang.*
 
-class ParserDocumentSpec extends Specification {
-    @Shared
-    def builder = new ObjectGraphBuilder()
-
-    def setupSpec() {
-        builder.classNameResolver = "org.supermmx.asciidog.ast"
-        builder.identifierResolver = "uid"
-    }
-
+class ParserDocumentSpec extends AsciidogSpec {
     def 'parse: document: doctype'() {
         given:
         def content = '''
@@ -22,12 +14,8 @@ class ParserDocumentSpec extends Specification {
 :doctype: book
 
 '''
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         when:
-        def doc = parser.parseDocument()
+        def doc = parser(content).parseDocument()
 
         then:
         doc == builder.document(docType: Document.DocType.book) {
@@ -41,31 +29,27 @@ class ParserDocumentSpec extends Specification {
 
     def 'parse: document: preamble'() {
         given:
-        def content = '''
+        def text1 = '''this is the paragraph
+in the preamble
+of the document'''
+        def text2 = '''and a new paragraph'''
+        def content = """
 = Document Title
 
-this is the paragraph
-in the preamble
-of the document
+$text1
 
-and a new paragraph
+$text2
 
-'''
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
+"""
         when:
-        def doc = parser.parseDocument()
+        def doc = parser(content).parseDocument()
 
         then:
         doc == builder.document(docType: Document.DocType.article) {
             header(title: 'Document Title')
             current.blocks = [
-                paragraph(lines: ['this is the paragraph',
-                                  'in the preamble',
-                                  'of the document']),
-                paragraph(lines: ['and a new paragraph'])
+                para(text1),
+                para(text2)
             ]
         }
     }
@@ -77,12 +61,8 @@ and a new paragraph
 
 = Section
 '''
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         when:
-        def doc = parser.parseDocument()
+        def doc = parser(content).parseDocument()
 
         then:
         doc == builder.document(docType: Document.DocType.article) {
@@ -98,12 +78,8 @@ and a new paragraph
 
 == Section
 '''
-        def parser = new Parser()
-        def reader = Reader.createFromString(content)
-        parser.reader = reader
-
         when:
-        def doc = parser.parseDocument()
+        def doc = parser(content).parseDocument()
 
         then:
         doc == builder.document(docType: Document.DocType.book) {
