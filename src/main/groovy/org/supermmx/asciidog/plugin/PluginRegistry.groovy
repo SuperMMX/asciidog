@@ -54,5 +54,8 @@ class PluginRegistry {
 
             register(plugin)
         }
+
+        // Cross Reference Inline Parser Plugin
+        register(new CrossReferenceInlineParserPlugin())
     }
 }
