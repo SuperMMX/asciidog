@@ -28,9 +28,17 @@ apply plugin:'application'
 
 mainClassName = 'org.supermmx.asciidog.AsciiDog'
 
+if (!project.hasProperty('input')) {
+    ext.input = 'input.adoc'
+}
+
 run {
     // -Pdoc=
-    args = [ doc, 'build/out.html']
+    args = [ input, 'build/out.html']
 
     systemProperties System.properties
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
 }
