@@ -1,8 +1,8 @@
 = AsciiDog
 
-AsciiDog is an implemenation in http://groovy-lang.org[Groovy] of the
+AsciiDog is an implementation in http://groovy-lang.org[Groovy] of the
 popular lightweight markup language http://asciidoc.org[AsciiDoc]
-(another popular implmentation is http://asciidoctor.org[Asciidoctor]).
+(another popular implementation is http://asciidoctor.org[Asciidoctor]).
 
 There is no official AsciiDoc grammar yet, but people are
 http://discuss.asciidoctor.org/Asciidoc-syntax-definition-td1920.html[showing interest]
