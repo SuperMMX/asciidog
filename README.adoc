@@ -1,0 +1,38 @@
+= AsciiDog
+
+AsciiDog is an implemenation in http://groovy-lang.org[Groovy] of the
+popular lightweight markup language http://asciidoc.org[AsciiDoc]
+(another popular implmentation is http://asciidoctor.org[Asciidoctor]).
+
+There is no official AsciiDoc grammar yet, but people are
+http://discuss.asciidoctor.org/Asciidoc-syntax-definition-td1920.html[showing interest]
+to create one.
+
+This project is still in very early stage, and not ready for any
+kind of usage.
+
+== Implemented Features
+
+=== Parser
+
+* Structure
+** Document header
+*** Title
+*** Author
+*** Basic document attribute
+** General block
+*** Attribute
+*** ID
+*** Title
+** Section
+** Include
+* List
+** Ordered list
+** Unordered list
+* Inline
+** Strong
+** Emphasis
+
+=== Converter
+
+* Basic Top-Down HTML5
