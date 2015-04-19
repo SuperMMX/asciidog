@@ -32,6 +32,7 @@ blocks = { blks ->
             break
         case Node.Type.PARAGRAPH:
             paragraph(block)
+            break
         }
     }
 }
@@ -107,11 +108,11 @@ inline_node = { inline ->
 format_text = { tfNode ->
     switch (tfNode.formattingType) {
     case FormattingNode.Type.STRONG:
-      strong { inline_container(tfNode) }
-      break
+        strong { inline_container(tfNode) }
+        break
     case FormattingNode.Type.EMPHASIS:
-      em { inline_container(tfNode) }
-      break
+        em { inline_container(tfNode) }
+        break
     }
 }
 
