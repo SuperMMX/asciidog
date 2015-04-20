@@ -1,6 +1,8 @@
 apply plugin: 'groovy'
 
 repositories {
+    mavenLocal()
+
     jcenter()
 
     maven {
@@ -9,6 +11,8 @@ repositories {
 }
 
 dependencies {
+    compile 'com.craigburke.document:pdf:0.3.1'
+
     compile 'org.slf4j:slf4j-api:1.7.10'
     compile 'org.codehaus.groovy:groovy-all:2.4.3'
 
@@ -33,8 +37,8 @@ if (!project.hasProperty('input')) {
 }
 
 run {
-    // -Pdoc=
-    args = [ input, 'build/out.html']
+    // -Pinput= -Poutput=
+    args = [ input, 'build/output.html']
 
     systemProperties System.properties
 }
