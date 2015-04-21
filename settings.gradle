@@ -1,1 +1,2 @@
 include 'asciidog'
+include 'asciidog-html5'
