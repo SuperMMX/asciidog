@@ -1,0 +1,53 @@
+plugins {
+    id 'application'
+}
+
+allprojects {
+    apply plugin: 'groovy'
+
+    targetCompatibility = 1.6
+        
+    repositories {
+        mavenLocal()
+
+        jcenter()
+        mavenCentral()
+    }
+
+    dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.4.3'
+        compile 'org.slf4j:slf4j-api:1.7.10'
+
+        testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+            exclude group:'org.codehaus.groovy'
+        }
+
+        runtime 'ch.qos.logback:logback-classic:1.1.2'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
+
+dependencies {
+    runtime project(':asciidog')
+    runtime project(':asciidog-html5')
+}
+
+mainClassName = 'org.supermmx.asciidog.AsciiDog'
+
+if (!project.hasProperty('input')) {
+    ext.input = 'input.adoc'
+}
+
+if (!project.hasProperty('output')) {
+    ext.output = 'output.html'
+}
+
+run {
+    // -Pinput= -Poutput=
+    args = [ input, "build/${output}" ]
+
+    systemProperties System.properties
+}
