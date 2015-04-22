@@ -1,6 +1,7 @@
 package org.supermmx.asciidog.plugin
 
 import org.supermmx.asciidog.Parser
+import org.supermmx.asciidog.backend.Backend
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.FormattingNode
 
@@ -8,16 +9,35 @@ import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger
 
+import java.util.ServiceLoader
+
 /**
  * Plugin registry
  */
 @Slf4j
 @Singleton(strict=false)
 class PluginRegistry {
+    Map<String, Backend> backends = [:]
     List<Plugin> plugins = []
 
     PluginRegistry() {
         registerDefaultPlugins()
+
+        loadBackends()
+
+        loadPlugins()
+    }
+
+    void loadBackends() {
+        ServiceLoader.load(Backend.class).each { backend ->
+            backends[backend.id] = backend
+        }
+    }
+
+    void loadPlugins() {
+        ServiceLoader.load(Plugin.class).each { plugin ->
+            register(plugin)
+        }
     }
 
     void register(Plugin plugin) {
