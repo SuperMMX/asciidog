@@ -29,7 +29,7 @@ class Converter {
         // load backend and rendering plugins
         def backend = PluginRegistry.instance.getBackend(backendId)
         if (backend == null) {
-            userLog.error("ERROR: Backend ${backendStr} not found")
+            userLog.error("ERROR: Backend ${backendId} not found")
 
             return
         }
