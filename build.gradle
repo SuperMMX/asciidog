@@ -24,6 +24,11 @@ allprojects {
 
         runtime 'ch.qos.logback:logback-classic:1.1.2'
     }
+
+    test {
+        systemProperties System.properties
+        testLogging.showStandardStreams = true
+    }
 }
 
 task wrapper(type: Wrapper) {
