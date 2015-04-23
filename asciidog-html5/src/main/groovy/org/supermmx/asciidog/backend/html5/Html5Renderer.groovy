@@ -1,6 +1,10 @@
 package org.supermmx.asciidog.backend.html5
 
+import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.backend.Renderer
+
+import groovy.text.markup.MarkupTemplateEngine
+import groovy.text.markup.TemplateConfiguration
 
 class Html5Renderer implements Renderer {
     Html5Renderer(Map<String, Object> options) {
