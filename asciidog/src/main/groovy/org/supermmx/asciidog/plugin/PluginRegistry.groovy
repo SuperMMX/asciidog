@@ -15,6 +15,7 @@ import java.util.ServiceLoader
  * Plugin registry
  */
 @Slf4j
+@Slf4j(value='userLog', category="AsciiDog")
 @Singleton(strict=false)
 class PluginRegistry {
     Map<String, Backend> backends = [:]
@@ -28,20 +29,35 @@ class PluginRegistry {
         loadPlugins()
     }
 
-    void loadBackends() {
+    /**
+     * Get the backend with the specified id
+     *
+     * @param id the backend id
+     *
+     * @return the backend
+     */
+    Backend getBackend(String id) {
+        return backends[(id)]
+    }
+
+    /**
+     * Load backends found in classpath
+     */
+    private void loadBackends() {
         ServiceLoader.load(Backend.class).each { backend ->
-            backends[backend.id] = backend
+            backends[(backend.id)] = backend
+            userLog.info("[BACKEND] Backend ${backend.id} found")
         }
     }
 
-    void loadPlugins() {
+    private void loadPlugins() {
         ServiceLoader.load(Plugin.class).each { plugin ->
             register(plugin)
         }
     }
 
     void register(Plugin plugin) {
-        log.info "Registering plugin ID: '${plugin.id}', Type: ${plugin.type}, Node Type: ${plugin.nodeType}"
+        log.info "[PLUGIN] Registering plugin ID: '${plugin.id}', Type: ${plugin.type}, Node Type: ${plugin.nodeType}"
 
         if (plugins.find { it.id == plugin.id } == null) {
             plugins << plugin

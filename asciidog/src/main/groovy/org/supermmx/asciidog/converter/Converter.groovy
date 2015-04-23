@@ -1,9 +1,8 @@
 package org.supermmx.asciidog.converter
 
 import org.supermmx.asciidog.ast.Document
+import org.supermmx.asciidog.plugin.PluginRegistry
 
-import groovy.text.markup.MarkupTemplateEngine
-import groovy.text.markup.TemplateConfiguration
 import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger
@@ -14,11 +13,6 @@ import org.slf4j.Logger
 @Slf4j
 @Slf4j(value='userLog', category="AsciiDog")
 class Converter {
-    // Attribute names
-
-    static String DOCTYPE = 'doctype'
-    static String TOC = 'toc'
-
     void convert(Document doc) {
         log.info('Converting document and output to console...')
 
@@ -29,29 +23,31 @@ class Converter {
         println writer.toString()
     }
 
-    void convertToHtmlFile(Document doc, String file) {
-        log.info('Converting document to HTML5 file {}...', file)
-        Writer writer = new BufferedWriter(new FileWriter(file))
+    void convertToFile(Document doc, String file,
+                       String backendId,
+                       Map<String, Object> options) {
+        // load backend and rendering plugins
+        def backend = PluginRegistry.instance.getBackend(backendId)
+        if (backend == null) {
+            userLog.error("ERROR: Backend ${backendStr} not found")
 
-        convertToHtml(doc, writer)
+            return
+        }
 
-        writer.close()
+        def fileObj = new File(file)
+        def dir = fileObj.parentFile
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        def os = fileObj.newOutputStream()
+
+        def renderer = backend.createRenderer(options)
+        renderer.renderDocument(doc, os)
+
+        os.close()
     }
 
     void convertToHtml(Document doc, Writer writer) {
-        def config = new TemplateConfiguration()
-        config.with {
-            autoNewLine = true
-            autoIndent = true
-            autoIndentString = '  '
-            autoEscape = true
-        }
-
-        def engine = new MarkupTemplateEngine(getClass().getClassLoader(), config)
-        def template = engine.createTemplateByPath('org/supermmx/asciidog/html5.groovy')
-        def model = [:]
-        model['doc'] = doc
-        def output = template.make(model)
-        output.writeTo(writer)
+        
     }
 }

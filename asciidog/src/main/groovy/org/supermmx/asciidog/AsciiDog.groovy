@@ -24,6 +24,6 @@ class AsciiDog {
         Document doc = parser.parseFile(file)
 
         Converter converter = new Converter()
-        converter.convertToHtmlFile(doc, output)
+        converter.convertToFile(doc, output, 'html5', [:])
     }
 }
