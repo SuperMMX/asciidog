@@ -13,6 +13,12 @@ interface Backend {
     String getId()
 
     /**
+     * Get the extension for the file generated from this backend,
+     * like '.html', '.pdf'
+     */
+    String getExt()
+
+    /**
      * Create the renderer with the specified options
      */
     Renderer createRenderer(Map<String, Object> options)

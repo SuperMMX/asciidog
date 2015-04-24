@@ -6,6 +6,7 @@ import org.supermmx.asciidog.backend.Renderer
 class Html5Backend extends AbstractBackend {
     Html5Backend() {
         id = 'html5'
+        ext = '.html'
     }
 
     Renderer createRenderer(Map<String, Object> options) {

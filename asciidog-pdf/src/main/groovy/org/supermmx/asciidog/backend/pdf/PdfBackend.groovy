@@ -9,6 +9,7 @@ import org.supermmx.asciidog.backend.Renderer
 class PdfBackend extends AbstractBackend {
     PdfBackend() {
         id = 'pdf'
+        ext = '.pdf'
     }
 
     Renderer createRenderer(Map<String, Object> options) {

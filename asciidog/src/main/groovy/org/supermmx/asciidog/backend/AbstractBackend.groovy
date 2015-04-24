@@ -5,4 +5,5 @@ package org.supermmx.asciidog.backend
  */
 abstract class AbstractBackend implements Backend {
     String id
+    String ext
 }
