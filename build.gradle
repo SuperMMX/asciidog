@@ -48,11 +48,15 @@ if (!project.hasProperty('input')) {
 }
 
 if (!project.hasProperty('output')) {
-    ext.output = 'output.html'
+    ext.output = 'output'
+}
+
+if (!project.hasProperty('backends')) {
+    ext.backends = 'html5, pdf'
 }
 
 run {
-    // -Pinput= -Poutput=
+    // -Pinput= -Poutput= -Pbackends=
     args = [ input, "build/${output}" ]
 
     systemProperties System.properties
