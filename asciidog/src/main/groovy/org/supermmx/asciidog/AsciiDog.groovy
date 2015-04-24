@@ -2,6 +2,7 @@ package org.supermmx.asciidog
 
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.converter.Converter
+import org.supermmx.asciidog.plugin.PluginRegistry
 
 import groovy.util.logging.Slf4j
 
@@ -24,6 +25,9 @@ class AsciiDog {
         Document doc = parser.parseFile(file)
 
         Converter converter = new Converter()
-        converter.convertToFile(doc, output, 'html5', [:])
+
+        PluginRegistry.instance.backends.each { id, backend ->
+            converter.convertToFile(doc, output + backend.ext, id, [:])
+        }
     }
 }
