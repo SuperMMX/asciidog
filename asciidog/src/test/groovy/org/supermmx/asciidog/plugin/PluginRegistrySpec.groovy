@@ -6,7 +6,7 @@ import org.supermmx.asciidog.backend.Backend
 import org.supermmx.asciidog.backend.Renderer
 
 class PluginRegistrySpec extends AsciidogSpec {
-    def 'backend plugins'() {
+    def 'backends'() {
         given:
         def testDir = new File(this.class.protectionDomain.codeSource.location.path)
         def servicesFile = new File(testDir, 'META-INF/services/org.supermmx.asciidog.backend.Backend')
@@ -15,31 +15,40 @@ class PluginRegistrySpec extends AsciidogSpec {
         } else {
             servicesFile.delete()
         }
-        servicesFile << 'org.supermmx.asciidog.plugin.TestBackend\n'
-        servicesFile << 'org.supermmx.asciidog.plugin.AnotherBackend\n'
+        servicesFile << 'org.supermmx.asciidog.backend.TestBackend\n'
+        servicesFile << 'org.supermmx.asciidog.backend.AnotherBackend\n'
 
         expect:
-        PluginRegistry.instance.backends['test-backend'].getClass().name == 'org.supermmx.asciidog.plugin.TestBackend'
-        PluginRegistry.instance.backends['another-backend'].getClass().name == 'org.supermmx.asciidog.plugin.AnotherBackend'
+        PluginRegistry.instance.backends['test-backend'] instanceof org.supermmx.asciidog.backend.TestBackend
+        PluginRegistry.instance.backends['another-backend'] instanceof org.supermmx.asciidog.backend.AnotherBackend
+    }
+
+    def 'custom plugins'() {
+        given:
+        def testDir = new File(this.class.protectionDomain.codeSource.location.path)
+        def servicesFile = new File(testDir, 'META-INF/services/org.supermmx.asciidog.plugin.Plugin')
+        if (!servicesFile.parentFile.exists()) {
+            servicesFile.parentFile.mkdirs()
+        } else {
+            servicesFile.delete()
+        }
+        servicesFile << 'org.supermmx.asciidog.plugin.TestPlugin\n'
+        servicesFile << 'org.supermmx.asciidog.plugin.AnotherPlugin\n'
+
+        expect:
+        PluginRegistry.instance.getPlugin('test-parser-plugin') instanceof TestPlugin
+        PluginRegistry.instance.getPlugin('another-renderer-plugin') instanceof AnotherPlugin
     }
 }
 
-class TestBackend extends AbstractBackend {
-    TestBackend() {
-        id = 'test-backend'
-    }
-
-    Renderer createRenderer(Map<String, Object> options) {
-        return null
+class TestPlugin extends ParserPlugin {
+    TestPlugin() {
+        id = 'test-parser-plugin'
     }
 }
 
-class AnotherBackend extends AbstractBackend {
-    AnotherBackend() {
-        id = 'another-backend'
-    }
-
-    Renderer createRenderer(Map<String, Object> options) {
-        return null
+class AnotherPlugin extends ParserPlugin {
+    AnotherPlugin() {
+        id = 'another-renderer-plugin'
     }
 }

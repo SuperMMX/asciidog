@@ -44,6 +44,7 @@ class PluginRegistry {
      * Load backends found in classpath
      */
     private void loadBackends() {
+        userLog.info('[BACKEND] Looking up backends...')
         ServiceLoader.load(Backend.class).each { backend ->
             backends[(backend.id)] = backend
             userLog.info("[BACKEND] Backend ${backend.id} found")
@@ -51,6 +52,7 @@ class PluginRegistry {
     }
 
     private void loadPlugins() {
+        userLog.info('[PLUGIN] Looking up plugins...')
         ServiceLoader.load(Plugin.class).each { plugin ->
             register(plugin)
         }
@@ -64,13 +66,17 @@ class PluginRegistry {
         }
     }
 
+    Plugin getPlugin(String id) {
+        return plugins.find { it.id == id }
+    }
+
     List<Plugin> getPlugins(Closure condition) {
         return plugins.findAll(condition)
     }
 
     List<InlineParserPlugin> getInlineParserPlugins() {
         return plugins.findAll { plugin ->
-            plugin.nodeType.isInline() && plugin.isParserPlugin()
+            plugin.nodeType?.isInline() && plugin.isParserPlugin()
         }
     }
 
