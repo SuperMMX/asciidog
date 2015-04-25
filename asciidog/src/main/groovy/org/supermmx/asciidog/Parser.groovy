@@ -294,7 +294,7 @@ _
 
         def doctypeAttr = attrContainer.getAttribute(Document.DOCTYPE)
         doc.docType = Document.DocType.valueOf(doctypeAttr.value)
-        log.info("Document Type is ${doc.docType}")
+        log.debug("Document Type: ${doc.docType}")
 
         if (doc.header == null) {
             return doc
@@ -668,7 +668,7 @@ _
 
         // parse author
         def authors = parseAuthors()
-        log.info("Authors = $authors")
+        log.debug("Authors: $authors")
         if (authors != null) {
             header.authors = authors
         }
@@ -849,15 +849,15 @@ _
             contentEnd = parent.info.end
         }
 
-        log.info("Starting parsing inlines")
+        log.debug("Start parsing inlines")
 
         // go through all inline plugins
         def inlineNodes = []
         PluginRegistry.instance.getInlineParserPlugins().each { plugin ->
-            log.info "Parse inline with plugin: ${plugin.id}"
+            log.debug "Parse inline with plugin: ${plugin.id}"
             def m = plugin.pattern.matcher(text)
             m.each { groups ->
-                log.info "matching ${groups[0]}"
+                log.debug "matching ${groups[0]}"
                 def node = plugin.parse(m, groups)
                 if (node != null) {
                     node.info.start = m.start()
@@ -871,7 +871,7 @@ _
         // sort the result
         inlineNodes.sort { it.info.start }
 
-        println "parsed inline nodes = $inlineNodes"
+        log.debug "parsed inline nodes = $inlineNodes"
 
         def resultInlines = []
 
@@ -881,7 +881,7 @@ _
         // find the appropriate inline container
         def findParent
         findParent = { container, inline ->
-            log.info("container constrained = ${container.info.constrained}, start = ${container.info.start}, end = ${container.info.end}")
+            log.debug("container constrained = ${container.info.constrained}, start = ${container.info.start}, end = ${container.info.end}")
             def result = null
             for (def child : container.inlineNodes) {
                 if (child instanceof InlineContainer) {
@@ -943,7 +943,7 @@ _
         }
 
         inlineNodes.each { inline ->
-            log.info("info = $inline")
+            log.debug("info = $inline")
             def container = findParent(parent, inline)
 
             // FIXME: the parsed inlines may overlap
@@ -974,13 +974,13 @@ _
         //println parent.nodes
         def printInline
         printInline = { inline ->
-            log.info "constrained = ${inline.info.constrained}, start = ${inline.info.start}, end = ${inline.info.end}, content start = ${inline.info.contentStart}, content end = ${inline.info.contentEnd}"
+            log.debug "constrained = ${inline.info.constrained}, start = ${inline.info.start}, end = ${inline.info.end}, content start = ${inline.info.contentStart}, content end = ${inline.info.contentEnd}"
             if (inline instanceof TextNode) {
-                log.info "text = '${inline.text}'"
-                log.info ""
+                log.debug "text = '${inline.text}'"
+                log.debug ""
             } else if (inline instanceof InlineContainer) {
                 if (inline instanceof FormattingNode) {
-                    log.info "base type: ${inline.formattingType}"
+                    log.debug "base type: ${inline.formattingType}"
                 }
 
                 inline.inlineNodes.each { node ->
@@ -991,7 +991,7 @@ _
 
         printInline(parent)
 
-        log.info "inlines = ${resultInlines}"
+        log.debug "inlines = ${resultInlines}"
         return resultInlines
 
     }

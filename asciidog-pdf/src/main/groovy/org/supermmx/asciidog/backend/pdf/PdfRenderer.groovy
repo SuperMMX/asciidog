@@ -105,7 +105,6 @@ class PdfRenderer implements Renderer {
     private void inlineNode(def builder, Inline inline) {
         switch (inline.type) {
         case Node.Type.INLINE_TEXT:
-        println "TEXT = ${inline.text}"
             builder.text inline.text
             break
         case Node.Type.INLINE_FORMATTED_TEXT:
@@ -115,11 +114,9 @@ class PdfRenderer implements Renderer {
     }
 
     private void formatText(def builder, FormattingNode tfNode) {
-        println "formatText"
         builder.with {
         switch (tfNode.formattingType) {
         case FormattingNode.Type.STRONG:
-            println "Strong node"
             font.bold = true
             inlineContainer(builder, tfNode)
             font.bold = false

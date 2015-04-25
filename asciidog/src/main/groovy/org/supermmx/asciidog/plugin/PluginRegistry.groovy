@@ -22,9 +22,9 @@ class PluginRegistry {
     List<Plugin> plugins = []
 
     PluginRegistry() {
-        registerDefaultPlugins()
-
         loadBackends()
+
+        registerDefaultPlugins()
 
         loadPlugins()
     }
@@ -57,7 +57,7 @@ class PluginRegistry {
     }
 
     void register(Plugin plugin) {
-        log.info "[PLUGIN] Registering plugin ID: '${plugin.id}', Type: ${plugin.type}, Node Type: ${plugin.nodeType}"
+        userLog.info "[PLUGIN] Registering plugin ID: '${plugin.id}', Type: ${plugin.type}, Node Type: ${plugin.nodeType}"
 
         if (plugins.find { it.id == plugin.id } == null) {
             plugins << plugin
