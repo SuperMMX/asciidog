@@ -1,0 +1,5 @@
+dependencies {
+    compile project(':asciidog')
+
+    compile 'com.craigburke.document:pdf:0.3.1'
+}

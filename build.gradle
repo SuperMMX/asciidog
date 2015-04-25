@@ -1,30 +1,45 @@
-apply plugin: 'groovy'
+plugins {
+    id 'application'
+}
 
-repositories {
-    jcenter()
+allprojects {
+    apply plugin: 'groovy'
 
-    maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    targetCompatibility = 1.6
+        
+    repositories {
+        mavenLocal()
+
+        jcenter()
+        mavenCentral()
     }
+
+    dependencies {
+        compile 'org.codehaus.groovy:groovy-all:2.4.3'
+        compile 'org.slf4j:slf4j-api:1.7.10'
+
+        testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+            exclude group:'org.codehaus.groovy'
+        }
+
+        runtime 'ch.qos.logback:logback-classic:1.1.2'
+    }
+
+    test {
+        systemProperties System.properties
+        testLogging.showStandardStreams = true
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
 }
 
 dependencies {
-    compile 'org.slf4j:slf4j-api:1.7.10'
-    compile 'org.codehaus.groovy:groovy-all:2.4.3'
-
-    testCompile("org.spockframework:spock-core:1.0-groovy-2.4") {
-        exclude group:'org.codehaus.groovy'
-    }
-
-    runtime 'ch.qos.logback:logback-classic:1.1.2'
+    runtime project(':asciidog')
+    runtime project(':asciidog-html5')
+    runtime project(':asciidog-pdf')
 }
-
-test {
-    systemProperties System.properties
-    testLogging.showStandardStreams = true
-}
-
-apply plugin:'application'
 
 mainClassName = 'org.supermmx.asciidog.AsciiDog'
 
@@ -32,13 +47,17 @@ if (!project.hasProperty('input')) {
     ext.input = 'input.adoc'
 }
 
-run {
-    // -Pdoc=
-    args = [ input, 'build/out.html']
-
-    systemProperties System.properties
+if (!project.hasProperty('output')) {
+    ext.output = 'output'
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
+if (!project.hasProperty('backends')) {
+    ext.backends = 'html5, pdf'
+}
+
+run {
+    // -Pinput= -Poutput= -Pbackends=
+    args = [ input, "build/${output}" ]
+
+    systemProperties System.properties
 }

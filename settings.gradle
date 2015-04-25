@@ -1,0 +1,3 @@
+include 'asciidog'
+include 'asciidog-html5'
+include 'asciidog-pdf'
