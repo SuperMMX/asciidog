@@ -25,7 +25,7 @@ abstract class InlineParserPlugin extends ParserPlugin {
      * @return the parsed inline node
      */
     Inline parse(Matcher m, List<String> groups) {
-        Inline inline = createNode();
+        Inline inline = createNode(m, groups);
 
         if (inline != null) {
             def success = fillNode(inline, m, groups)
@@ -47,7 +47,7 @@ abstract class InlineParserPlugin extends ParserPlugin {
      *
      * @return the newly created inline node
      */
-    protected abstract Inline createNode()
+    protected abstract Inline createNode(Matcher m, List<String> groups)
 
     /**
      * Fill data from regex to the inline
