@@ -99,5 +99,8 @@ class PluginRegistry {
 
         // Cross Reference Inline Parser Plugin
         register(new CrossReferenceInlineParserPlugin())
+
+        // Attribute Reference
+        register(new AttributeReferenceInlineParserPlugin())
     }
 }

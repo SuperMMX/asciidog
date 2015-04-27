@@ -230,13 +230,24 @@ _
 (.+?)               # 3, id
 >>
 '''
-    static final def TEXT_FORMATTING_PLUGIN_DATA = [
-        // id, format type, is constrained, pattern
-        [ 'strong_constrained', FormattingNode.Type.STRONG, true, STRONG_CONSTRAINED_PATTERN ],
-        [ 'strong_unconstrained', FormattingNode.Type.STRONG, false, STRONG_UNCONSTRAINED_PATTERN ],
-        [ 'emphasis_constrained', FormattingNode.Type.STRONG, true, EMPHASIS_CONSTRAINED_PATTERN ],
-        [ 'emphasis_unconstrained', FormattingNode.Type.STRONG, false, EMPHASIS_UNCONSTRAINED_PATTERN ],
-    ]
+    static final def ATTRIBUTE_REFERENCE_PATTERN = ~'''(?Usxm)
+(\\\\?)             # 1, escape
+\\{
+(                   # 2
+  (set|counter2?)   # 3, set or counter
+  :
+  ([^:]+?)          # 4, attribute name
+  (?:
+    :
+    (.*?)           # 5, attribute value
+  )?
+  |
+  (                 # 6, attribute name
+    .+?
+  )
+)
+\\}
+'''
 
     /**
      * internal class

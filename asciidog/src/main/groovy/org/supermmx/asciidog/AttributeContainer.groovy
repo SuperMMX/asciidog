@@ -3,6 +3,9 @@ package org.supermmx.asciidog
 import static org.supermmx.asciidog.Attribute.ValueType
 
 import org.supermmx.asciidog.ast.Document
+import org.supermmx.asciidog.ast.Inline
+import org.supermmx.asciidog.ast.Paragraph
+import org.supermmx.asciidog.ast.TextNode
 
 /**
  * The attribute may change in the document, and this may affect
@@ -71,7 +74,17 @@ class AttributeContainer {
                 finalValue = Integer.valueOf(value)
                 break
             default:
-                finalValue = value
+                // parse the attribute as a list of inline nodes
+                def para = new Paragraph()
+                def inlines = Parser.parseInlineNodes(para, value)
+                if (inlines.size() == 1
+                    && inlines[0] instanceof TextNode) {
+                    finalValue = value
+                } else {
+                    type = Attribute.ValueType.INLINES
+                    finalValue = inlines
+                }
+
                 break
             }
         }
