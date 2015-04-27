@@ -1,6 +1,7 @@
 package org.supermmx.asciidog
 
 import groovy.transform.EqualsAndHashCode
+import groovy.transform.ToString
 
 /**
  * A AsciiDoc document attribute, which can be set via system/api,
@@ -9,9 +10,10 @@ import groovy.transform.EqualsAndHashCode
  * will be used.
  */
 @EqualsAndHashCode(includeFields=true)
+@ToString(includeSuper=false, includePackage=false, includeNames=true)
 class Attribute {
     static enum ValueType {
-        STRING, BOOLEAN, INTEGER
+        STRING, BOOLEAN, INTEGER, INLINES
     }
 
     /**
