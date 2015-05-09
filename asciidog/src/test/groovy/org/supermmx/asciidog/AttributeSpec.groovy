@@ -65,4 +65,42 @@ class AttributeSpec extends AsciidogSpec {
 
         parser.attrContainer.getAttribute('release') == releaseAttr
     }
+
+    def 'render properly with simple names'() {
+        given:
+        def paraContent = '''Yo, {frog}!
+Beat {my_super-hero}!'''
+        def content = """= Document Title
+:frog: Tanglefoot
+:my_super-hero: Spiderman
+
+${paraContent}
+"""
+        def paragraph = builder.paragraph() {
+            current.info = inlineInfo(constrained: false, escaped: false,
+                                      start: 0, end: paraContent.length(), contentStart:0, contentEnd: paraContent.length())
+            current.inlineNodes = [
+                new TextNode('Yo, ', 0),
+                attributeReferenceNode(type: Node.Type.INLINE_ATTRIBUTE_REFERENCE,
+                                       name: 'frog') {
+                    current.info = inlineInfo(constrained: false, escaped: false,
+                                              start: 4, end: 10, contentStart:5, contentEnd: 9)
+                },
+                new TextNode('!\nBeat ', 10),
+                attributeReferenceNode(type: Node.Type.INLINE_ATTRIBUTE_REFERENCE,
+                                       name: 'my_super-hero') {
+                    current.info = inlineInfo(constrained: false, escaped: false,
+                                              start: 17, end: 32, contentStart:18, contentEnd: 31)
+                },
+                new TextNode('!', 32)
+            ]
+        }
+
+        when:
+        def parser = parser(content)
+        def doc = parser.parseDocument()
+
+        then:
+        doc.blocks[0] == paragraph
+    }
 }
