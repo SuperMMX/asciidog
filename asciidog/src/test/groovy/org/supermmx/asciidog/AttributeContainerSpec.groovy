@@ -196,4 +196,64 @@ class AttributeContainerSpec extends Specification {
                                                                 new TextNode('initial value', 0)
                                                             ])
     }
+
+    def 'should delete an attribute that ends with !'() {
+        given:
+        def container = new AttributeContainer()
+
+        when:
+        container.setAttribute('frog', Attribute.ValueType.STRING, 'Tanglefoot')
+        container.setAttribute('frog!', null)
+
+        then:
+        container.getAttribute('frog') == null
+    }
+
+    def 'should delete an attribute that ends with ! set via API'() {
+        given:
+        def container = new AttributeContainer()
+
+        when:
+        container.setAttribute('frog', Attribute.ValueType.STRING, 'Tanglefoot')
+        container.setSystemAttribute('frog!', '')
+
+        then:
+        container.getAttribute('frog') == null
+    }
+
+    def 'should delete an attribute that starts with !'() {
+        given:
+        def container = new AttributeContainer()
+
+        when:
+        container.setAttribute('frog', Attribute.ValueType.STRING, 'Tanglefoot')
+        container.setAttribute('!frog', null)
+
+        then:
+        container.getAttribute('frog') == null
+    }
+
+    def 'should delete an attribute that starts with ! set via API'() {
+        given:
+        def container = new AttributeContainer()
+
+        when:
+        container.setAttribute('frog', Attribute.ValueType.STRING, 'Tanglefoot')
+        container.setSystemAttribute('!frog', '')
+
+        then:
+        container.getAttribute('frog') == null
+    }
+
+    def 'should delete an attribute set via API to nil value'() {
+        given:
+        def container = new AttributeContainer()
+
+        when:
+        container.setAttribute('frog', Attribute.ValueType.STRING, 'Tanglefoot')
+        container.setSystemAttribute('frog', null)
+
+        then:
+        container.getAttribute('frog') == null
+    }
 }

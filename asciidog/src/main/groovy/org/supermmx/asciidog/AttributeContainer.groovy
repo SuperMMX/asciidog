@@ -112,6 +112,14 @@ class AttributeContainer {
             }
         }
 
+        // delete the attribute if the value is null
+        if (value == null) {
+            systemAttributes.remove(name)
+            attributes.remove(name)
+
+            return null
+        }
+
         def attr = new Attribute([ name: name,
                                    type: type,
                                    value: finalValue ])
