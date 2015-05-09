@@ -1,8 +1,14 @@
+import org.supermmx.asciidog.AttributeContainer
+import org.supermmx.asciidog.Attribute
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Section
 import org.supermmx.asciidog.ast.FormattingNode
 
+def attrs = new AttributeContainer()
+
+def header_attributes
+def attribute_reference
 def blocks
 def section
 def paragraph
@@ -12,6 +18,27 @@ def list_items
 def inline_node
 def inline_container
 def format_text
+
+header_attributes = { header ->
+    header.blocks.each { attr ->
+        attrs.setAttribute(attr.name, attr.value)
+    }
+}
+
+attribute_reference = { attrRef ->
+    def name = attrRef.name
+    def attr = attrs.getAttribute(name)
+    switch (attr.type) {
+    case Attribute.ValueType.INLINES:
+        attr.value.each { inline ->
+            inline_node(inline)
+        }
+        break
+    default:
+        yield attr.value
+        break
+    }
+}
 
 paragraph = { Paragraph para ->
     p { inline_container(para) }
@@ -102,6 +129,9 @@ inline_node = { inline ->
     case Node.Type.INLINE_FORMATTED_TEXT:
         format_text(inline)
         break
+    case Node.Type.INLINE_ATTRIBUTE_REFERENCE:
+        attribute_reference(inline)
+        break
     }
 }
 
@@ -134,6 +164,8 @@ html {
 
     body {
         h1(doc.header?.title)
+
+        header_attributes(doc.header)
 
         newLine()
 
