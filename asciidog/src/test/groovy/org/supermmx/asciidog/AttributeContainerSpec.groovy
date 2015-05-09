@@ -256,4 +256,34 @@ class AttributeContainerSpec extends Specification {
         then:
         container.getAttribute('frog') == null
     }
+
+    def 'doesn\'t choke when deleting a non-existing attribute'() {
+        given:
+        def container = new AttributeContainer()
+
+        when:
+        container.setAttribute('frog!', Attribute.ValueType.STRING, '')
+
+        then:
+        container.getAttribute('frog') == null
+    }
+
+    def 'performs attribute substitution on attribute value'() {
+        given:
+        def attr = new Attribute(name: 'release',
+                                 type: Attribute.ValueType.INLINES,
+                                 value: [
+                                     new TextNode('Asciidoctor ', 0),
+                                     new TextNode('1.0', 0)
+                                 ])
+
+        def container = new AttributeContainer()
+
+        when:
+        container.setAttribute('version', '1.0')
+        container.setAttribute('release', 'Asciidoctor {version}')
+
+        then:
+        container.getAttribute('release') == attr
+    }
 }
