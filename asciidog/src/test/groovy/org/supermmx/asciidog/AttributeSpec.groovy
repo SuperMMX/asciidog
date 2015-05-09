@@ -34,8 +34,8 @@ class AttributeSpec extends AsciidogSpec {
         }
 
         parser.attrContainer.getAttribute('var') == new Attribute([ name: 'var',
-                                                                    type: Attribute.ValueType.STRING,
-                                                                    value: 'new'])
+                                                                    type: Attribute.ValueType.INLINES,
+                                                                    value: [ new TextNode('new', 0)] ])
     }
 
     def 'performs attribute substitution on attribute value'() {
@@ -48,10 +48,7 @@ class AttributeSpec extends AsciidogSpec {
                                         type: Attribute.ValueType.INLINES)
         releaseAttr.value = [
             new TextNode('Asciidog ', 0),
-            builder.attributeReferenceNode(type: Node.Type.INLINE_ATTRIBUTE_REFERENCE,
-                                           name: 'version') {
-                current.info = inlineInfo(start: 9, end: 18, contentStart: 10, contentEnd: 17)
-            }
+            new TextNode('1.0', 0)
         ]
 
         when:

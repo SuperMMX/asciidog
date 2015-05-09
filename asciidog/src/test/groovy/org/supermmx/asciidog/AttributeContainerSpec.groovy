@@ -179,11 +179,19 @@ class AttributeContainerSpec extends Specification {
         when:
         container.setAttribute('init', 'initial value')
         container.setAttribute('newValue', 'new {init}')
+        container.setAttribute('newNewValue', 'new {newValue}')
 
         then:
         container.getAttribute('newValue') == new Attribute(name: 'newValue',
                                                             type: Attribute.ValueType.INLINES,
                                                             value: [
+                                                                new TextNode('new ', 0),
+                                                                new TextNode('initial value', 0)
+                                                            ])
+        container.getAttribute('newNewValue') == new Attribute(name: 'newNewValue',
+                                                            type: Attribute.ValueType.INLINES,
+                                                            value: [
+                                                                new TextNode('new ', 0),
                                                                 new TextNode('new ', 0),
                                                                 new TextNode('initial value', 0)
                                                             ])
