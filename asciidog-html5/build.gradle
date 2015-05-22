@@ -1,3 +1,5 @@
 dependencies {
     compile project(':asciidog')
+
+    testCompile 'org.ccil.cowan.tagsoup:tagsoup:1.2.1'
 }
