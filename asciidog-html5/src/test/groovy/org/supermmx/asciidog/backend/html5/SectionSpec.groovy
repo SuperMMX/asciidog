@@ -1,7 +1,5 @@
 package org.supermmx.asciidog.backend.html5
 
-import groovy.xml.*
-
 class SectionSpec extends Html5Spec {
     def 'section'() {
         given:
@@ -17,9 +15,9 @@ class SectionSpec extends Html5Spec {
         }
 
         when:
-        def html = adocHtml(content)
-
-        def body = XmlUtil.serialize(html.body)
+        def body = adocHtml(content) {
+            it.body
+        }
 
         then:
         body == expectedBody

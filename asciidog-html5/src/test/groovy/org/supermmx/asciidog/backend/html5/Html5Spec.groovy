@@ -28,9 +28,10 @@ class Html5Spec extends Specification {
     }
 
     /**
-     * Create xml slurper from AsciiDoc
+     * Create xml slurper from AsciiDoc, and return the html string
+     * of the element returned from the closure
      */
-    def adocHtml(String text) {
+    def adocHtml(String text, Closure closure) {
         def parser = new Parser()
         def reader = Reader.createFromString(text)
         parser.reader = reader
@@ -41,7 +42,9 @@ class Html5Spec extends Specification {
 
         def htmlText = baos.toString('UTF-8')
 
-        return html(htmlText)
+        def html = html(htmlText)
+
+        return XmlUtil.serialize(closure(html))
     }
 
     /**
