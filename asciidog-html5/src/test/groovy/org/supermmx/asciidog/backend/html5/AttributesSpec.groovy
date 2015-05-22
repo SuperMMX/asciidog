@@ -49,4 +49,27 @@ Beat {my_super-hero}!
         then:
         body == expectedBody
     }
+
+    def 'render properly with single character name'() {
+        given:
+        def content = '''= Document Title
+:r: Ruby
+
+R is for {r}!
+'''
+        def expectedBody = markupHtml {
+            body {
+                h1 'Document Title'
+                p 'R is for Ruby!'
+            }
+        }
+
+        when:
+        def body = adocHtml(content) {
+            it.body
+        }
+
+        then:
+        body == expectedBody
+    }
 }
