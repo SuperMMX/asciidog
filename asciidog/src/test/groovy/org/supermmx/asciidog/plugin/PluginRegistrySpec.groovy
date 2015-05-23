@@ -6,6 +6,14 @@ import org.supermmx.asciidog.backend.Backend
 import org.supermmx.asciidog.backend.Renderer
 
 class PluginRegistrySpec extends AsciidogSpec {
+
+    def cleanupSpec() {
+        def testDir = new File(this.class.protectionDomain.codeSource.location.path)
+        if (testDir.exists()) {
+            testDir.delete()
+        }
+    }
+
     def 'backends'() {
         given:
         def testDir = new File(this.class.protectionDomain.codeSource.location.path)
@@ -18,9 +26,12 @@ class PluginRegistrySpec extends AsciidogSpec {
         servicesFile << 'org.supermmx.asciidog.backend.TestBackend\n'
         servicesFile << 'org.supermmx.asciidog.backend.AnotherBackend\n'
 
-        expect:
-        PluginRegistry.instance.backends['test-backend'] instanceof org.supermmx.asciidog.backend.TestBackend
-        PluginRegistry.instance.backends['another-backend'] instanceof org.supermmx.asciidog.backend.AnotherBackend
+        when:
+        def registry = new PluginRegistry("test")
+
+        then:
+        registry.backends['test-backend'] instanceof org.supermmx.asciidog.backend.TestBackend
+        registry.backends['another-backend'] instanceof org.supermmx.asciidog.backend.AnotherBackend
     }
 
     def 'custom plugins'() {
@@ -35,9 +46,12 @@ class PluginRegistrySpec extends AsciidogSpec {
         servicesFile << 'org.supermmx.asciidog.plugin.TestPlugin\n'
         servicesFile << 'org.supermmx.asciidog.plugin.AnotherPlugin\n'
 
-        expect:
-        PluginRegistry.instance.getPlugin('test-parser-plugin') instanceof TestPlugin
-        PluginRegistry.instance.getPlugin('another-renderer-plugin') instanceof AnotherPlugin
+        when:
+        def registry = new PluginRegistry("test")
+
+        then:
+        registry.getPlugin('test-parser-plugin') instanceof TestPlugin
+        registry.getPlugin('another-renderer-plugin') instanceof AnotherPlugin
     }
 }
 
