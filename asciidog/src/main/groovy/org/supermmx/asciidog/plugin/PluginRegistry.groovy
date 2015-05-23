@@ -30,6 +30,15 @@ class PluginRegistry {
     }
 
     /**
+     * Test constructor that only loads external plugins and backends
+     */
+    protected PluginRegistry(String id) {
+        loadBackends()
+
+        loadPlugins()
+    }
+
+    /**
      * Get the backend with the specified id
      *
      * @param id the backend id
@@ -99,5 +108,8 @@ class PluginRegistry {
 
         // Cross Reference Inline Parser Plugin
         register(new CrossReferenceInlineParserPlugin())
+
+        // Attribute Reference
+        register(new AttributeReferenceInlineParserPlugin())
     }
 }

@@ -2,7 +2,16 @@ package org.supermmx.asciidog
 
 import static org.supermmx.asciidog.Attribute.ValueType
 
+import org.supermmx.asciidog.ast.AttributeReferenceNode
 import org.supermmx.asciidog.ast.Document
+import org.supermmx.asciidog.ast.Inline
+import org.supermmx.asciidog.ast.InlineContainer
+import org.supermmx.asciidog.ast.Paragraph
+import org.supermmx.asciidog.ast.TextNode
+
+import groovy.util.logging.Slf4j
+
+import org.slf4j.Logger
 
 /**
  * The attribute may change in the document, and this may affect
@@ -12,6 +21,8 @@ import org.supermmx.asciidog.ast.Document
  * This AttributeContainer keeps the latest values, and AttributeEntry
  * is used to track the actions in parsing and converting process.
  */
+@Slf4j
+@Slf4j(value='userLog', category="AsciiDog")
 class AttributeContainer {
     static final String UNSET = '!'
     // Default attributes
@@ -23,14 +34,22 @@ class AttributeContainer {
     Map<String, Attribute> attributes = [:]
 
     Attribute setSystemAttribute(String name, String value) {
-        setAttribute(name, value, true)
+        setAttribute(name, null, value, true)
     }
 
     Attribute setAttribute(String name, String value) {
-        setAttribute(name, value, false)
+        setAttribute(name, null, value, false)
     }
 
-    Attribute setAttribute(String name, String value, boolean isSystem) {
+    Attribute setSystemAttribute(String name, Attribute.ValueType type, String value) {
+        setAttribute(name, type, value, true)
+    }
+
+    Attribute setAttribute(String name, Attribute.ValueType type, String value) {
+        setAttribute(name, type, value, false)
+    }
+
+    Attribute setAttribute(String name, Attribute.ValueType type, String value, boolean isSystem) {
         def unset = false
 
         // get the name
@@ -49,10 +68,17 @@ class AttributeContainer {
         def defValue = null
 
         // determine the type
-        ValueType type = ValueType.STRING
         if (defAttr != null) {
+            if (type != null && type != defAttr.type) {
+                userLog.warn "Attribute type ${type} is different from the default attribute type ${defAttr.type}. Use the default type."
+            }
+
             type = defAttr.type
             defValue = defValue
+        }
+
+        if (type == null) {
+            type = Attribute.ValueType.INLINES
         }
 
         def finalValue = null
@@ -70,10 +96,28 @@ class AttributeContainer {
             case ValueType.INTEGER:
                 finalValue = Integer.valueOf(value)
                 break
-            default:
+            case ValueType.STRING:
                 finalValue = value
                 break
+            default:
+                // parse the attribute as a list of inline nodes
+                def para = new Paragraph()
+                def inlines = Parser.parseInlineNodes(para, value)
+
+                inlines = replaceAttributeReferences(inlines)
+                type = Attribute.ValueType.INLINES
+                finalValue = inlines
+
+                break
             }
+        }
+
+        // delete the attribute if the value is null
+        if (value == null) {
+            systemAttributes.remove(name)
+            attributes.remove(name)
+
+            return null
         }
 
         def attr = new Attribute([ name: name,
@@ -105,6 +149,35 @@ class AttributeContainer {
         }
 
         return attr
+    }
+
+    /**
+     * Replace the attribute references in the inlines
+     */
+    public List<Inline> replaceAttributeReferences(List<Inline> inlines) {
+        def result = []
+        inlines.each { inline ->
+            if (inline instanceof InlineContainer) {
+                // replace recursively
+                inline.inlineNodes = replaceAttributeReferences(inline.inlineNodes)
+                result << inline
+            } else if (inline instanceof AttributeReferenceNode) {
+                // replace the reference
+                def attr = getAttribute(inline.name)
+                if (attr.type == Attribute.ValueType.INLINES) {
+                    // inline value
+                    result.addAll(replaceAttributeReferences(attr.value))
+                } else {
+                    // normal value
+                    result << new TextNode(attr.value, 0)
+                }
+            } else {
+                // other inlines
+                result << inline
+            }
+        }
+
+        return result
     }
 
     /*

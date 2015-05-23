@@ -25,6 +25,8 @@ class Node {
         ORDERED_LIST,
         PARAGRAPH,
         SECTION,
+        SET_ATTRIBUTE,
+        SET_COUNTER,
         TABLE,
         UNORDERED_LIST
 

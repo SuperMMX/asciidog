@@ -18,7 +18,7 @@ class CrossReferenceInlineParserPlugin extends InlineParserPlugin {
         pattern = Parser.CROSS_REFERENCE_PATTERN
     }
 
-    Inline createNode() {
+    Inline createNode(Matcher m, List<String> groups) {
         CrossReferenceNode xrNode = new CrossReferenceNode()
 
         return xrNode

@@ -14,7 +14,7 @@ class TextFormattingInlineParserPlugin extends InlineParserPlugin {
         nodeType = Node.Type.INLINE_FORMATTED_TEXT
     }
 
-    Inline createNode() {
+    protected Inline createNode(Matcher m, List<String> groups) {
         FormattingNode inline = new FormattingNode()
 
         inline.info.constrained = this.constrained

@@ -1,6 +1,9 @@
 package org.supermmx.asciidog.backend.pdf
 
+import org.supermmx.asciidog.Attribute
+import org.supermmx.asciidog.AttributeContainer
 import org.supermmx.asciidog.backend.Renderer
+import org.supermmx.asciidog.ast.AttributeReferenceNode
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
 import org.supermmx.asciidog.ast.Inline
@@ -16,6 +19,8 @@ import com.craigburke.document.builder.PdfDocumentBuilder
  * PDF Renderer
  */
 class PdfRenderer implements Renderer {
+    private AttributeContainer attrs = new AttributeContainer()
+
     PdfRenderer(Map<String, Object> options) {
     }
 
@@ -39,6 +44,10 @@ class PdfRenderer implements Renderer {
                 header.authors.each { author ->
                     text "${author.firstname} ${author.lastname}"
                 }
+            }
+
+            header.blocks.each { attr ->
+                attrs.setAttribute(attr.name, attr.value)
             }
         }
     }
@@ -104,6 +113,9 @@ class PdfRenderer implements Renderer {
 
     private void inlineNode(def builder, Inline inline) {
         switch (inline.type) {
+        case Node.Type.INLINE_ATTRIBUTE_REFERENCE:
+            attributeReference(builder, inline)
+            break
         case Node.Type.INLINE_TEXT:
             builder.text inline.text
             break
@@ -124,6 +136,22 @@ class PdfRenderer implements Renderer {
         case FormattingNode.Type.EMPHASIS:
             break
         }
+        }
+    }
+
+    private void attributeReference(def builder, AttributeReferenceNode attrRef) {
+        def name = attrRef.name
+        def attr = attrs.getAttribute(name)
+
+        switch (attr.type) {
+        case Attribute.ValueType.INLINES:
+            attr.value.each { inline ->
+                inlineNode(builder, inline)
+            }
+            break
+        default:
+            builder.text attr.value
+            break
         }
     }
 }
