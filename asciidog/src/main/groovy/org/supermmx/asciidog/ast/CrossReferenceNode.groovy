@@ -12,6 +12,7 @@ import groovy.transform.ToString
  */
 class CrossReferenceNode extends Inline {
     String xrefId
+    // id, text (title or caption), number, page
     String xrefText
 
     CrossReferenceNode() {
