@@ -20,6 +20,8 @@ class Document extends Block {
 
     DocType docType
     Header header
+    // references in this document
+    Map<String, Node> references = [:]
 
     Document() {
         type = Node.Type.DOCUMENT
