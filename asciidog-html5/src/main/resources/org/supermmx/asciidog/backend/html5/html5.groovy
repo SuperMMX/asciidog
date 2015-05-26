@@ -9,6 +9,7 @@ def attrs = new AttributeContainer()
 
 def header_attributes
 def attribute_reference
+def cross_reference
 def blocks
 def section
 def paragraph
@@ -40,6 +41,10 @@ attribute_reference = { attrRef ->
     }
 }
 
+cross_reference = { xref ->
+    a(href: "#${xref.xrefId}", "${doc.references[(xref.xrefId)].title}")
+}
+
 paragraph = { Paragraph para ->
     p { inline_container(para) }
     newLine()
@@ -67,19 +72,19 @@ blocks = { blks ->
 section = { Section sec ->
     switch (sec.level) {
     case 0:
-        h1(sec.title)
+        h1(id: sec.id, sec.title)
         break
     case 1:
-        h2(sec.title)
+        h2(id: sec.id, sec.title)
         break
     case 2:
-        h3(sec.title)
+        h3(id: sec.id, sec.title)
         break
     case 3:
-        h4(sec.title)
+        h4(id: sec.id, sec.title)
         break
     case 4:
-        h5(sec.title)
+        h5(id: sec.id, sec.title)
         break
     }
 
@@ -131,6 +136,9 @@ inline_node = { inline ->
         break
     case Node.Type.INLINE_ATTRIBUTE_REFERENCE:
         attribute_reference(inline)
+        break
+    case Node.Type.INLINE_CROSS_REFERENCE:
+        cross_reference(inline)
         break
     }
 }
