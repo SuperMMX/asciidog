@@ -1435,20 +1435,28 @@ _
      */
     private void updateReference(Node node) {
         def id = null
-        if (node.id != null) {
-            id = node.id
-        } else {
-            switch (node.type) {
-            case Node.Type.SECTION:
-                // generate ids
-                break
-            default:
-                break
-            }
+
+        if (node.id == null) {
+            generateId(node)
         }
+
+        id = node.id
 
         if (id != null) {
             node.document.references[(id)] = node
+        }
+    }
+
+    /**
+     * Gerneate id for the node
+     */
+    public static void generateId(Node node) {
+        switch (node.type) {
+        case Node.Type.SECTION:
+            node.id = "_${node.title}"
+            break;
+        default:
+            break
         }
     }
 
