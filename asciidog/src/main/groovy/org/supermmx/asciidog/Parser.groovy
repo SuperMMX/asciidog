@@ -1437,12 +1437,13 @@ _
         def id = null
 
         if (node.id == null) {
+            // TODO: duplicated id
             generateId(node)
         }
 
         id = node.id
 
-        if (id != null) {
+        if (id != null && node.document != null) {
             node.document.references[(id)] = node
         }
     }

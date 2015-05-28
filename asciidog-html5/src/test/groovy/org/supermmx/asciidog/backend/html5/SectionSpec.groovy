@@ -10,7 +10,7 @@ class SectionSpec extends Html5Spec {
         def expectedBody = markupHtml {
             body {
                 h1 'Document Title'
-                h2 'Section Title'
+                h2(id: '_Section Title', 'Section Title')
             }
         }
 
