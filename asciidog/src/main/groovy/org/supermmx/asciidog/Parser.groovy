@@ -300,6 +300,7 @@ _
         log.debug('Start parsing document...')
 
         Document doc = new Document()
+        doc.document = doc
 
         doc.header = parseHeader()
 
@@ -387,6 +388,9 @@ _
                                       title: title)
         if (parent != null) {
             parent << section
+
+            // update reference
+            updateReference(section)
         }
 
         // go over section line
@@ -483,6 +487,9 @@ _
             blocks << block
             if (parent != null) {
                 parent << block
+
+                // update reference
+                updateReference(block)
             }
 
             if (inList) {
@@ -528,6 +535,7 @@ _
         }
 
         list.parent = parent
+        list.document = parent.document
         list.lead = blockHeader.properties[BlockHeader.LIST_LEAD]
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
@@ -939,6 +947,7 @@ _
             }
             if (lastEnd < thisEnd) {
                 def node = new TextNode(parent: container,
+                                        document: container.document,
                                         text: text.substring(lastEnd, thisEnd))
                 node.info.with {
                     start = lastEnd
@@ -974,6 +983,10 @@ _
             fillGap(container, inline)
 
             container << inline
+            inline.parent = container
+            inline.document = container.document
+
+            // TODO: update reference for anchor
 
             if (container == parent) {
                 resultInlines << inline
@@ -1415,5 +1428,45 @@ _
         }
 
         return result
+    }
+
+    /**
+     * Update document references for the specified node
+     */
+    private void updateReference(Node node) {
+        def id = null
+
+        if (node.id == null) {
+            // TODO: duplicated id
+            generateId(node)
+        }
+
+        id = node.id
+
+        if (id != null && node.document != null) {
+            node.document.references[(id)] = node
+        }
+    }
+
+    /**
+     * Gerneate id for the node
+     */
+    public static void generateId(Node node) {
+        switch (node.type) {
+        case Node.Type.SECTION:
+            node.id = "_${node.title}"
+            break;
+        default:
+            break
+        }
+    }
+
+    void walk(Node node, Closure closure) {
+        closure(node)
+        if (node instanceof Block) {
+            node.blocks.each { block ->
+                walk(node, closure)
+            }
+        }
     }
 }
