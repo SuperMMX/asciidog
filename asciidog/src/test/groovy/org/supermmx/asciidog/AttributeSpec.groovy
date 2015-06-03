@@ -101,6 +101,6 @@ ${paraContent}
         def doc = parser.parseDocument()
 
         then:
-        doc.blocks[0] == paragraph
+        doc.preamble.blocks[0] == paragraph
     }
 }
