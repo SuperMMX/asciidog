@@ -1,16 +1,43 @@
 package org.supermmx.asciidog.backend.html5
 
+import org.supermmx.asciidog.ast.AdocList
+import org.supermmx.asciidog.ast.Author
+import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
+import org.supermmx.asciidog.ast.Header
+import org.supermmx.asciidog.ast.Section
+import org.supermmx.asciidog.ast.Paragraph
+import org.supermmx.asciidog.ast.Preamble
 import org.supermmx.asciidog.backend.Renderer
+import org.supermmx.asciidog.converter.DocumentWalker
+import org.supermmx.asciidog.converter.DocumentContext
+import org.supermmx.asciidog.converter.DocumentTraverseListenerAdapter
 
-import groovy.text.markup.MarkupTemplateEngine
-import groovy.text.markup.TemplateConfiguration
+import javax.xml.stream.XMLOutputFactory
+import javax.xml.stream.XMLStreamWriter
+import java.lang.reflect.Proxy
 
-class Html5Renderer implements Renderer {
+class Html5Renderer extends DocumentTraverseListenerAdapter implements Renderer {
+
+    private XMLStreamWriter writer
+
     Html5Renderer(Map<String, Object> options) {
     }
 
     void renderDocument(Document doc, OutputStream os) {
+        def xmlWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(os, 'UTF-8')
+
+        PrettyPrintHandler handler = new PrettyPrintHandler(xmlWriter);
+        writer = (XMLStreamWriter) Proxy.newProxyInstance(
+            XMLStreamWriter.class.getClassLoader(),
+            [ XMLStreamWriter.class ] as Class[] ,
+            handler);
+
+        DocumentWalker walker = new DocumentWalker(this)
+
+        walker.traverse(doc)
+
+        /*
         def config = new TemplateConfiguration()
         config.with {
             autoNewLine = true
@@ -26,6 +53,84 @@ class Html5Renderer implements Renderer {
         def output = template.make(model)
 
         output.writeTo(new OutputStreamWriter(os))
+        */
+    }
+
+    void enterDocument(DocumentContext context, Document document) {
+        writer.with {
+            // no xml declaration
+            //writeStartDocument()
+
+            writeDTD('<!doctype html>')
+
+            writeStartElement('html')
+            writeDefaultNamespace('http://www.w3.org/1999/xhtml')
+
+            // head
+            writeStartElement('head')
+
+            writeStartElement('meta')
+            writeAttribute('charset', 'UTF-8')
+            writeEndElement()
+
+            writeStartElement('title')
+            writeCharacters(document.header.title)
+            writeEndElement()
+
+            // head
+            writeEndElement()
+
+            // body
+            writeStartElement('body')
+        }
+    }
+
+    void exitDocument(DocumentContext context, Document document) {
+        writer.with {
+            // body
+            writeEndElement()
+
+            // html
+            writeEndElement()
+
+            writeEndDocument()
+        }
+    }
+
+    void enterDocumentHeader(DocumentContext context, Header header) {
+        writer.with {
+            writeStartElement('h1')
+            writeCharacters(header.title)
+            writeEndElement()
+        }
+    }
+    void exitDocumentHeader(DocumentContext context, Header header) {
+    }
+
+    void enterPreamble(DocumentContext context, Preamble preamble) {
+    }
+    void exitPreamble(DocumentContext context, Preamble preamble) {
+    }
+
+    void enterSection(DocumentContext context, Section section) {
+        writer.with {
+            writeStartElement('h2')
+            writeCharacters(section.title)
+            writeEndElement()
+        }
+    }
+    void exitSection(DocumentContext context, Section section) {
+    }
+
+    void enterList(DocumentContext context, AdocList list) {
+    }
+    void exitList(DocumentContext context, AdocList list) {
+    }
+
+    void enterParagraph(DocumentContext context, Paragraph para) {
+        writer.writeStartElement('p')
+    }
+    void exitParagraph(DocumentContext context, Paragraph para) {
+        writer.writeEndElement()
     }
 }
-
