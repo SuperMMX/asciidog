@@ -13,6 +13,7 @@ import org.supermmx.asciidog.ast.ListItem
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.OrderedList
 import org.supermmx.asciidog.ast.Paragraph
+import org.supermmx.asciidog.ast.Preamble
 import org.supermmx.asciidog.ast.Section
 import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.ast.FormattingNode
@@ -317,7 +318,9 @@ _
 
         // preamble blocks
         log.debug('Start parsing document preamble blocks...')
-        parseBlocks(doc)
+        def preamble = new Preamble(parent: doc, document: doc.document)
+        parseBlocks(preamble)
+        doc.preamble = preamble
 
         log.debug('Start parsing document sections...')
         // sections
