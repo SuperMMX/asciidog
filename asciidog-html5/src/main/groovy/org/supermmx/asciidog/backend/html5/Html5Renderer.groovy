@@ -61,7 +61,7 @@ class Html5Renderer extends DocumentTraverseListenerAdapter implements Renderer 
             // no xml declaration
             //writeStartDocument()
 
-            writeDTD('<!doctype html>')
+            writeDTD('<!DOCTYPE html>')
 
             writeStartElement('html')
             writeDefaultNamespace('http://www.w3.org/1999/xhtml')
