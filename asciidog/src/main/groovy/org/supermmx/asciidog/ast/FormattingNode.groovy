@@ -11,7 +11,7 @@ import groovy.transform.ToString
  * An inline node with formatted text
  */
 class FormattingNode extends InlineContainerNode {
-    static enum Type {
+    static enum FormattingType {
         STRONG,
         EMPHASIS,
         MONOSPACED,
@@ -19,7 +19,7 @@ class FormattingNode extends InlineContainerNode {
         SUBSCRIPT
     }
 
-    Type formattingType
+    FormattingType formattingType
 
     FormattingNode() {
         type = Node.Type.INLINE_FORMATTED_TEXT
