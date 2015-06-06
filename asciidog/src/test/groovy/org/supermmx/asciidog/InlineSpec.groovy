@@ -125,7 +125,7 @@ class InlineSpec extends AsciidogSpec {
         def text = '**Git**Hub'
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 0, end: 7, contentStart: 2, contentEnd: 5)
                 current.inlineNodes = [
@@ -144,7 +144,7 @@ class InlineSpec extends AsciidogSpec {
         def text = '\\**Git**Hub'
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: false, escaped:true,
                                           start: 0, end: 8, contentStart: 3, contentEnd: 6)
                 current.inlineNodes = [
@@ -163,7 +163,7 @@ class InlineSpec extends AsciidogSpec {
         def text = '**G\ni\nt\n**Hub'
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 0, end: 10, contentStart: 2, contentEnd: 8)
                 current.inlineNodes = [
@@ -182,7 +182,7 @@ class InlineSpec extends AsciidogSpec {
         def text = '**bl*ck**-eye'
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 0, end: 9, contentStart: 2, contentEnd: 7)
                 current.inlineNodes = [
@@ -202,7 +202,7 @@ class InlineSpec extends AsciidogSpec {
         def nodes = [
             new TextNode('Git', 0),
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG,
+                                   formattingType: FormattingNode.FormattingType.STRONG,
                                    attributes: ['blue': null]) {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 3, end: 16, contentStart: 11, contentEnd: 14)
@@ -222,7 +222,7 @@ class InlineSpec extends AsciidogSpec {
         def nodes = [
             new TextNode('中', 0),
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 1, end: 7, contentStart: 3, contentEnd: 5)
                 current.inlineNodes = [
@@ -231,7 +231,7 @@ class InlineSpec extends AsciidogSpec {
             },
             new TextNode('落 with o', 7),
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 15, end: 21, contentStart: 17, contentEnd: 19)
                 current.inlineNodes = [
@@ -240,7 +240,7 @@ class InlineSpec extends AsciidogSpec {
             },
             new TextNode('er words\n', 21),
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: true, escaped:false,
                                           start: 30, end: 35, contentStart: 31, contentEnd: 34)
                 current.inlineNodes = [
@@ -259,7 +259,7 @@ class InlineSpec extends AsciidogSpec {
         def nodes = [
             new TextNode('Git', 0),
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG,
+                                   formattingType: FormattingNode.FormattingType.STRONG,
                                    attributes: ['blue': null]) {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 3, end: 16, contentStart: 11, contentEnd: 14)
@@ -278,7 +278,7 @@ class InlineSpec extends AsciidogSpec {
         def nodes = [
             new TextNode('Git', 0),
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG,
+                                   formattingType: FormattingNode.FormattingType.STRONG,
                                    attributes: ['blue': null]) {
                 current.info = inlineInfo(constrained: false, escaped:false,
                                           start: 3, end: 16, contentStart: 11, contentEnd: 14)
@@ -298,7 +298,7 @@ class InlineSpec extends AsciidogSpec {
         def text = "*$content*"
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: true, escaped:false,
                                           start: 0, end: text.length(), contentStart: 1, contentEnd: text.length() - 1)
                 current.inlineNodes = [
@@ -317,7 +317,7 @@ class InlineSpec extends AsciidogSpec {
         def text = "\\*$content*"
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: true, escaped:false,
                                           start: 0, end: text.length(), contentStart: 1, contentEnd: text.length() - 1)
                 current.inlineNodes = [
@@ -337,7 +337,7 @@ class InlineSpec extends AsciidogSpec {
         def text = "*$content*"
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: true, escaped:false,
                                           start: 0, end: text.length(), contentStart: 1, contentEnd: text.length() - 1)
                 current.inlineNodes = [
@@ -355,7 +355,7 @@ class InlineSpec extends AsciidogSpec {
         def text = '*bl*ck*-eye'
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: true, escaped:false,
                                           start: 0, end: 7, contentStart: 1, contentEnd: 6)
                 current.inlineNodes = [
@@ -374,7 +374,7 @@ class InlineSpec extends AsciidogSpec {
         def text = '*黑*眼圈*'
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: true, escaped:false,
                                           start: 0, end: 6, contentStart: 1, contentEnd: 5)
                 current.inlineNodes = [
@@ -392,7 +392,7 @@ class InlineSpec extends AsciidogSpec {
         def text = '[blue]*a few strong words*'
         def nodes = [
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG,
+                                   formattingType: FormattingNode.FormattingType.STRONG,
                                    attributes: [ 'blue':null ]) {
                 current.info = inlineInfo(constrained: true, escaped:false,
                                           start: 0, end: 26, contentStart: 7, contentEnd: 25)
@@ -435,7 +435,7 @@ class InlineSpec extends AsciidogSpec {
         node << [
             new TextNode(' text node ', 0),
             builder.formattingNode(type: Node.Type.INLINE_FORMATTED_TEXT,
-                                   formattingType: FormattingNode.Type.STRONG) {
+                                   formattingType: FormattingNode.FormattingType.STRONG) {
                 current.info = inlineInfo(constrained: true, escaped:false,
                                           start: 0, end: 7, contentStart: 1, contentEnd: 6)
 
