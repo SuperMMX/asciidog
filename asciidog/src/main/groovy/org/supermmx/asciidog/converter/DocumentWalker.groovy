@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.converter
 
+import org.supermmx.asciidog.Attribute
 import org.supermmx.asciidog.ast.AdocList
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Block
@@ -9,6 +10,8 @@ import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Section
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Preamble
+import org.supermmx.asciidog.ast.InlineContainer
+import org.supermmx.asciidog.ast.Inline
 
 class DocumentWalker {
     DocumentContext context
@@ -31,8 +34,8 @@ class DocumentWalker {
         traversePreamble(document.preamble)
 
         // sections
-        document.blocks.each { section ->
-            traverseSection(section)
+        document.blocks.each { block ->
+            traverseBlock(block)
         }
 
         listener.exitDocument(context, document)
@@ -52,6 +55,10 @@ class DocumentWalker {
 
     void traversePreamble(Preamble preamble) {
         listener.enterPreamble(context, preamble)
+
+        preamble.blocks.each { block ->
+            traverseBlock(block)
+        }
 
         listener.exitPreamble(context, preamble)
     }
@@ -105,8 +112,22 @@ class DocumentWalker {
     }
 
     void traverseInline(Inline inline) {
-        listener.enterInline(context, inline)
+        def render = true
+        if (inline.type == Node.Type.INLINE_ATTRIBUTE_REFERENCE) {
+            def name = inline.name
+            def attr = context.attrContainer.getAttribute(name)
+            if (attr.type == Attribute.ValueType.INLINES) {
+                render = false
+                attr.value.each { attrInline ->
+                    traverseInline(attrInline)
+                }
+            }
+        }
 
-        listener.exitInline(context, inline)
+        if (render) {
+            listener.enterInline(context, inline)
+
+            listener.exitInline(context, inline)
+        }
     }
 }

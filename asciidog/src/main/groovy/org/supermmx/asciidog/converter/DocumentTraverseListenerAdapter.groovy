@@ -8,6 +8,7 @@ import org.supermmx.asciidog.ast.Header
 import org.supermmx.asciidog.ast.Section
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Preamble
+import org.supermmx.asciidog.ast.Inline
 
 class DocumentTraverseListenerAdapter implements DocumentTraverseListener {
     void enterDocument(DocumentContext context, Document document) {
