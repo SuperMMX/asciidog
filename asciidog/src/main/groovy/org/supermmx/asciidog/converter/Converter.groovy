@@ -41,8 +41,8 @@ class Converter {
         }
         def os = fileObj.newOutputStream()
 
-        def renderer = backend.createRenderer(options)
-        renderer.renderDocument(doc, os)
+        def walker = new DocumentWalker()
+        walker.traverse(doc, backend, os)
 
         os.close()
     }
