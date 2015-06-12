@@ -108,9 +108,29 @@ class Html5Backend extends AbstractBackend {
     }
 
     void renderList(Step step, DocumentContext context, AdocList list) {
+        def tag = ''
+        if (list.type == Node.Type.ORDERED_LIST) {
+            tag = 'ol'
+        } else if (list.type == Node.Type.UNORDERED_LIST) {
+            tag = 'ul'
+        }
+        if (tag) {
+            if (step == Step.PRE) {
+                context.writer.writeStartElement(tag)
+            } else if (step == Step.POST) {
+                context.writer.writeEndElement()
+            }
+        }
     }
 
     void renderListItem(Step step, DocumentContext context, ListItem item) {
+        context.writer.with {
+            if (step == Step.PRE) {
+                writeStartElement('li')
+            } else if (step == Step.POST) {
+                writeEndElement()
+            }
+        }
     }
 
     void renderParagraph(Step step, DocumentContext context, Paragraph paragraph) {
