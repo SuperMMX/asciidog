@@ -29,7 +29,7 @@ abstract class AbstractBackend implements Backend {
     void renderDocument(Step step, DocumentContext context, Document document) {
     }
 
-    void renderDocumentHeader(Step step, DocumentContext context, Document document) {
+    void renderDocumentHeader(Step step, DocumentContext context, Header header) {
     }
 
     void setAttribute(DocumentContext context, String name, Object value) {
