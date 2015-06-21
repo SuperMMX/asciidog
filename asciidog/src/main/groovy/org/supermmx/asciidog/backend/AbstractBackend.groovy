@@ -26,39 +26,15 @@ abstract class AbstractBackend implements Backend {
     String id
     String ext
 
-    void renderDocument(Step step, DocumentContext context, Document document) {
-    }
+    NodeRenderer documentRenderer
+    NodeRenderer headerRenderer
+    NodeRenderer preambleRenderer
+    NodeRenderer sectionRenderer
+    NodeRenderer paragraphRenderer
+    NodeRenderer listRenderer
+    NodeRenderer listItemRenderer
 
-    void renderDocumentHeader(Step step, DocumentContext context, Header header) {
-    }
-
-    void setAttribute(DocumentContext context, String name, Object value) {
-    }
-
-    void renderPreamble(Step step, DocumentContext context, Preamble preamble) {
-    }
-
-    void renderSection(Step step, DocumentContext context, Section section) {
-    }
-
-    void renderList(Step step, DocumentContext context, AdocList list) {
-    }
-
-    void renderListItem(Step step, DocumentContext context, ListItem item) {
-    }
-
-    void renderParagraph(Step step, DocumentContext context, Paragraph paragraph) {
-    }
-
-    void renderText(DocumentContext context, String text) {
-    }
-
-    void renderInlineText(Step step, DocumentContext context, TextNode textNode) {
-    }
-
-    void renderInlineFormatting(Step step, DocumentContext context, FormattingNode formattingNode) {
-    }
-
-    void renderInlineCrossReference(Step step, DocumentContext context, CrossReferenceNode xrefNode) {
-    }
+    LeafNodeRenderer inlineTextRenderer
+    NodeRenderer inlineFormattingRenderer
+    NodeRenderer inlineXrefRenderer
 }

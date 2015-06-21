@@ -37,28 +37,19 @@ interface Backend {
      */
     String getExt()
 
-    void renderDocument(Step step, DocumentContext context, Document document)
+    /**
+     * The renderer to render something before or after the document
+     * (not the document content)
+     */
+    NodeRenderer getDocumentRenderer()
+    NodeRenderer getHeaderRenderer()
+    NodeRenderer getPreambleRenderer()
+    NodeRenderer getSectionRenderer()
+    NodeRenderer getListRenderer()
+    NodeRenderer getListItemRenderer()
+    NodeRenderer getParagraphRenderer()
 
-    void renderDocumentHeader(Step step, DocumentContext context, Header header)
-
-    void setAttribute(DocumentContext context, String name, Object value)
-
-    void renderPreamble(Step step, DocumentContext context, Preamble preamble)
-
-    void renderSection(Step step, DocumentContext context, Section section)
-
-    void renderList(Step step, DocumentContext context, AdocList list)
-
-    void renderListItem(Step step, DocumentContext context, ListItem item)
-
-    void renderParagraph(Step step, DocumentContext context, Paragraph paragraph)
-
-    // Inlines
-    void renderText(DocumentContext context, String text)
-
-    void renderInlineText(Step step, DocumentContext context, TextNode textNode)
-
-    void renderInlineFormatting(Step step, DocumentContext context, FormattingNode formattingNode)
-
-    void renderInlineCrossReference(Step step, DocumentContext context, CrossReferenceNode xrefNode)
+    LeafNodeRenderer getInlineTextRenderer()
+    NodeRenderer getInlineFormattingRenderer()
+    NodeRenderer getInlineXrefRenderer()
 }
