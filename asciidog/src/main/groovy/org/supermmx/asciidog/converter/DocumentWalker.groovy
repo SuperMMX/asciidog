@@ -15,16 +15,18 @@ import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.ListItem
 import org.supermmx.asciidog.backend.Backend
 
+import groovy.util.logging.Slf4j
+
+@Slf4j
 class DocumentWalker {
     void traverse(Document document, Backend backend, OutputStream os) {
         DocumentContext context = new DocumentContext(document: document,
                                                       backend: backend,
                                                       outputStream: os)
-        backend.renderDocument(Backend.Step.PRE, context, document)
+        backend.documentRenderer.pre(context, document)
 
         // header
         traverseDocumentHeader(context, document.header)
-
         // preamble
         traversePreamble(context, document.preamble)
 
@@ -33,31 +35,32 @@ class DocumentWalker {
             traverseBlock(context, block)
         }
 
-        backend.renderDocument(Backend.Step.POST, context, document)
+        backend.documentRenderer.post(context, document)
+
     }
 
     void traverseDocumentHeader(DocumentContext context, Header header) {
-        context.backend.renderDocumentHeader(Backend.Step.PRE, context, header)
+        context.backend.headerRenderer.pre(context, header)
 
         // attributes
         header.blocks.each { attr ->
             context.attrContainer.setAttribute(attr.name, attr.value)
 
             // should not render anything
-            context.backend.setAttribute(context, attr.name, attr.value)
+            //context.backend.setAttribute(context, attr.name, attr.value)
         }
 
-        context.backend.renderDocumentHeader(Backend.Step.POST, context, header)
+        context.backend.headerRenderer.post(context, header)
     }
 
     void traversePreamble(DocumentContext context, Preamble preamble) {
-        context.backend.renderPreamble(Backend.Step.PRE, context, preamble)
+        context.backend.preambleRenderer.pre(context, preamble)
 
         preamble.blocks.each { block ->
             traverseBlock(context, block)
         }
 
-        context.backend.renderPreamble(Backend.Step.POST, context, preamble)
+        context.backend.preambleRenderer.post(context, preamble)
     }
 
     protected void traverseBlock(DocumentContext context, Block block) {
@@ -76,43 +79,43 @@ class DocumentWalker {
     }
 
     void traverseSection(DocumentContext context, Section section) {
-        context.backend.renderSection(Backend.Step.PRE, context, section)
+        context.backend.sectionRenderer.pre(context, section)
 
         section.blocks.each { block ->
             traverseBlock(context, block)
         }
 
-        context.backend.renderSection(Backend.Step.POST, context, section)
+        context.backend.sectionRenderer.post(context, section)
     }
 
     void traverseParagraph(DocumentContext context, Paragraph paragraph) {
-        context.backend.renderParagraph(Backend.Step.PRE, context, paragraph)
+        context.backend.paragraphRenderer.pre(context, paragraph)
 
         // inlines
         traverseInlineContainer(context, paragraph)
 
-        context.backend.renderParagraph(Backend.Step.POST, context, paragraph)
+        context.backend.paragraphRenderer.post(context, paragraph)
     }
 
     void traverseList(DocumentContext context, AdocList list) {
-        context.backend.renderList(Backend.Step.PRE, context, list)
+        context.backend.listRenderer.pre(context, list)
 
         // list items
         list.blocks.each { item ->
             traverseListItem(context, item)
         }
 
-        context.backend.renderList(Backend.Step.POST, context, list)
+        context.backend.listRenderer.post(context, list)
     }
 
     void traverseListItem(DocumentContext context, ListItem item) {
-        context.backend.renderListItem(Backend.Step.PRE, context, item)
+        context.backend.listItemRenderer.pre(context, item)
 
         item.blocks.each { block ->
             traverseBlock(context, block)
         }
 
-        context.backend.renderListItem(Backend.Step.POST, context, item)
+        context.backend.listItemRenderer.post(context, item)
     }
 
     protected void traverseInlineContainer(DocumentContext context, InlineContainer container) {
@@ -130,19 +133,23 @@ class DocumentWalker {
                     traverseInline(context, attrInline)
                 }
             } else {
-                context.backend.renderText(context, attr.value)
+                //context.backend.renderText(context, attr.value)
             }
         } else if (inline.type == Node.Type.INLINE_TEXT) {
             // only render the content
-            context.backend.renderInlineText(Backend.Step.CONTENT, context, inline)
+            context.backend.inlineTextRenderer.render(context, inline)
         } else if (inline.type == Node.Type.INLINE_FORMATTED_TEXT) {
-            context.backend.renderInlineFormatting(Backend.Step.PRE, context, inline)
+            context.backend.inlineFormattingRenderer.pre(context, inline)
+
             traverseInlineContainer(context, inline)
-            context.backend.renderInlineFormatting(Backend.Step.POST, context, inline)
+
+            context.backend.inlineFormattingRenderer.post(context, inline)
         } else if (inline.type == Node.Type.INLINE_CROSS_REFERENCE) {
-            context.backend.renderInlineCrossReference(Backend.Step.PRE, context, inline)
-            context.backend.renderInlineCrossReference(Backend.Step.CONTENT, context, inline)
-            context.backend.renderInlineCrossReference(Backend.Step.POST, context, inline)
+            context.backend.inlineXrefRenderer.pre(context, inline)
+
+            context.backend.inlineXrefRenderer.render(context, inline)
+
+            context.backend.inlineXrefRenderer.post(context, inline)
         }
 
     }
