@@ -20,6 +20,8 @@ class PrettyPrintHandler implements InvocationHandler {
     }
  
     Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        // FIXME: Not starting a new line for inline elements
+
         String m = method.getName();
 
         // Needs to be BEFORE the actual event, so that for instance the
