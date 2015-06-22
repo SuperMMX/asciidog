@@ -11,6 +11,10 @@ import groovy.transform.ToString
 @EqualsAndHashCode(callSuper=true)
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 class Header extends Block {
+    public Header() {
+        type = Node.Type.DOCUMENT_HEADER
+    }
+
     String title
     List<Author> authors = []
     Revision revision
