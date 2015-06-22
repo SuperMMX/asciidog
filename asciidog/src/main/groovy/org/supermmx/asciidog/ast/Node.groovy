@@ -9,6 +9,8 @@ import groovy.transform.ToString
 @ToString(excludes=['parent', 'document'], includePackage=false, includeNames=true)
 
 class Node {
+    // FIXME: how to handle nodes from plugin?
+    // here the node type should be basic ones
     static enum Type {
         COMMENT_LINE,
         DELIMITED_BLOCK,
@@ -21,6 +23,7 @@ class Node {
         INLINE_MACRO,
         INLINE_REPLACEMENT,
         INLINE_TEXT,
+        LIST,
         LIST_ITEM,
         ORDERED_LIST,
         PARAGRAPH,

@@ -24,6 +24,7 @@ class ParserDocumentSpec extends AsciidogSpec {
                     attributeEntry(name: 'doctype', value: 'book')
                 ]
             }
+            preamble()
         }
     }
 
@@ -47,10 +48,12 @@ $text2
         then:
         doc == builder.document(docType: Document.DocType.article) {
             header(title: 'Document Title')
-            current.blocks = [
-                para(text1),
-                para(text2)
-            ]
+            preamble() {
+                current.blocks = [
+                    para(text1),
+                    para(text2)
+                ]
+            }
         }
     }
 
@@ -67,6 +70,7 @@ $text2
         then:
         doc == builder.document(docType: Document.DocType.article) {
             header(title: 'Document Title')
+            preamble()
         }
     }
 
@@ -88,6 +92,7 @@ $text2
                     attributeEntry(name: 'doctype', value: 'book')
                 ]
             }
+            preamble()
         }
     }
 }

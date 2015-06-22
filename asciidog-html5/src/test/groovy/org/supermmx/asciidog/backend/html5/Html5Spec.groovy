@@ -2,6 +2,7 @@ package org.supermmx.asciidog.backend.html5
 
 import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.Reader
+import org.supermmx.asciidog.converter.DocumentWalker
 
 import groovy.xml.*
 
@@ -12,7 +13,7 @@ class Html5Spec extends Specification {
     def backend = new Html5Backend()
 
     @Shared
-    def renderer = backend.createRenderer([:])
+    def walker = new DocumentWalker()
 
     /**
      * Create xml slurper from HTML string
@@ -34,7 +35,7 @@ class Html5Spec extends Specification {
         def doc = parser.parseDocument()
 
         def baos = new ByteArrayOutputStream()
-        renderer.renderDocument(doc, baos)
+        walker.traverse(doc, backend, baos)
 
         def htmlText = baos.toString('UTF-8')
 

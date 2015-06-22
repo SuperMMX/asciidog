@@ -20,6 +20,8 @@ class Document extends Block {
 
     DocType docType
     Header header
+    Preamble preamble
+
     // references in this document
     Map<String, Node> references = [:]
 

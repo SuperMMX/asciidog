@@ -3,7 +3,6 @@ package org.supermmx.asciidog.plugin
 import org.supermmx.asciidog.AsciidogSpec
 import org.supermmx.asciidog.backend.AbstractBackend
 import org.supermmx.asciidog.backend.Backend
-import org.supermmx.asciidog.backend.Renderer
 
 class PluginRegistrySpec extends AsciidogSpec {
 

@@ -8,7 +8,7 @@ import org.supermmx.asciidog.ast.Node
 import java.util.regex.Matcher
 
 class TextFormattingInlineParserPlugin extends InlineParserPlugin {
-    FormattingNode.Type formattingType
+    FormattingNode.FormattingType formattingType
 
     TextFormattingInlineParserPlugin() {
         nodeType = Node.Type.INLINE_FORMATTED_TEXT
