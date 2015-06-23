@@ -19,4 +19,8 @@ abstract class AdocList extends Block {
     String marker
     int markerLevel
     int level
+
+    AdocList() {
+        type = Node.Type.LIST
+    }
 }

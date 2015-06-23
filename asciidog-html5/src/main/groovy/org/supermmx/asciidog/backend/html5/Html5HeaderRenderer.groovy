@@ -12,7 +12,7 @@ import java.lang.reflect.Proxy
 
 class Html5HeaderRenderer extends AbstractNodeRenderer {
     Html5HeaderRenderer() {
-        nodeType = Node.Type.DOCUMENT_HEADER
+        nodeType = Node.Type.HEADER
     }
 
     void doPre(DocumentContext context, Node node) {

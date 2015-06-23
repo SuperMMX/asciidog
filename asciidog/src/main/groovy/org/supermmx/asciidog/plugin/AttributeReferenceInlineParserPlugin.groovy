@@ -15,7 +15,7 @@ import java.util.regex.Matcher
 class AttributeReferenceInlineParserPlugin extends InlineParserPlugin {
     AttributeReferenceInlineParserPlugin() {
         id = 'inline_parser_attribute_reference'
-        nodeType = Node.Type.INLINE_ATTRIBUTE_REFERENCE
+        nodeType = Node.Type.ATTRIBUTE_REFERENCE
 
         pattern = Parser.ATTRIBUTE_REFERENCE_PATTERN
     }

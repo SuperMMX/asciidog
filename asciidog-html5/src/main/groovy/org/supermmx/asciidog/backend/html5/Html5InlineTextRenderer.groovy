@@ -7,7 +7,7 @@ import org.supermmx.asciidog.converter.DocumentContext
 
 class Html5InlineTextRenderer extends AbstractLeafNodeRenderer {
     Html5InlineTextRenderer() {
-        nodeType = Node.Type.INLINE_TEXT
+        nodeType = Node.Type.TEXT
     }
 
     void doPre(DocumentContext context, Node textNode) {

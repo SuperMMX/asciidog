@@ -72,7 +72,7 @@ class ParserSpec extends AsciidogSpec {
 
     def 'static: is list'() {
         expect:
-        result == Parser.isList(line)
+        result == Parser.isListLine((String)line)
 
         where:
         line               | result

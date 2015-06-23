@@ -13,7 +13,7 @@ import java.util.regex.Matcher
  */
 class CrossReferenceInlineParserPlugin extends InlineParserPlugin {
     CrossReferenceInlineParserPlugin() {
-        nodeType = Node.Type.INLINE_CROSS_REFERENCE
+        nodeType = Node.Type.CROSS_REFERENCE
         id = 'inline_parser_xref'
         pattern = Parser.CROSS_REFERENCE_PATTERN
     }

@@ -830,7 +830,7 @@ _
             }
 
             // check list
-            def (listType, listLead, listMarker, markerLevel, listFirstLine) = isList(line)
+            def (listType, listLead, listMarker, markerLevel, listFirstLine) = isListLine(line)
             if (listType != null) {
                 header.type = listType
                 header.properties[BlockHeader.LIST_LEAD] = listLead
@@ -1308,7 +1308,7 @@ _
      *         the level of the list
      *         the first line of the list item content
      */
-    protected static List isList(String line) {
+    protected static List isListLine(String line) {
         if (line == null) {
             return [ null, null, null, -1, null ]
         }
@@ -1372,7 +1372,7 @@ _
      * Whether a node type represents a list
      */
     protected static boolean isList(Node.Type type) {
-        return type == Node.Type.ORDERED_LIST || type == Node.Type.UNORDERED_LIST
+        return type?.isList()
     }
 
     /**

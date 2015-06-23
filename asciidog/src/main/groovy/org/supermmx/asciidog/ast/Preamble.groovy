@@ -9,4 +9,7 @@ import groovy.transform.ToString
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 
 class Preamble extends Block {
+    Preamble() {
+        type = Node.Type.PREAMBLE
+    }
 }

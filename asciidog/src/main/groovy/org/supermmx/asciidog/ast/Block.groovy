@@ -9,6 +9,10 @@ import groovy.transform.ToString
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 
 class Block extends Node {
+    Block() {
+        type = Node.Type.BLOCK
+    }
+
     String title
     List<String> lines = []
     List<Block> blocks = []

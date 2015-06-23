@@ -37,7 +37,7 @@ class AsciidogSpec extends Specification {
             current.info = inlineInfo(constrained: false, escaped: false,
                                       start: 0, end: length, contentStart:0, contentEnd: length)
             current.inlineNodes = [
-                textNode(type: Node.Type.INLINE_TEXT,
+                textNode(type: Node.Type.TEXT,
                          text: text) {
                     current.info = inlineInfo(constrained: false, escaped: false,
                                               start: 0, end: length, contentStart:0, contentEnd: length)

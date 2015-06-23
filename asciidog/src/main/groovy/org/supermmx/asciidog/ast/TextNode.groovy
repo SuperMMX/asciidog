@@ -14,7 +14,7 @@ class TextNode extends Inline {
     String text
 
     TextNode() {
-        type = Node.Type.INLINE_TEXT
+        type = Node.Type.TEXT
         info.escaped = false
         info.constrained = false
     }

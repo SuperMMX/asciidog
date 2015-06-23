@@ -14,7 +14,7 @@ class CrossReferenceSpec extends AsciidogSpec {
                                       start: 0, end: length,
                                       contentStart:0, contentEnd: length)
             current.inlineNodes = [
-                crossReferenceNode(type: Node.Type.INLINE_CROSS_REFERENCE,
+                crossReferenceNode(type: Node.Type.CROSS_REFERENCE,
                                    xrefId: 'tigers') {
                     current.info = inlineInfo(constrained: false, escaped: false,
                                               start: 0, end: length,
