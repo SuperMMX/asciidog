@@ -33,6 +33,16 @@ kind of usage.
 ** Strong
 ** Emphasis
 
-=== Converter
+=== Backend
 
-* Basic Top-Down HTML5
+* AST Walker
+* Basic HTML5 backend
+
+== TODO
+
+* Use context to replace inline info, which is not necessary
+to store in the node.
+** Put parser in inside parser package
+* Create builder to create AST easily
+* Create include node instead of hiding it in reader
+
