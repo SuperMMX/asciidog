@@ -1,3 +1,5 @@
 dependencies {
     compile project(':asciidog')
+
+    testCompile project(path: ':asciidog', configuration: 'testOutput')
 }
