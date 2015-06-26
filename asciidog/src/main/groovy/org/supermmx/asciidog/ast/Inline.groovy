@@ -15,4 +15,8 @@ import groovy.transform.ToString
  */
 abstract class Inline extends Node {
     InlineInfo info = new InlineInfo()
+
+    Inline() {
+        type = Node.Type.INLINE
+    }
 }

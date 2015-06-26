@@ -125,7 +125,7 @@ class DocumentWalker {
     }
 
     void traverseInline(DocumentContext context, Inline inline) {
-        if (inline.type == Node.Type.INLINE_ATTRIBUTE_REFERENCE) {
+        if (inline.type == Node.Type.ATTRIBUTE_REFERENCE) {
             def name = inline.name
             def attr = context.attrContainer.getAttribute(name)
             if (attr.type == Attribute.ValueType.INLINES) {
@@ -135,16 +135,16 @@ class DocumentWalker {
             } else {
                 //context.backend.renderText(context, attr.value)
             }
-        } else if (inline.type == Node.Type.INLINE_TEXT) {
+        } else if (inline.type == Node.Type.TEXT) {
             // only render the content
             context.backend.inlineTextRenderer.render(context, inline)
-        } else if (inline.type == Node.Type.INLINE_FORMATTED_TEXT) {
+        } else if (inline.type == Node.Type.FORMATTING) {
             context.backend.inlineFormattingRenderer.pre(context, inline)
 
             traverseInlineContainer(context, inline)
 
             context.backend.inlineFormattingRenderer.post(context, inline)
-        } else if (inline.type == Node.Type.INLINE_CROSS_REFERENCE) {
+        } else if (inline.type == Node.Type.CROSS_REFERENCE) {
             context.backend.inlineXrefRenderer.pre(context, inline)
 
             context.backend.inlineXrefRenderer.render(context, inline)

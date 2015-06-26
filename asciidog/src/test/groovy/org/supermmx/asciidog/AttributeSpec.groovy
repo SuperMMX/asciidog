@@ -81,13 +81,13 @@ ${paraContent}
                                       start: 0, end: paraContent.length(), contentStart:0, contentEnd: paraContent.length())
             current.inlineNodes = [
                 new TextNode('Yo, ', 0),
-                attributeReferenceNode(type: Node.Type.INLINE_ATTRIBUTE_REFERENCE,
+                attributeReferenceNode(type: Node.Type.ATTRIBUTE_REFERENCE,
                                        name: 'frog') {
                     current.info = inlineInfo(constrained: false, escaped: false,
                                               start: 4, end: 10, contentStart:5, contentEnd: 9)
                 },
                 new TextNode('!\nBeat ', 10),
-                attributeReferenceNode(type: Node.Type.INLINE_ATTRIBUTE_REFERENCE,
+                attributeReferenceNode(type: Node.Type.ATTRIBUTE_REFERENCE,
                                        name: 'my_super-hero') {
                     current.info = inlineInfo(constrained: false, escaped: false,
                                               start: 17, end: 32, contentStart:18, contentEnd: 31)

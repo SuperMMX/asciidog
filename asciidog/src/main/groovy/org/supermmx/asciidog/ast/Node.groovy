@@ -11,34 +11,75 @@ import groovy.transform.ToString
 class Node {
     // FIXME: how to handle nodes from plugin?
     // here the node type should be basic ones
-    static enum Type {
-        COMMENT_LINE,
-        DELIMITED_BLOCK,
-        DOCUMENT,
-        DOCUMENT_ATTRIBUTE,
-        DOCUMENT_HEADER,
-        INLINE_ATTRIBUTE_REFERENCE,
-        INLINE_CROSS_REFERENCE,
-        INLINE_FORMATTED_TEXT,
-        INLINE_MACRO,
-        INLINE_REPLACEMENT,
-        INLINE_TEXT,
-        LIST,
-        LIST_ITEM,
-        ORDERED_LIST,
-        PARAGRAPH,
-        SECTION,
-        SET_ATTRIBUTE,
-        SET_COUNTER,
-        TABLE,
-        UNORDERED_LIST
+    static class Type {
+        static final NODE = new Type(name: 'node')
+
+        static final BLOCK = new Type(parent: NODE, name: 'block')
+        static final INLINE = new Type(parent: NODE, name: 'inline')
+
+        static final DOCUMENT = new Type(parent: BLOCK, name: 'document')
+        static final HEADER = new Type(parent: BLOCK, name: 'header')
+        static final AUTHORS = new Type(parent: BLOCK, name: 'authors')
+        static final REVISION = new Type(parent: BLOCK, name: 'revision')
+        static final PREAMBLE = new Type(parent: BLOCK, name: 'preamble')
+        static final SECTION = new Type(parent: BLOCK, name: 'section')
+        static final LIST = new Type(parent: BLOCK, name: 'list')
+        static final LIST_ITEM = new Type(parent: BLOCK, name: 'list_item')
+        static final PARAGRAPH = new Type(parent: BLOCK, name: 'paragraph')
+        static final TABLE = new Type(parent: BLOCK, name: 'table')
+        static final MACRO = new Type(parent: BLOCK, name: 'macro')
+        static final COMMENT_LINE = new Type(parent: BLOCK, name: 'comment_line')
+        
+        static final AUTHOR = new Type(parent: INLINE, name: 'author')
+        static final ATTRIBUTE_REFERENCE = new Type(parent: INLINE, name: 'attribute_reference')
+        static final CROSS_REFERENCE = new Type(parent: INLINE, name: 'xref')
+        static final FORMATTING = new Type(parent: INLINE, name: 'formatting')
+        static final INLINE_MACRO = new Type(parent: INLINE, name: 'inline_macro')
+        static final REPLACEMENT = new Type(parent: INLINE, name: 'replacement')
+        static final TEXT = new Type(parent: INLINE, name: 'text')
+
+        static final ORDERED_LIST = new Type(parent: LIST, name: 'olist')
+        static final UNORDERED_LIST = new Type(parent: LIST, name: 'ulist')
+
+        static final DEFINE_ATTRIBUTE = new Type(parent: NODE, action: true, name: 'define_attribute')
+        static final SET_ATTRIBUTE = new Type(parent: INLINE, action: true, name: 'set_attribute')
+        static final SET_COUNTER = new Type(parent: INLINE, action: true, name: 'set_counter')
+
+        /**
+         * Whether the node type is to do some action
+         */
+        boolean action = false
+        /**
+         * Parent type
+         */
+        Type parent
+        /**
+         * The node type name
+         */
+        String name
+
+        static boolean isCase(Type caseValue, Type switchValue) {
+            return (caseValue.name == switchValue.name)
+        }
 
         boolean isInline() {
-            return name().startsWith('INLINE_')
+            boolean res = false
+
+            Type p = parent
+            while (p != null) {
+                if (p == INLINE) {
+                    res = true
+                    break
+                } else {
+                    p = p.parent
+                }
+            }
+
+            return res
         }
 
         boolean isList() {
-            return name().endsWith('_LIST')
+            return (parent == LIST)
         }
     }
 
@@ -48,4 +89,8 @@ class Node {
     Node parent
 
     Document document
+
+    Node() {
+        type = Node.Type.NODE
+    }
 }

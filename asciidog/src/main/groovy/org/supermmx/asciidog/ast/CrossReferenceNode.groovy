@@ -16,7 +16,8 @@ class CrossReferenceNode extends Inline {
     String xrefText
 
     CrossReferenceNode() {
-        type = Node.Type.INLINE_CROSS_REFERENCE
+        type = Node.Type.CROSS_REFERENCE
+
         info.escaped = false
         info.constrained = false
     }

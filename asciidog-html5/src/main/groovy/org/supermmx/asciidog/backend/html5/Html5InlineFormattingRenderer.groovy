@@ -8,7 +8,7 @@ import org.supermmx.asciidog.converter.DocumentContext
 
 class Html5InlineFormattingRenderer extends AbstractNodeRenderer {
     Html5InlineFormattingRenderer() {
-        nodeType = Node.Type.INLINE_FORMATTED_TEXT
+        nodeType = Node.Type.FORMATTING
     }
 
     void doPre(DocumentContext context, Node formattingNode) {

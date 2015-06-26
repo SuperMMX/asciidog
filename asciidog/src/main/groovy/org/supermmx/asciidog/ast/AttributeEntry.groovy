@@ -18,6 +18,10 @@ class AttributeEntry extends Block {
      */
     String value
 
+    AttributeEntry() {
+        type = Node.Type.DEFINE_ATTRIBUTE
+    }
+
     private void setName(String name) {
         this.name = name
     }

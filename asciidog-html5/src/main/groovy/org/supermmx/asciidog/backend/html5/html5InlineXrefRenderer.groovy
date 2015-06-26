@@ -7,7 +7,7 @@ import org.supermmx.asciidog.converter.DocumentContext
 
 class Html5InlineXrefRenderer extends AbstractLeafNodeRenderer {
     Html5InlineXrefRenderer() {
-        nodeType = Node.Type.INLINE_CROSS_REFERENCE
+        nodeType = Node.Type.CROSS_REFERENCE
     }
 
     void doPre(DocumentContext context, Node xrefNode) {

@@ -14,6 +14,6 @@ class AttributeReferenceNode extends Inline {
     String name
 
     AttributeReferenceNode() {
-        type = Node.Type.INLINE_ATTRIBUTE_REFERENCE
+        type = Node.Type.ATTRIBUTE_REFERENCE
     }
 }

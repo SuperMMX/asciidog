@@ -12,7 +12,7 @@ import groovy.transform.ToString
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 class Header extends Block {
     public Header() {
-        type = Node.Type.DOCUMENT_HEADER
+        type = Node.Type.HEADER
     }
 
     String title
