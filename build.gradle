@@ -39,6 +39,7 @@ dependencies {
     runtime project(':asciidog')
     runtime project(':asciidog-html5')
     //runtime project(':asciidog-pdf')
+    runtime project(':asciidog-critic')
 }
 
 mainClassName = 'org.supermmx.asciidog.AsciiDog'
