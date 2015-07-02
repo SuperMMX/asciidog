@@ -9,6 +9,4 @@ import groovy.transform.ToString
  */
 interface InlineContainer {
     List<Inline> getInlineNodes()
-
-    InlineInfo getInfo()
 }
