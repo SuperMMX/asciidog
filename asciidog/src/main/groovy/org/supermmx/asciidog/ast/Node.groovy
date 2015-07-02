@@ -81,6 +81,10 @@ class Node {
         boolean isList() {
             return (parent == LIST)
         }
+
+        String toString() {
+            return name
+        }
     }
 
     Type type
