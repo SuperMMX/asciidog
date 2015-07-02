@@ -35,7 +35,7 @@ class AttributeSpec extends AsciidogSpec {
 
         parser.attrContainer.getAttribute('var') == new Attribute([ name: 'var',
                                                                     type: Attribute.ValueType.INLINES,
-                                                                    value: [ new TextNode('new', 0)] ])
+                                                                    value: [ new TextNode('new')] ])
     }
 
     def 'performs attribute substitution on attribute value'() {
@@ -47,8 +47,8 @@ class AttributeSpec extends AsciidogSpec {
         def releaseAttr = new Attribute(name: 'release',
                                         type: Attribute.ValueType.INLINES)
         releaseAttr.value = [
-            new TextNode('Asciidog ', 0),
-            new TextNode('1.0', 0)
+            new TextNode('Asciidog '),
+            new TextNode('1.0')
         ]
 
         when:
@@ -77,22 +77,14 @@ Beat {my_super-hero}!'''
 ${paraContent}
 """
         def paragraph = builder.paragraph() {
-            current.info = inlineInfo(constrained: false, escaped: false,
-                                      start: 0, end: paraContent.length(), contentStart:0, contentEnd: paraContent.length())
             current.inlineNodes = [
-                new TextNode('Yo, ', 0),
+                new TextNode('Yo, '),
                 attributeReferenceNode(type: Node.Type.ATTRIBUTE_REFERENCE,
-                                       name: 'frog') {
-                    current.info = inlineInfo(constrained: false, escaped: false,
-                                              start: 4, end: 10, contentStart:5, contentEnd: 9)
-                },
-                new TextNode('!\nBeat ', 10),
+                                       name: 'frog'),
+                new TextNode('!\nBeat '),
                 attributeReferenceNode(type: Node.Type.ATTRIBUTE_REFERENCE,
-                                       name: 'my_super-hero') {
-                    current.info = inlineInfo(constrained: false, escaped: false,
-                                              start: 17, end: 32, contentStart:18, contentEnd: 31)
-                },
-                new TextNode('!', 32)
+                                       name: 'my_super-hero'),
+                new TextNode('!')
             ]
         }
 

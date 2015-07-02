@@ -185,15 +185,15 @@ class AttributeContainerSpec extends Specification {
         container.getAttribute('newValue') == new Attribute(name: 'newValue',
                                                             type: Attribute.ValueType.INLINES,
                                                             value: [
-                                                                new TextNode('new ', 0),
-                                                                new TextNode('initial value', 0)
+                                                                new TextNode('new '),
+                                                                new TextNode('initial value')
                                                             ])
         container.getAttribute('newNewValue') == new Attribute(name: 'newNewValue',
                                                             type: Attribute.ValueType.INLINES,
                                                             value: [
-                                                                new TextNode('new ', 0),
-                                                                new TextNode('new ', 0),
-                                                                new TextNode('initial value', 0)
+                                                                new TextNode('new '),
+                                                                new TextNode('new '),
+                                                                new TextNode('initial value')
                                                             ])
     }
 
@@ -273,8 +273,8 @@ class AttributeContainerSpec extends Specification {
         def attr = new Attribute(name: 'release',
                                  type: Attribute.ValueType.INLINES,
                                  value: [
-                                     new TextNode('Asciidoctor ', 0),
-                                     new TextNode('1.0', 0)
+                                     new TextNode('Asciidoctor '),
+                                     new TextNode('1.0')
                                  ])
 
         def container = new AttributeContainer()
