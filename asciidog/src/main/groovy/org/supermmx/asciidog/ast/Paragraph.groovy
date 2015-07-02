@@ -12,7 +12,6 @@ import groovy.transform.ToString
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 class Paragraph extends Block implements InlineContainer  {
     List<Inline> inlineNodes = []
-    InlineInfo info = new InlineInfo()
 
     Paragraph() {
         type = Node.Type.PARAGRAPH
