@@ -8,6 +8,7 @@ import org.supermmx.asciidog.ast.CommentLine
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
 import org.supermmx.asciidog.ast.Inline
+import org.supermmx.asciidog.ast.InlineInfo
 import org.supermmx.asciidog.ast.InlineContainer
 import org.supermmx.asciidog.ast.ListItem
 import org.supermmx.asciidog.ast.Node
@@ -864,36 +865,35 @@ _
      * Parse inline nodes from a text and construct the node tree
      */
     protected static List<Inline> parseInlineNodes(InlineContainer parent, String text) {
-        parent.info.with {
-            start = 0
-            end = text.length()
-            contentStart = parent.info.start
-            contentEnd = parent.info.end
-        }
+        InlineInfo parentInfo = new InlineInfo(start: 0,
+                                               end: text.length(),
+                                               contentStart: 0,
+                                               contentEnd: text.length(),
+                                               inlineNode: parent)
 
         log.debug("Start parsing inlines")
 
         // go through all inline plugins
-        def inlineNodes = []
+        def allInfo = []
         PluginRegistry.instance.getInlineParserPlugins().each { plugin ->
             log.debug "Parse inline with plugin: ${plugin.id}"
             def m = plugin.pattern.matcher(text)
             m.each { groups ->
                 log.debug "matching ${groups[0]}"
-                def node = plugin.parse(m, groups)
-                if (node != null) {
-                    node.info.start = m.start()
-                    node.info.end = m.end()
+                def info = plugin.parse(m, groups)
+                if (info != null) {
+                    info.start = m.start()
+                    info.end = m.end()
 
-                    inlineNodes << node
+                    allInfo << info
                 }
             }
         }
 
         // sort the result
-        inlineNodes.sort { it.info.start }
+        allInfo.sort { it.start }
 
-        log.debug "parsed inline nodes = $inlineNodes"
+        log.debug "parsed inline nodes info = $allInfo"
 
         def resultInlines = []
 
@@ -901,13 +901,13 @@ _
 
         // common functions
         // find the appropriate inline container
-        def findParent
-        findParent = { container, inline ->
-            log.debug("container constrained = ${container.info.constrained}, start = ${container.info.start}, end = ${container.info.end}")
+        def findParentInfo
+        findParentInfo = { containerInfo, inlineInfo ->
+            log.debug("container start = ${containerInfo.start}, end = ${containerInfo.end}")
             def result = null
-            for (def child : container.inlineNodes) {
-                if (child instanceof InlineContainer) {
-                    result = findParent(child, inline)
+            for (def childInfo : containerInfo.children) {
+                if (childInfo.inlineNode instanceof InlineContainer) {
+                    result = findParentInfo(childInfo, inlineInfo)
                 }
                 if (result != null) {
                     break
@@ -915,9 +915,9 @@ _
             }
 
             if (result == null) {
-                if (inline.info.start >= container.info.start
-                    && inline.info.end <= container.info.end) {
-                    result = container
+                if (inlineInfo.start >= containerInfo.start
+                    && inlineInfo.end <= containerInfo.end) {
+                    result = containerInfo
                 }
             }
 
@@ -926,82 +926,101 @@ _
 
         // fill gap
         def fillGap
-        fillGap = { InlineContainer container, inline ->
-            if (inline == null) {
-                container.inlineNodes.each { child ->
-                    if (child instanceof InlineContainer) {
-                        fillGap(child, inline)
+        fillGap = { InlineInfo containerInfo, inlineInfo ->
+            if (inlineInfo == null) {
+                containerInfo.children.each { childInfo ->
+                    if (childInfo.inlineNode instanceof InlineContainer) {
+                        fillGap(childInfo, inlineInfo)
                     }
                 }
             }
 
-            def lastEnd = container.info.contentStart
-            def lastNode = null
-            if (container.inlineNodes.size() > 0) {
-                lastNode = container.inlineNodes.last()
+            log.debug "container info = ${containerInfo}"
+
+            def lastEnd = containerInfo.contentStart
+            def lastNodeInfo = null
+            if (containerInfo.children.size() > 0) {
+                lastNodeInfo = containerInfo.children.last()
             }
-            if (lastNode != null) {
-                lastEnd = lastNode.info.end
+            if (lastNodeInfo != null) {
+                lastEnd = lastNodeInfo.end
             }
 
-            def thisEnd = container.info.contentEnd
-            if (inline != null) {
-                thisEnd = inline.info.start
+            def thisEnd = containerInfo.contentEnd
+            if (inlineInfo != null) {
+                thisEnd = inlineInfo.start
             }
+
+            log.debug "last end = ${lastEnd}, this end = ${thisEnd}"
             if (lastEnd < thisEnd) {
-                def node = new TextNode(parent: container,
-                                        document: container.document,
+                def node = new TextNode(parent: containerInfo.inlineNode,
+                                        document: containerInfo.inlineNode.document,
                                         text: text.substring(lastEnd, thisEnd))
-                node.info.with {
+                def nodeInfo = new InlineInfo()
+                nodeInfo.with {
                     start = lastEnd
                     end = thisEnd
                     contentStart = start
                     contentEnd = end
+
+                    inlineNode = node
                 }
-                container << node
-                if (container == parent) {
+
+                log.debug "text node = ${node}"
+                log.debug "text node info = ${nodeInfo}"
+
+                containerInfo << nodeInfo
+                containerInfo.inlineNode << node
+
+                if (containerInfo == parentInfo) {
                     resultInlines << node
                 }
             }
         }
 
-        inlineNodes.each { inline ->
-            log.debug("info = $inline")
-            def container = findParent(parent, inline)
+        allInfo.each { inlineInfo ->
+            log.debug("all nodes inline info = $inlineInfo")
+            def containerInfo = findParentInfo(parentInfo, inlineInfo)
 
             // FIXME: the parsed inlines may overlap
 
             // no container is found, normally not possible
-            if (container == null) {
+            if (containerInfo == null) {
                 return
             }
 
             // the parent doesn't fully cover the child
-            if (inline.info.start < container.info.contentStart
-                && inline.info.end > container.info.contentEnd) {
+            if (inlineInfo.start < containerInfo.contentStart
+                && inlineInfo.end > containerInfo.contentEnd) {
                 return
             }
 
             // fill gap from last sibling node
-            fillGap(container, inline)
+            fillGap(containerInfo, inlineInfo)
 
-            container << inline
-            inline.parent = container
-            inline.document = container.document
+            containerInfo << inlineInfo
+            containerInfo.inlineNode << inlineInfo.inlineNode
+
+            inlineInfo.inlineNode.parent = containerInfo.inlineNode
+            inlineInfo.inlineNode.document = containerInfo.inlineNode.document
 
             // TODO: update reference for anchor
 
-            if (container == parent) {
-                resultInlines << inline
+            if (containerInfo == parentInfo) {
+                resultInlines << inlineInfo.inlineNode
             }
         }
 
-        fillGap(parent, null)
+        fillGap(parentInfo, null)
 
         //println parent.nodes
         def printInline
-        printInline = { inline ->
-            log.debug "constrained = ${inline.info.constrained}, start = ${inline.info.start}, end = ${inline.info.end}, content start = ${inline.info.contentStart}, content end = ${inline.info.contentEnd}"
+        printInline = { inlineInfo ->
+            def inline = inlineInfo.inlineNode
+            log.debug "inline = ${inlineInfo.inlineNode}"
+            log.debug "inline info = ${inlineInfo}"
+
+            log.debug "start = ${inlineInfo.start}, end = ${inlineInfo.end}, content start = ${inlineInfo.contentStart}, content end = ${inlineInfo.contentEnd}"
             if (inline instanceof TextNode) {
                 log.debug "text = '${inline.text}'"
                 log.debug ""
@@ -1010,13 +1029,13 @@ _
                     log.debug "base type: ${inline.formattingType}"
                 }
 
-                inline.inlineNodes.each { node ->
-                    printInline(node)
+                inlineInfo.children.each { childInfo ->
+                    printInline(childInfo)
                 }
             }
         }
 
-        printInline(parent)
+        printInline(parentInfo)
 
         log.debug "inlines = ${resultInlines}"
         return resultInlines
