@@ -3,9 +3,12 @@ package org.supermmx.asciidog.plugin
 import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.ast.InlineInfo
 import org.supermmx.asciidog.ast.AttributeReferenceNode
+/*
 import org.supermmx.asciidog.ast.AttributeSettingNode
 import org.supermmx.asciidog.ast.CounterSettingNode
+*/
 
 import java.util.regex.Matcher
 
@@ -21,15 +24,15 @@ class AttributeReferenceInlineParserPlugin extends InlineParserPlugin {
     }
 
 
-    protected Inline createNode(Matcher m, List<String> groups) {
+    protected Inline createNode(Matcher m, List<String> groups, InlineInfo info) {
         Inline inline = null;
 
         def action = groups[3]
         if (action == 'set') {
-            inline = new AttributeSettingNode()
+            //inline = new AttributeSettingNode()
         } else if (action == 'counter'
             || action == 'counter2') {
-            inline = new CounterSettingNode()
+            //inline = new CounterSettingNode()
         } else {
             // normal reference
             inline = new AttributeReferenceNode()
@@ -39,9 +42,10 @@ class AttributeReferenceInlineParserPlugin extends InlineParserPlugin {
         return inline
     }
 
-    protected boolean fillNode(Inline inline, Matcher m, List<String> groups) {
-        inline.info.with {
-            escaped = (groups[0] == '')
+    protected boolean fillNode(Inline inline, Matcher m, List<String> groups, InlineInfo info) {
+        inline.escaped = (groups[0] == '')
+
+        info.with {
             contentStart = m.start(2)
             contentEnd = m.end(2)
         }

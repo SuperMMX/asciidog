@@ -4,6 +4,7 @@ import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.CrossReferenceNode
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.Inline
+import org.supermmx.asciidog.ast.InlineInfo
 import org.supermmx.asciidog.ast.Node
 
 import java.util.regex.Matcher
@@ -18,18 +19,17 @@ class CrossReferenceInlineParserPlugin extends InlineParserPlugin {
         pattern = Parser.CROSS_REFERENCE_PATTERN
     }
 
-    Inline createNode(Matcher m, List<String> groups) {
+    Inline createNode(Matcher m, List<String> groups, InlineInfo info) {
         CrossReferenceNode xrNode = new CrossReferenceNode()
 
         return xrNode
     }
 
-    protected boolean fillNode(Inline inline, Matcher m, List<String> groups) {
+    protected boolean fillNode(Inline inline, Matcher m, List<String> groups, InlineInfo info) {
+        inline.escaped = (groups[1] != '')
         inline.xrefId = groups[3]
 
-        inline.info.with {
-            escaped = (groups[1] != '')
-
+        info.with {
             contentStart = m.start(3)
             contentEnd = m.end(3)
 
