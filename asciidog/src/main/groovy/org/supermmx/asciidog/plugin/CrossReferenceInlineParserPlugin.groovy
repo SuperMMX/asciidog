@@ -27,17 +27,18 @@ class CrossReferenceInlineParserPlugin extends InlineParserPlugin {
 
     protected boolean fillNode(Inline inline, Matcher m, List<String> groups, InlineInfo info) {
         inline.escaped = (groups[1] != '')
+
         inline.xrefId = groups[3]
+
+        def attrsStr = groups[2]
+        if (attrsStr != null) {
+            def attrs = Parser.parseAttributes(attrsStr)
+            inline.attributes.putAll(attrs)
+        }
 
         info.with {
             contentStart = m.start(3)
             contentEnd = m.end(3)
-
-            def attrsStr = groups[2]
-            if (attrsStr != null) {
-                def attrs = Parser.parseAttributes(attrsStr)
-                inline.attributes.putAll(attrs)
-            }
         }
 
         return true
