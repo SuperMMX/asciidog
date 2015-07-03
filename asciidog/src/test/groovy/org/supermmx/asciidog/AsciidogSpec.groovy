@@ -34,14 +34,9 @@ class AsciidogSpec extends Specification {
     def para(def text) {
         def length = text.length()
         def para = builder.paragraph() {
-            current.info = inlineInfo(constrained: false, escaped: false,
-                                      start: 0, end: length, contentStart:0, contentEnd: length)
             current.inlineNodes = [
                 textNode(type: Node.Type.TEXT,
-                         text: text) {
-                    current.info = inlineInfo(constrained: false, escaped: false,
-                                              start: 0, end: length, contentStart:0, contentEnd: length)
-                }
+                         text: text)
             ]
         }
 

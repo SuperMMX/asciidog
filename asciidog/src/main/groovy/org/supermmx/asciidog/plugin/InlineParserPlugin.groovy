@@ -1,6 +1,7 @@
 package org.supermmx.asciidog.plugin
 
 import org.supermmx.asciidog.ast.Inline
+import org.supermmx.asciidog.ast.InlineInfo
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.TextNode
 
@@ -24,22 +25,37 @@ abstract class InlineParserPlugin extends ParserPlugin {
      *
      * @return the parsed inline node
      */
-    Inline parse(Matcher m, List<String> groups) {
-        Inline inline = createNode(m, groups);
+    InlineInfo parse(Matcher m, List<String> groups) {
+        InlineInfo info = new InlineInfo()
+
+        Inline inline = createNode(m, groups, info)
 
         if (inline != null) {
-            def success = fillNode(inline, m, groups)
+            def success = fillNode(inline, m, groups, info)
             if (!success) {
                 inline = null
+                info = null
             }
+        } else {
+            info = null
         }
 
         // create a text node
         if (inline == null) {
-            inline = new TextNode(groups[0], m.start())
+            inline = new TextNode(groups[0])
+            info.with {
+                start = groups[0].start
+                end = groups[0].end
+                contentStart = start
+                contentEnd = end
+            }
         }
 
-        return inline
+        if (info != null) {
+            info.inlineNode = inline
+        }
+
+        return info
     }
 
     /**
@@ -47,12 +63,12 @@ abstract class InlineParserPlugin extends ParserPlugin {
      *
      * @return the newly created inline node
      */
-    protected abstract Inline createNode(Matcher m, List<String> groups)
+    protected abstract Inline createNode(Matcher m, List<String> groups, InlineInfo info)
 
     /**
      * Fill data from regex to the inline
      *
      * @return successfully fill the data or not
      */
-    protected abstract boolean fillNode(Inline inline, Matcher m, List<String> groups)
+    protected abstract boolean fillNode(Inline inline, Matcher m, List<String> groups, InlineInfo info)
 }

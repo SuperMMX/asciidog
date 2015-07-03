@@ -7,9 +7,9 @@ import groovy.transform.ToString
 /**
  * Information about the inline node
  */
-@Canonical
+@Canonical(excludes=['inlineNode'])
 @EqualsAndHashCode
-@ToString(includePackage=false, includeNames=true)
+@ToString(excludes=['inlineNode'], includePackage=false, includeNames=true)
 class InlineInfo {
     boolean constrained
 
@@ -18,4 +18,14 @@ class InlineInfo {
     int end
     int contentStart
     int contentEnd
+
+    Node inlineNode
+
+    List<InlineInfo> children = []
+
+    InlineInfo leftShift(InlineInfo info) {
+        children << info
+
+        return this
+    }
 }

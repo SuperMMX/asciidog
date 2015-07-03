@@ -17,8 +17,5 @@ class CrossReferenceNode extends Inline {
 
     CrossReferenceNode() {
         type = Node.Type.CROSS_REFERENCE
-
-        info.escaped = false
-        info.constrained = false
     }
 }
