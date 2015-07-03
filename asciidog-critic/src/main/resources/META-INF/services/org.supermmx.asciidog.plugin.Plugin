@@ -1,1 +1,2 @@
 org.supermmx.asciidog.critic.parser.CriticAdditionParser
+org.supermmx.asciidog.critic.parser.CriticDeletionParser
