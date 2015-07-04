@@ -7,9 +7,9 @@ import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-@Canonical(excludes=['parent', 'document'])
-@EqualsAndHashCode(excludes=['parent', 'document'])
-@ToString(excludes=['parent', 'document'], includePackage=false, includeNames=true)
+@Canonical
+@EqualsAndHashCode(callSuper=true)
+@ToString(includeSuper=true, includePackage=false, includeNames=true)
 
 class CriticNode extends InlineContainerNode {
     static final Node.Type CRITIC_NODE_TYPE =

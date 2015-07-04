@@ -16,17 +16,17 @@ class AbstractCriticParser extends InlineParserPlugin {
     }
 
     @Override
-    protected Inline createNode(Matcher m, List<String> groups, InlineInfo info) {
+    protected List<Inline> createNodes(Matcher m, List<String> groups) {
         CriticNode criticNode = new CriticNode(criticType: criticType)
 
-        return criticNode
+        return [ criticNode ]
     }
 
     @Override
-    protected boolean fillNode(Inline inline, Matcher m, List<String> groups, InlineInfo info) {
-        inline.escaped = false
+    protected boolean fillNodes(List<InlineInfo> infoList, Matcher m, List<String> groups) {
+        infoList[0].with {
+            inlineNode.escaped = false
 
-        info.with {
             contentStart = m.start(1)
             contentEnd = m.end(1)
         }
