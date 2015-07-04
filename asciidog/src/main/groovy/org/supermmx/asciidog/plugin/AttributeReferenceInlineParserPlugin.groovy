@@ -23,8 +23,8 @@ class AttributeReferenceInlineParserPlugin extends InlineParserPlugin {
         pattern = Parser.ATTRIBUTE_REFERENCE_PATTERN
     }
 
-
-    protected Inline createNode(Matcher m, List<String> groups, InlineInfo info) {
+    @Override
+    protected List<Inline> createNodes(Matcher m, List<String> groups) {
         Inline inline = null;
 
         def action = groups[3]
@@ -39,13 +39,14 @@ class AttributeReferenceInlineParserPlugin extends InlineParserPlugin {
             inline.name = groups[6]
         }
 
-        return inline
+        return [ inline ]
     }
 
-    protected boolean fillNode(Inline inline, Matcher m, List<String> groups, InlineInfo info) {
-        inline.escaped = (groups[0] == '')
+    @Override
+    protected boolean fillNodes(List<InlineInfo> infoList, Matcher m, List<String> groups) {
+        infoList[0].with {
+            inlineNode.escaped = (groups[0] == '')
 
-        info.with {
             contentStart = m.start(2)
             contentEnd = m.end(2)
         }

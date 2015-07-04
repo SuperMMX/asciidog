@@ -880,11 +880,8 @@ _
             def m = plugin.pattern.matcher(text)
             m.each { groups ->
                 log.debug "matching ${groups[0]}"
-                def info = plugin.parse(m, groups)
-                if (info != null) {
-                    info.start = m.start()
-                    info.end = m.end()
-
+                def infoList = plugin.parse(m, groups)
+                infoList.each { info ->
                     allInfo << info
                 }
             }
