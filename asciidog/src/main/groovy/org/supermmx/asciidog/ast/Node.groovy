@@ -31,6 +31,7 @@ class Node {
         static final COMMENT_LINE = new Type(parent: BLOCK, name: 'comment_line')
         
         static final AUTHOR = new Type(parent: INLINE, name: 'author')
+        static final NULL = new Type(parent: INLINE, name: 'null')
         static final ATTRIBUTE_REFERENCE = new Type(parent: INLINE, name: 'attribute_reference')
         static final CROSS_REFERENCE = new Type(parent: INLINE, name: 'xref')
         static final FORMATTING = new Type(parent: INLINE, name: 'formatting')

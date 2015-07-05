@@ -15,26 +15,30 @@ class TextFormattingInlineParserPlugin extends InlineParserPlugin {
         nodeType = Node.Type.FORMATTING
     }
 
-    protected Inline createNode(Matcher m, List<String> groups, InlineInfo info) {
+    @Override
+    protected List<Inline> createNodes(Matcher m, List<String> groups) {
         FormattingNode inline = new FormattingNode()
 
         inline.formattingType = formattingType
 
-        return inline
+        return [ inline ]
     }
 
-    protected boolean fillNode(Inline inline, Matcher m, List<String> groups, InlineInfo info) {
-        inline.escaped = (groups[1] != '')
-
-        def attrsStr = groups[2]
-        if (attrsStr != null) {
-            def attrs = Parser.parseAttributes(attrsStr)
-            inline.attributes.putAll(attrs)
-        }
-
-        info.with {
+    @Override
+    protected boolean fillNodes(List<InlineInfo> infoList, Matcher m, List<String> groups) {
+        infoList[0].with {
             contentStart = m.start(3)
             contentEnd = m.end(3)
+
+            inlineNode.with {
+                escaped = (groups[1] != '')
+
+                def attrsStr = groups[2]
+                if (attrsStr != null) {
+                    def attrs = Parser.parseAttributes(attrsStr)
+                    attributes.putAll(attrs)
+                }
+            }
         }
 
         return true

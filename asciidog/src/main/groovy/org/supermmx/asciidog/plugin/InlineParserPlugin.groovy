@@ -21,54 +21,64 @@ abstract class InlineParserPlugin extends ParserPlugin {
      *
      * @param m the matcher which should only be used to
      *          retrieve data
-     * @param groups
+     * @param groups the matching groups
      *
-     * @return the parsed inline node
+     * @return a list of parsed inline info
      */
-    InlineInfo parse(Matcher m, List<String> groups) {
-        InlineInfo info = new InlineInfo()
+    List<InlineInfo> parse(Matcher m, List<String> groups) {
+        List<Inline> inlines = createNodes(m, groups)
 
-        Inline inline = createNode(m, groups, info)
+        List<InlineInfo> infoList = []
+        inlines.eachWithIndex { inline, index ->
+            InlineInfo info = new InlineInfo()
+            info.inlineNode = inline
 
-        if (inline != null) {
-            def success = fillNode(inline, m, groups, info)
-            if (!success) {
-                inline = null
-                info = null
+            // fill the start and end for the top level node
+            if (index == 0) {
+                info.start = m.start(0)
+                info.end = m.end(0)
             }
-        } else {
-            info = null
+
+            infoList << info
+        }
+
+        if (inlines.size() > 0) {
+            def success = fillNodes(infoList, m, groups)
+            if (!success) {
+                inlines = []
+                infoList = []
+            }
         }
 
         // create a text node
-        if (inline == null) {
-            inline = new TextNode(groups[0])
+        if (inlines == null || inlines.size() == 0) {
+            Inline inline = new TextNode(groups[0])
+            InlineInfo info = new InlineInfo()
+
             info.with {
-                start = groups[0].start
-                end = groups[0].end
+                inlineNode = inline
+
+                start = m.start(0)
+                end = m.end(0)
                 contentStart = start
                 contentEnd = end
             }
         }
 
-        if (info != null) {
-            info.inlineNode = inline
-        }
-
-        return info
+        return infoList
     }
 
     /**
-     * Create an empty node with necessary data
+     * Create a list of empty nodes with necessary data
      *
-     * @return the newly created inline node
+     * @return the newly created inline nodes
      */
-    protected abstract Inline createNode(Matcher m, List<String> groups, InlineInfo info)
+    protected abstract List<Inline> createNodes(Matcher m, List<String> groups)
 
     /**
-     * Fill data from regex to the inline
+     * Fill data from regex to the inline info list
      *
      * @return successfully fill the data or not
      */
-    protected abstract boolean fillNode(Inline inline, Matcher m, List<String> groups, InlineInfo info)
+    protected abstract boolean fillNodes(List<Inline> infoList, Matcher m, List<String> groups)
 }

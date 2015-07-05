@@ -19,24 +19,29 @@ class CrossReferenceInlineParserPlugin extends InlineParserPlugin {
         pattern = Parser.CROSS_REFERENCE_PATTERN
     }
 
-    Inline createNode(Matcher m, List<String> groups, InlineInfo info) {
+    @Override
+    protected List<Inline> createNodes(Matcher m, List<String> groups) {
         CrossReferenceNode xrNode = new CrossReferenceNode()
 
-        return xrNode
+        return [ xrNode ]
     }
 
-    protected boolean fillNode(Inline inline, Matcher m, List<String> groups, InlineInfo info) {
-        inline.escaped = (groups[1] != '')
-        inline.xrefId = groups[3]
-
-        info.with {
+    @Override
+    protected boolean fillNodes(List<Inline> infoList, Matcher m, List<String> groups) {
+        infoList[0].with {
             contentStart = m.start(3)
             contentEnd = m.end(3)
 
-            def attrsStr = groups[2]
-            if (attrsStr != null) {
-                def attrs = Parser.parseAttributes(attrsStr)
-                inline.attributes.putAll(attrs)
+            inlineNode.with {
+                escaped = (groups[1] != '')
+
+                xrefId = groups[3]
+
+                def attrsStr = groups[2]
+                if (attrsStr != null) {
+                    def attrs = Parser.parseAttributes(attrsStr)
+                    attributes.putAll(attrs)
+                }
             }
         }
 

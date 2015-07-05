@@ -229,7 +229,7 @@ _
   \\]
 )?
 <<
-(.+?)               # 3, id
+([\\w ]+?)          # 3, id
 >>
 '''
     static final def ATTRIBUTE_REFERENCE_PATTERN = ~'''(?Usxm)
@@ -880,11 +880,8 @@ _
             def m = plugin.pattern.matcher(text)
             m.each { groups ->
                 log.debug "matching ${groups[0]}"
-                def info = plugin.parse(m, groups)
-                if (info != null) {
-                    info.start = m.start()
-                    info.end = m.end()
-
+                def infoList = plugin.parse(m, groups)
+                infoList.each { info ->
                     allInfo << info
                 }
             }
