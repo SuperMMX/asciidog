@@ -229,7 +229,7 @@ _
   \\]
 )?
 <<
-(.+?)               # 3, id
+([\\w ]+?)          # 3, id
 >>
 '''
     static final def ATTRIBUTE_REFERENCE_PATTERN = ~'''(?Usxm)
