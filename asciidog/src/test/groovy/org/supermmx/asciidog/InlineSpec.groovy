@@ -94,6 +94,14 @@ class InlineSpec extends AsciidogSpec {
         Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == true
     }
 
+    def 'regex: unconstrained strong string should not match constrained strong'() {
+        given:
+        def text = '**bl*ck**-eye'
+
+        expect:
+        Parser.STRONG_CONSTRAINED_PATTERN.matcher(text).find() == false
+    }
+
     def 'regex: constrained strong string containing an asterisk and multibyte word chars'() {
         given:
         def text = '*黑*眼圈*'
