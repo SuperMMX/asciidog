@@ -925,6 +925,9 @@ _
             }
 
             log.debug "container info = ${containerInfo}"
+            if (!containerInfo.fillGap) {
+                return
+            }
 
             def lastEnd = containerInfo.contentStart
             def lastNodeInfo = null
@@ -992,7 +995,9 @@ _
                     def childNode = info.inlineNode
 
                     // fill the gap before
-                    fillGap(parentInfo, info)
+                    if (parentInfo.fillGap) {
+                        fillGap(parentInfo, info)
+                    }
 
                     parentInfo << info
 
