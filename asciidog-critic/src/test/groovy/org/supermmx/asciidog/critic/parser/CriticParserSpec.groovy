@@ -7,7 +7,6 @@ import org.supermmx.asciidog.critic.CriticNode
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.TextNode
-import org.supermmx.asciidog.ast.NullNode
 import org.supermmx.asciidog.ast.AttributeReferenceNode
 import org.supermmx.asciidog.ast.CrossReferenceNode
 
@@ -114,7 +113,6 @@ class CriticParserSpec extends AsciidogSpec {
                                                   inlineNodes: [
                                                       new TextNode('deleted')
                                                   ]),
-                                   new NullNode(),
                                    new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
                                                   criticType: CriticNode.CriticType.ADDITION,
                                                   inlineNodes: [

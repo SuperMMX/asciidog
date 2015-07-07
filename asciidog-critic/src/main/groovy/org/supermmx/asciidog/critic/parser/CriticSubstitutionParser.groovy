@@ -33,18 +33,19 @@ class CriticSubstitutionParser extends AbstractCriticParser {
         CriticNode deletionNode = new CriticNode(criticType: CriticNode.CriticType.DELETION)
         CriticNode additionNode = new CriticNode(criticType: CriticNode.CriticType.ADDITION)
 
-        return [ substNode, deletionNode, new NullNode(), additionNode ]
+        return [ substNode, deletionNode, additionNode ]
     }
 
     @Override
     protected boolean fillNodes(List<InlineInfo> infoList, Matcher m, List<String> groups) {
         InlineInfo substInfo = infoList[0]
         InlineInfo deletionInfo = infoList[1]
-        InlineInfo nullInfo = infoList[2]
-        InlineInfo additionInfo = infoList[3]
+        InlineInfo additionInfo = infoList[2]
 
         substInfo.with {
             inlineNode.escaped = false
+
+            fillGap = false
 
             start = m.start(0)
             end = m.end(0)
@@ -58,16 +59,6 @@ class CriticSubstitutionParser extends AbstractCriticParser {
 
             start = m.start(2)
             end = m.end(2)
-
-            contentStart = start
-            contentEnd = end
-        }
-
-        nullInfo.with {
-            inlineNode.escaped = false
-
-            start = m.end(2)
-            end = start + 2
 
             contentStart = start
             contentEnd = end
