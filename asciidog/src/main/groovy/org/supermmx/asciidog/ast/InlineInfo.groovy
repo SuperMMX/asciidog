@@ -19,6 +19,11 @@ class InlineInfo {
     int contentStart
     int contentEnd
 
+    /**
+     * Whether to fill the gap between nodes with TextNode
+     */
+    boolean fillGap = true
+
     Node inlineNode
 
     List<InlineInfo> children = []

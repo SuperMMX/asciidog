@@ -176,13 +176,13 @@ $
   \\]
 )?
 (?<!
-  [\\w\\*]
+  [\\w*]
 )
 \\*
 (                   # 3, text
-  \\S
+  [\\S&&[^*]]
   |
-  \\S .*? \\S
+  [\\S&&[^*]] .*? [\\S&&[^*]]
 )
 \\*
 (?!
@@ -865,43 +865,39 @@ _
      * Parse inline nodes from a text and construct the node tree
      */
     protected static List<Inline> parseInlineNodes(InlineContainer parent, String text) {
-        InlineInfo parentInfo = new InlineInfo(start: 0,
-                                               end: text.length(),
-                                               contentStart: 0,
-                                               contentEnd: text.length(),
-                                               inlineNode: parent)
+        InlineInfo topInfo = new InlineInfo(start: 0,
+                                            end: text.length(),
+                                            contentStart: 0,
+                                            contentEnd: text.length(),
+                                            inlineNode: parent)
 
-        log.debug("Start parsing inlines")
+        // matchers, plugin id -> matcher
+        def matchers = [:]
+        // starting index -> plugin id
+        def sortingPlugins = new TreeMap<Integer, String>()
 
         // go through all inline plugins
-        def allInfo = []
         PluginRegistry.instance.getInlineParserPlugins().each { plugin ->
             log.debug "Parse inline with plugin: ${plugin.id}"
             def m = plugin.pattern.matcher(text)
-            m.each { groups ->
-                log.debug "matching ${groups[0]}"
-                def infoList = plugin.parse(m, groups)
-                infoList.each { info ->
-                    allInfo << info
-                }
+            if (m.find()) {
+                matchers[(plugin.id)] = m
+                sortingPlugins[(m.start())] = plugin.id
             }
         }
 
-        // sort the result
-        allInfo.sort { it.start }
-
-        log.debug "parsed inline nodes info = $allInfo"
-
-        def resultInlines = []
-
-        // construct the object tree
-
-        // common functions
-        // find the appropriate inline container
+        // find the parent info for an inline info starting container info
         def findParentInfo
         findParentInfo = { containerInfo, inlineInfo ->
             log.debug("container start = ${containerInfo.start}, end = ${containerInfo.end}")
+
+            if (inlineInfo.start < containerInfo.contentStart
+                || inlineInfo.end > containerInfo.contentEnd) {
+                return null
+            }
+
             def result = null
+
             for (def childInfo : containerInfo.children) {
                 if (childInfo.inlineNode instanceof InlineContainer) {
                     result = findParentInfo(childInfo, inlineInfo)
@@ -912,14 +908,13 @@ _
             }
 
             if (result == null) {
-                if (inlineInfo.start >= containerInfo.start
-                    && inlineInfo.end <= containerInfo.end) {
-                    result = containerInfo
-                }
+                result = containerInfo
             }
 
             return result
         }
+
+        def resultInlines = []
 
         // fill gap
         def fillGap
@@ -933,6 +928,9 @@ _
             }
 
             log.debug "container info = ${containerInfo}"
+            if (!containerInfo.fillGap) {
+                return
+            }
 
             def lastEnd = containerInfo.contentStart
             def lastNodeInfo = null
@@ -969,74 +967,63 @@ _
                 containerInfo << nodeInfo
                 containerInfo.inlineNode << node
 
-                if (containerInfo == parentInfo) {
+                if (containerInfo == topInfo) {
                     resultInlines << node
                 }
             }
         }
 
-        allInfo.each { inlineInfo ->
-            log.debug("all nodes inline info = $inlineInfo")
-            def containerInfo = findParentInfo(parentInfo, inlineInfo)
+        while (sortingPlugins.size() > 0) {
+            def entry = sortingPlugins.find { true }
+            def startIndex = entry.key
+            def pluginId = entry.value
 
-            // FIXME: the parsed inlines may overlap
+            def m = matchers[(pluginId)]
 
-            // no container is found, normally not possible
-            if (containerInfo == null) {
-                return
+            log.debug "Index: ${startIndex}, From plugin: ${pluginId}, group = ${m.group()}"
+
+            def plugin = PluginRegistry.instance.getPlugin(pluginId)
+
+            def groupList = []
+            (0..m.groupCount()).each { index ->
+                groupList << m.group(index)
             }
 
-            // the parent doesn't fully cover the child
-            if (inlineInfo.start < containerInfo.contentStart
-                && inlineInfo.end > containerInfo.contentEnd) {
-                return
+            def infoList = plugin.parse(m, groupList)
+
+            infoList.each { info ->
+                def parentInfo = findParentInfo(topInfo, info)
+                if (parentInfo != null) {
+                    def parentNode = parentInfo.inlineNode
+                    def childNode = info.inlineNode
+
+                    // fill the gap before
+                    if (parentInfo.fillGap) {
+                        fillGap(parentInfo, info)
+                    }
+
+                    parentInfo << info
+
+                    parentNode << childNode
+                    childNode.parent = parentNode
+                    childNode.document = parentNode.document
+
+                    if (parentInfo == topInfo) {
+                        resultInlines << childNode
+                    }
+                }
             }
 
-            // fill gap from last sibling node
-            fillGap(containerInfo, inlineInfo)
-
-            containerInfo << inlineInfo
-            containerInfo.inlineNode << inlineInfo.inlineNode
-
-            inlineInfo.inlineNode.parent = containerInfo.inlineNode
-            inlineInfo.inlineNode.document = containerInfo.inlineNode.document
-
-            // TODO: update reference for anchor
-
-            if (containerInfo == parentInfo) {
-                resultInlines << inlineInfo.inlineNode
+            sortingPlugins.remove(startIndex)
+            if (m.find()) {
+                log.debug "Next match: start = ${m.start()}"
+                sortingPlugins[(m.start())] = plugin.id
             }
         }
 
-        fillGap(parentInfo, null)
+        fillGap(topInfo, null)
 
-        //println parent.nodes
-        def printInline
-        printInline = { inlineInfo ->
-            def inline = inlineInfo.inlineNode
-            log.debug "inline = ${inlineInfo.inlineNode}"
-            log.debug "inline info = ${inlineInfo}"
-
-            log.debug "start = ${inlineInfo.start}, end = ${inlineInfo.end}, content start = ${inlineInfo.contentStart}, content end = ${inlineInfo.contentEnd}"
-            if (inline instanceof TextNode) {
-                log.debug "text = '${inline.text}'"
-                log.debug ""
-            } else if (inline instanceof InlineContainer) {
-                if (inline instanceof FormattingNode) {
-                    log.debug "base type: ${inline.formattingType}"
-                }
-
-                inlineInfo.children.each { childInfo ->
-                    printInline(childInfo)
-                }
-            }
-        }
-
-        printInline(parentInfo)
-
-        log.debug "inlines = ${resultInlines}"
         return resultInlines
-
     }
 
     /**
