@@ -16,7 +16,7 @@ class AsciiDocBuilder extends FactoryBuilderSupport {
 
         registerFactory('document', new DocumentFactory())
         registerFactory('section', new SectionFactory())
-        registerFactory('paragraph', new ParagraphFactory())
+        registerFactory('para', new ParagraphFactory())
 
         registerFactory('text', new TextFactory())
         registerFactory('formatting', new FormattingFactory())

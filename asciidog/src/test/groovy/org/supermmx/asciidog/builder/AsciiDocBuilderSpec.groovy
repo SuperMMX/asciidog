@@ -9,7 +9,7 @@ class AsciiDocBuilderSpec extends Specification {
 
         def doc = builder.document {
             section(title: 'Section Title') {
-                paragraph {
+                para {
                     text 'pre '
 
                     formatting {
