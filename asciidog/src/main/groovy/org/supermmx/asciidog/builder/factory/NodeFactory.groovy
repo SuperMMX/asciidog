@@ -6,7 +6,27 @@ package org.supermmx.asciidog.builder.factory
 abstract class NodeFactory extends AbstractFactory {
     def childClasses = []
 
-    boolean accept(def child) {
-        return childClasses.contains(child.getClass())
+    @Override
+    boolean isLeaf() {
+        false
+    }
+
+    @Override
+    void setChild(FactoryBuilderSupport builder, parent, child) {
+        if (accept(builder, parent, child)) {
+            parent << child
+        }
+    }
+
+    @Override
+    void setParent(FactoryBuilderSupport builder, parent, child) {
+        child.parent = parent
+        child.document = parent.document
+    }
+
+    boolean accept(FactoryBuilderSupport builder, parent, child) {
+        return childClasses.find { childClass ->
+            child in childClass
+        }
     }
 }
