@@ -15,7 +15,6 @@ class Header extends Block {
         type = Node.Type.HEADER
     }
 
-    String title
     List<Author> authors = []
     Revision revision
 

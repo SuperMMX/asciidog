@@ -8,13 +8,13 @@ abstract class NodeFactory extends AbstractFactory {
 
     @Override
     boolean isLeaf() {
-        false
+        childClasses.size() == 0
     }
 
     @Override
     void setChild(FactoryBuilderSupport builder, parent, child) {
         if (accept(builder, parent, child)) {
-            parent << child
+            doSetChild(builder, parent, child)
         }
     }
 
@@ -28,5 +28,9 @@ abstract class NodeFactory extends AbstractFactory {
         return childClasses.find { childClass ->
             child in childClass
         }
+    }
+
+    void doSetChild(FactoryBuilderSupport builder, parent, child) {
+        parent << child
     }
 }

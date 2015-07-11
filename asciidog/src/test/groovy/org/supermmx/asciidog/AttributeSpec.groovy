@@ -26,11 +26,9 @@ class AttributeSpec extends AsciidogSpec {
 
         then:
         header == builder.header(title: 'Document Title') {
-            current.blocks = [
-                attributeEntry(name: 'doctype', value: 'book'),
-                attributeEntry(name: 'var', value: 'initial'),
-                attributeEntry(name: 'var', value: 'new'),
-            ]
+            attribute(name: 'doctype', 'book')
+            attribute(name: 'var', 'initial')
+            attribute(name: 'var', 'new')
         }
 
         parser.attrContainer.getAttribute('var') == new Attribute([ name: 'var',
@@ -57,10 +55,8 @@ class AttributeSpec extends AsciidogSpec {
 
         then:
         header == builder.header(title: 'Document Title') {
-            current.blocks = [
-                attributeEntry(name: 'version', value: '1.0'),
-                attributeEntry(name: 'release', value: 'Asciidog {version}')
-            ]
+            attribute(name: 'version', '1.0')
+            attribute(name: 'release', 'Asciidog {version}')
         }
 
         parser.attrContainer.getAttribute('release') == releaseAttr
@@ -76,16 +72,12 @@ Beat {my_super-hero}!'''
 
 ${paraContent}
 """
-        def paragraph = builder.paragraph() {
-            current.inlineNodes = [
-                new TextNode('Yo, '),
-                attributeReferenceNode(type: Node.Type.ATTRIBUTE_REFERENCE,
-                                       name: 'frog'),
-                new TextNode('!\nBeat '),
-                attributeReferenceNode(type: Node.Type.ATTRIBUTE_REFERENCE,
-                                       name: 'my_super-hero'),
-                new TextNode('!')
-            ]
+        def paragraph = builder.para {
+            text 'Yo, '
+            aref 'frog'
+            text '!\nBeat '
+            aref 'my_super-hero'
+            text '!'
         }
 
         when:

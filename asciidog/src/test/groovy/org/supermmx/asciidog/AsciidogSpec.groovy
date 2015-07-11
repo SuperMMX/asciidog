@@ -5,10 +5,12 @@ import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.TextNode
+import org.supermmx.asciidog.builder.AsciiDocBuilder
 
 import spock.lang.*
 
 class AsciidogSpec extends Specification {
+    /*
     @Shared
     def builder = new ObjectGraphBuilder()
 
@@ -16,6 +18,10 @@ class AsciidogSpec extends Specification {
         builder.classNameResolver = "org.supermmx.asciidog.ast"
         builder.identifierResolver = "uid"
     }
+    */
+
+    @Shared
+    def builder = new AsciiDocBuilder()
 
     /**
      * Create a parser reading from a text
@@ -33,11 +39,8 @@ class AsciidogSpec extends Specification {
      */
     def para(def text) {
         def length = text.length()
-        def para = builder.paragraph() {
-            current.inlineNodes = [
-                textNode(type: Node.Type.TEXT,
-                         text: text)
-            ]
+        def para = builder.para {
+            text text
         }
 
         return para
