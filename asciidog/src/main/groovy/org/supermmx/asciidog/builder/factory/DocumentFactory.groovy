@@ -7,6 +7,7 @@ import org.supermmx.asciidog.ast.Header
 
 class DocumentFactory extends AbstractBlockFactory {
     DocumentFactory() {
+        name = 'document'
         childClasses = [
             Header,
             Preamble,

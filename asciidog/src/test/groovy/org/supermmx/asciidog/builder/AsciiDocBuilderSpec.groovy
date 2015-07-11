@@ -12,7 +12,7 @@ class AsciiDocBuilderSpec extends Specification {
                 para {
                     text 'pre '
 
-                    formatting {
+                    strong {
                         text 'text'
                     }
 
@@ -21,6 +21,52 @@ class AsciiDocBuilderSpec extends Specification {
 
                 section(title: 'Sub Section') {
                 }
+            }
+        }
+
+        println "doc = ${doc}"
+    }
+
+    def 'list'() {
+        given:
+        def builder = new AsciiDocBuilder()
+
+        def doc = builder.document {
+            section(title: 'Section Title') {
+                ul {
+                    item {
+                        para {
+                            text 'first item'
+                        }
+                    }
+
+                    item {
+                        ol {
+                            item {
+                                para {
+                                    text 'first item lin ordered list'
+                                }
+                            }
+                        }
+                        para {
+                            text 'second item'
+                        }
+                    }
+                }
+            }
+        }
+
+        println "doc = ${doc}"
+    }
+
+    def 'attr'() {
+        given:
+        def builder = new AsciiDocBuilder()
+
+        def doc = builder.document {
+            header(title: 'Section Title') {
+                attribute('name', 'value')
+                attribute('name')
             }
         }
 

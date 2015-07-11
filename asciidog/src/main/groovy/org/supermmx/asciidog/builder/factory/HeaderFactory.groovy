@@ -5,6 +5,7 @@ import org.supermmx.asciidog.ast.AttributeEntry
 
 class HeaderFactory extends AbstractBlockFactory {
     HeaderFactory() {
+        name = 'header'
         childClasses = [
             AttributeEntry
         ]

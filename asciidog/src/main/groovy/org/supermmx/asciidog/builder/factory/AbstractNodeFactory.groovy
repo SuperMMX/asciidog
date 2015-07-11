@@ -3,7 +3,14 @@ package org.supermmx.asciidog.builder.factory
 /**
  * Node factory that only accepts define classes as the children
  */
-abstract class NodeFactory extends AbstractFactory {
+abstract class AbstractNodeFactory extends AbstractFactory {
+    /**
+     * The node names that this factory can handle
+     */
+    String name
+    /**
+     * The classes for accpeted child nodes
+     */
     def childClasses = []
 
     @Override

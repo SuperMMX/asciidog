@@ -6,6 +6,8 @@ import org.supermmx.asciidog.ast.Paragraph
 
 class ListItemFactory extends AbstractBlockFactory {
     ListItemFactory() {
+        name = 'item'
+
         childClasses = [
             Paragraph,
             AdocList

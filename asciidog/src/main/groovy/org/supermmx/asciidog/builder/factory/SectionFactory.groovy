@@ -6,6 +6,8 @@ import org.supermmx.asciidog.ast.AdocList
 
 class SectionFactory extends AbstractBlockFactory {
     SectionFactory() {
+        name = 'section'
+
         childClasses = [
             Section,
             Paragraph,

@@ -26,9 +26,9 @@ class AttributeSpec extends AsciidogSpec {
 
         then:
         header == builder.header(title: 'Document Title') {
-            attribute(name: 'doctype', 'book')
-            attribute(name: 'var', 'initial')
-            attribute(name: 'var', 'new')
+            attribute('doctype', 'book')
+            attribute('var', 'initial')
+            attribute('var', 'new')
         }
 
         parser.attrContainer.getAttribute('var') == new Attribute([ name: 'var',
@@ -55,8 +55,8 @@ class AttributeSpec extends AsciidogSpec {
 
         then:
         header == builder.header(title: 'Document Title') {
-            attribute(name: 'version', '1.0')
-            attribute(name: 'release', 'Asciidog {version}')
+            attribute('version', '1.0')
+            attribute('release', 'Asciidog {version}')
         }
 
         parser.attrContainer.getAttribute('release') == releaseAttr
