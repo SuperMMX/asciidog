@@ -23,6 +23,8 @@ class AsciiDocBuilder extends FactoryBuilderSupport {
         registerFactory(new StrongFormattingFactory())
         registerFactory(new EmphasisFormattingFactory())
         registerFactory(new AttributeReferenceFactory())
+
+        // TODO: register plugins factory
     }
 
     protected void registerFactory(AbstractNodeFactory nodeFactory) {
