@@ -8,7 +8,7 @@ class AsciiDocBuilderSpec extends Specification {
         def builder = new AsciiDocBuilder()
 
         def doc = builder.document {
-            section(title: 'Section Title') {
+            section('Section Title') {
                 para {
                     text 'pre '
 
@@ -19,7 +19,7 @@ class AsciiDocBuilderSpec extends Specification {
                     text ' post'
                 }
 
-                section(title: 'Sub Section') {
+                section('Sub Section') {
                 }
             }
         }
@@ -32,7 +32,7 @@ class AsciiDocBuilderSpec extends Specification {
         def builder = new AsciiDocBuilder()
 
         def doc = builder.document {
-            section(title: 'Section Title') {
+            section('Section Title') {
                 ul {
                     item {
                         para {
@@ -64,7 +64,7 @@ class AsciiDocBuilderSpec extends Specification {
         def builder = new AsciiDocBuilder()
 
         def doc = builder.document {
-            header(title: 'Section Title') {
+            header('Document Title') {
                 attribute('name', 'value')
                 attribute('name')
             }

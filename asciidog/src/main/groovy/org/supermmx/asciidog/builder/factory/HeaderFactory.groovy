@@ -6,6 +6,7 @@ import org.supermmx.asciidog.ast.AttributeEntry
 class HeaderFactory extends AbstractBlockFactory {
     HeaderFactory() {
         name = 'header'
+
         childClasses = [
             AttributeEntry
         ]
@@ -13,7 +14,7 @@ class HeaderFactory extends AbstractBlockFactory {
 
     @Override
     def newInstance(FactoryBuilderSupport builder, name, value, Map attributes) {
-        Header header = new Header()
+        Header header = new Header(title: value)
 
         return header
     }
