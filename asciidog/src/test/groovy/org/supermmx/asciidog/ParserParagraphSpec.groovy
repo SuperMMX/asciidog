@@ -13,7 +13,9 @@ class ParserParagraphSpec extends AsciidogSpec {
         def content = 'paragraph'
 
         expect:
-        parser(content).parseParagraph(new Block()) == para(content)
+        parser(content).parseParagraph(new Block()) == builder.para {
+            text 'paragraph'
+        }
     }
 
     def 'parse: paragraph: single line starting with leading blank lines'() {
@@ -25,7 +27,9 @@ class ParserParagraphSpec extends AsciidogSpec {
 $text"""
 
         expect:
-        parser(content).parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == builder.para {
+            builder.text text
+        }
     }
 
     def 'parse: paragraph: multiple lines starting with leading blank lines'() {
@@ -39,7 +43,9 @@ line3'''
 $text"""
 
         expect:
-        parser(content).parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == builder.para {
+            builder.text text
+        }
     }
 
     def 'parse: paragraph: no new line in the end'() {
@@ -51,7 +57,9 @@ line3'''
 $text"""
 
         expect:
-        parser(content).parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == builder.para {
+            builder.text text
+        }
     }
 
     def 'parse: paragraph: new line in the end'() {
@@ -64,7 +72,9 @@ $text
 """
 
         expect:
-        parser(content).parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == builder.para {
+            builder.text text
+        }
     }
 
     def 'parse: paragraph: blank line after'() {
@@ -78,7 +88,9 @@ $text
 """
 
         expect:
-        parser(content).parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == builder.para {
+            builder.text text
+        }
     }
 
     def 'parse: paragraph: another paragraph after'() {
@@ -93,6 +105,8 @@ abc
 """
 
         expect:
-        parser(content).parseParagraph(new Block()) == para(text)
+        parser(content).parseParagraph(new Block()) == builder.para {
+            builder.text text
+        }
     }
 }
