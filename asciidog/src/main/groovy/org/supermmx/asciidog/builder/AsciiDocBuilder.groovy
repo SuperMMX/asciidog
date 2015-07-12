@@ -8,16 +8,16 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class AsciiDocBuilder extends FactoryBuilderSupport {
     {
-        log.info 'Registering builder factories...'
-
         registerFactory(new DocumentFactory())
         registerFactory(new HeaderFactory())
+        registerFactory(new PreambleFactory())
         registerFactory(new AttributeFactory())
         registerFactory(new SectionFactory())
         registerFactory(new OrderedListFactory())
         registerFactory(new UnOrderedListFactory())
         registerFactory(new ListItemFactory())
         registerFactory(new ParagraphFactory())
+        registerFactory(new CommentFactory())
 
         registerFactory(new TextFactory())
         registerFactory(new StrongFormattingFactory())

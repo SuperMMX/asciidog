@@ -8,11 +8,7 @@ class SectionFactory extends AbstractBlockFactory {
     SectionFactory() {
         name = 'section'
 
-        childClasses = [
-            Section,
-            Paragraph,
-            AdocList
-        ]
+        childClasses = SECTION_CLASSES
     }
 
     @Override

@@ -8,10 +8,7 @@ class ListItemFactory extends AbstractBlockFactory {
     ListItemFactory() {
         name = 'item'
 
-        childClasses = [
-            Paragraph,
-            AdocList
-        ]
+        childClasses = BLOCKS_CLASSES
     }
 
     def newInstance(FactoryBuilderSupport builder, name, value, Map attributes) {
