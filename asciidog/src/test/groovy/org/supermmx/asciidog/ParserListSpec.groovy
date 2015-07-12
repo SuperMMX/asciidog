@@ -16,16 +16,13 @@ class ParserListSpec extends AsciidogSpec {
         given:
         def content = '* list item'
 
-        def expectedList = builder.unOrderedList(lead:'', marker: '*',
-                                                 markerLevel: 1,
-                                                 level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('list item')
-                    ]
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1, level: 1) {
+            item {
+                para {
+                    text 'list item'
                 }
-            ]
+            }
         }
 
         expect:
@@ -43,16 +40,14 @@ multiple lines'''
 $text2
 """
 
-        def expectedList = builder.orderedList(lead: '', marker: '.',
-                                               markerLevel: 1,
-                                               level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para(text1)
-                    ]
+        def expectedList = builder.ol(lead: '', marker: '.',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text text1
                 }
-            ]
+            }
         }
 
         expect:
@@ -74,17 +69,17 @@ $text2
 == section
 """
 
-        def expectedList = builder.unOrderedList(lead: '', marker: '*',
-                                                 markerLevel: 1,
-                                                 level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para(text1),
-                        para(text2)
-                    ]
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text text1
                 }
-            ]
+                para {
+                    text text2
+                }
+            }
         }
 
         expect:
@@ -101,26 +96,24 @@ $text2
 == section
 '''
 
-        def expectedList = builder.orderedList(lead: '', marker: '.',
-                                               markerLevel: 1,
-                                               level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('item1')
-                    ]
-                },
-                listItem() {
-                    current.blocks = [
-                        para('item2')
-                    ]
-                },
-                listItem() {
-                    current.blocks = [
-                        para('item3')
-                    ]
+        def expectedList = builder.ol(lead: '', marker: '.',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1'
                 }
-            ]
+            }
+            item {
+                para {
+                    text 'item2'
+                }
+            }
+            item {
+                para {
+                    text 'item3'
+                }
+            }
         }
 
         expect:
@@ -137,38 +130,30 @@ $text2
 new paragraph
 '''
 
-        def expectedList = builder.orderedList(lead: '', marker: '.',
-                                               markerLevel: 1,
-                                               level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('item1'),
-                        unOrderedList(lead: '', marker: '*',
+        def expectedList = builder.ol(lead: '', marker: '.',
                                       markerLevel: 1,
-                                      level: 2) {
-                            current.blocks = [
-                                listItem() {
-                                    current.blocks = [
-                                        para('item2'),
-                                        unOrderedList(lead: '', marker: '-',
-                                                      markerLevel: 1,
-                                                      level: 3) {
-                                            current.blocks = [
-                                                listItem() {
-                                                    current.blocks = [
-                                                        para('item3')
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1'
                 }
-            ]
+                ul(lead: '', marker: '*',
+                   markerLevel: 1, level: 2) {
+                    item {
+                        para {
+                            text 'item2'
+                        }
+                        ul(lead: '', marker: '-',
+                           markerLevel: 1, level: 3) {
+                            item {
+                                para {
+                                    text 'item3'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         expect:
@@ -185,38 +170,34 @@ new paragraph
 new paragraph
 '''
 
-        def expectedList = builder.orderedList(lead: '', marker: '.',
-                                               markerLevel: 1,
-                                               level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('item1'),
-                        orderedList(lead: '', marker: '.',
-                                    markerLevel: 2,
-                                    level: 2) {
-                            current.blocks = [
-                                listItem() {
-                                    current.blocks = [
-                                        para('item2'),
-                                        unOrderedList(lead: '', marker: '*',
-                                                      markerLevel: 1,
-                                                      level: 3) {
-                                            current.blocks = [
-                                                listItem() {
-                                                    current.blocks = [
-                                                        para('item3')
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
+        def expectedList = builder.ol(lead: '', marker: '.',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1'
                 }
-            ]
+
+                ol(lead: '', marker: '.',
+                   markerLevel: 2,
+                   level: 2) {
+                    item {
+                        para {
+                            text 'item2'
+                        }
+
+                        ul(lead: '', marker: '*',
+                           markerLevel: 1,
+                           level: 3) {
+                            item {
+                                para {
+                                    text 'item3'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         expect:
@@ -238,38 +219,34 @@ paragraph3
 new paragraph
 '''
 
-        def expectedList = builder.orderedList(lead: '', marker: '.',
-                                               markerLevel: 1,
-                                               level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('item1\nparagraph1'),
-                        orderedList(lead: '', marker: '.',
-                                    markerLevel: 2,
-                                    level: 2) {
-                            current.blocks = [
-                                listItem() {
-                                    current.blocks = [
-                                        para('item2\nparagraph2'),
-                                        orderedList(lead: '', marker: '.',
-                                                    markerLevel: 3,
-                                                    level: 3) {
-                                            current.blocks = [
-                                                listItem() {
-                                                    current.blocks = [
-                                                        para('item3\nparagraph3')
-                                                    ]
-                                                }
-                                            ]
-                                        }
-                                    ]
+        def expectedList = builder.ol(lead: '', marker: '.',
+                                      markerLevel: 1,
+                                      level: 1) {
+                item {
+                    para {
+                        text 'item1\nparagraph1'
+                    }
+
+                    ol(lead: '', marker: '.',
+                       markerLevel: 2,
+                       level: 2) {
+                        item {
+                            para {
+                                text 'item2\nparagraph2'
+                            }
+
+                            ol(lead: '', marker: '.',
+                               markerLevel: 3,
+                               level: 3) {
+                                item {
+                                    para {
+                                        text 'item3\nparagraph3'
+                                    }
                                 }
-                            ]
+                            }
                         }
-                    ]
+                    }
                 }
-            ]
         }
 
         expect:
@@ -297,27 +274,30 @@ paragraph3
 == section
 '''
 
-        def expectedList = builder.unOrderedList(lead: '', marker: '*',
-                                                 markerLevel: 1,
-                                                 level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('item1\nparagraph1')
-                    ]
-                },
-                listItem() {
-                    current.blocks = [
-                        para('item2\nparagraph2'),
-                        para('new paragraph\nwith multiple lines')
-                    ]
-                },
-                listItem() {
-                    current.blocks = [
-                        para('item3\nparagraph3')
-                    ]
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1\nparagraph1'
                 }
-            ]
+            }
+
+            item {
+                para {
+                    text 'item2\nparagraph2'
+                }
+
+                para {
+                    text 'new paragraph\nwith multiple lines'
+                }
+            }
+
+            item {
+                para {
+                    text 'item3\nparagraph3'
+                }
+            }
         }
 
         expect:
@@ -336,32 +316,31 @@ paragraph3
 . item4
 '''
 
-        def expectedList = builder.orderedList(lead: '', marker: '.',
-                                               markerLevel: 1,
-                                               level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('item1')
-                    ]
-                },
-                listItem() {
-                    current.blocks = [
-                        para('item2')
-                    ]
+        def expectedList = builder.ol(lead: '', marker: '.',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1'
                 }
-            ]
+            }
+
+            item {
+                para {
+                    text 'item2'
+                }
+            }
         }
 
         expect:
         parser(content).parseList(new Block()) == expectedList
     }
 
-    def 'ordered list ended with comment line'() {
+    def 'unordered list ended with comment line'() {
         given:
         def content = '''
-. item1
-. item2
+* item1
+* item2
 
 // this is a comment
 
@@ -369,21 +348,20 @@ paragraph3
 . item4
 '''
 
-        def expectedList = builder.orderedList(lead: '', marker: '.',
-                                               markerLevel: 1,
-                                               level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('item1')
-                    ]
-                },
-                listItem() {
-                    current.blocks = [
-                        para('item2')
-                    ]
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1'
                 }
-            ]
+            }
+
+            item {
+                para {
+                    text 'item2'
+                }
+            }
         }
 
         expect:
@@ -400,32 +378,30 @@ paragraph3
 new paragraph
 '''
 
-        def expectedList = builder.orderedList(lead: '', marker: '.',
-                                               markerLevel: 1,
-                                               level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('item1'),
-                        unOrderedList(lead: '', marker: '*',
+        def expectedList = builder.ol(lead: '', marker: '.',
                                       markerLevel: 1,
-                                      level: 2) {
-                            current.blocks = [
-                                listItem() {
-                                    current.blocks = [
-                                        para('item2')
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                },
-                listItem() {
-                    current.blocks = [
-                        para('item3')
-                    ]
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1'
                 }
-            ]
+
+                ul(lead: '', marker: '*',
+                   markerLevel: 1,
+                   level: 2) {
+                    item {
+                        para {
+                            text 'item2'
+                        }
+                    }
+                }
+            }
+
+            item {
+                para {
+                    text 'item3'
+                }
+            }
         }
 
         expect:
@@ -440,26 +416,26 @@ new paragraph
  - Baz
 '''
 
-        def expectedList = builder.unOrderedList(lead: ' ', marker: '-',
-                                                 markerLevel: 1,
-                                                 level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('Foo')
-                    ]
-                },
-                listItem() {
-                    current.blocks = [
-                        para('Bar')
-                    ]
-                },
-                listItem() {
-                    current.blocks = [
-                        para('Baz')
-                    ]
+        def expectedList = builder.ul(lead: ' ', marker: '-',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'Foo'
                 }
-            ]
+            }
+
+            item {
+                para {
+                    text 'Bar'
+                }
+            }
+
+            item {
+                para {
+                    text 'Baz'
+                }
+            }
         }
 
         expect:
@@ -477,28 +453,31 @@ item3
 item4
 '''
 
-        def expectedList = builder.orderedList(lead: '', marker: '.',
-                                               markerLevel: 1,
-                                               level: 1) {
-            current.blocks = [
-                listItem() {
-                    current.blocks = [
-                        para('item1'),
-                        unOrderedList(lead: ' ', marker: '*',
-                                      markerLevel: 1, level: 2) {
-                            current.blocks = [
-                                listItem() {
-                                    current.blocks = [
-                                        para('item2'),
-                                        para('item3')
-                                    ]
-                                }
-                            ]
-                        },
-                        para('item4')
-                    ]
+        def expectedList = builder.ol(lead: '', marker: '.',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1'
                 }
-            ]
+
+                ul(lead: ' ', marker: '*',
+                   markerLevel: 1, level: 2) {
+                    item {
+                        para {
+                            text 'item2'
+                        }
+
+                        para {
+                            text 'item3'
+                        }
+                    }
+                }
+
+                para {
+                    text 'item4'
+                }
+            }
         }
 
         expect:

@@ -33,16 +33,4 @@ class AsciidogSpec extends Specification {
 
         return parser
     }
-
-    /**
-     * Create a simple paragraph from the text
-     */
-    def para(def text) {
-        def length = text.length()
-        def para = builder.para {
-            text text
-        }
-
-        return para
-    }
 }
