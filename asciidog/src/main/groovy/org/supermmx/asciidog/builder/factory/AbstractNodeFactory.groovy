@@ -1,5 +1,8 @@
 package org.supermmx.asciidog.builder.factory
 
+import org.supermmx.asciidog.ast.Section
+import org.supermmx.asciidog.Parser
+
 /**
  * Node factory that only accepts define classes as the children
  */
@@ -29,6 +32,24 @@ abstract class AbstractNodeFactory extends AbstractFactory {
     void setParent(FactoryBuilderSupport builder, parent, child) {
         child.parent = parent
         child.document = parent.document
+
+        // update references when the id is not null
+        if (child.id != null) {
+            child.document.references[(child.id)] = child
+        }
+    }
+
+    @Override
+    boolean onHandleNodeAttributes(FactoryBuilderSupport builder, Object node, Map attributes) {
+        // generate default ids
+        if (node in Section) {
+            if (attributes['id'] == null) {
+                // Update ID
+                Parser.generateId(node)
+            }
+        }
+
+        return true
     }
 
     boolean accept(FactoryBuilderSupport builder, parent, child) {
