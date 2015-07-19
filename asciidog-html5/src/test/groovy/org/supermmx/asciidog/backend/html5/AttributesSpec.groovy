@@ -3,12 +3,19 @@ package org.supermmx.asciidog.backend.html5
 class AttributesSpec extends Html5Spec {
     def 'resolves attributes inside attribute value within header'() {
         given:
-        def content = '''= Document Title
-:big: big
-:bigfoot: {big}foot
+        def doc = builder.document {
+            header('Document Title') {
+                attribute 'big', 'big'
+                attribute 'bigfoot', '{big}foot'
+            }
 
-{bigfoot}
-'''
+            preamble {
+                para {
+                    aref 'bigfoot'
+                }
+            }
+        }
+
         def expectedBody = markupHtml {
             body {
                 h1 'Document Title'
@@ -17,7 +24,7 @@ class AttributesSpec extends Html5Spec {
         }
 
         when:
-        def body = adocHtml(content) {
+        def body = adocHtml(doc) {
             it.body
         }
 
@@ -27,13 +34,23 @@ class AttributesSpec extends Html5Spec {
 
     def 'render properly with simple names'() {
         given:
-        def content = '''= Document Title
-:frog: Tanglefoot
-:my_super-hero: Spiderman
+        def doc = builder.document {
+            header('Document Title') {
+                attribute 'frog', 'Tanglefoot'
+                attribute 'my_super-hero', 'Spiderman'
+            }
 
-Yo, {frog}!
-Beat {my_super-hero}!
-'''
+            preamble {
+                para {
+                    text 'Yo, '
+                    aref 'frog'
+                    text '!\nBeat '
+                    aref 'my_super-hero'
+                    text '!'
+                }
+            }
+        }
+
         def expectedBody = markupHtml {
             body {
                 h1 'Document Title'
@@ -42,7 +59,7 @@ Beat {my_super-hero}!
         }
 
         when:
-        def body = adocHtml(content) {
+        def body = adocHtml(doc) {
             it.body
         }
 
@@ -52,6 +69,19 @@ Beat {my_super-hero}!
 
     def 'render properly with single character name'() {
         given:
+        def doc = builder.document {
+            header('Document Title') {
+                attribute 'r', 'Ruby'
+            }
+
+            preamble {
+                para {
+                    text 'R is for '
+                    aref 'r'
+                    text '!'
+                }
+            }
+        }
         def content = '''= Document Title
 :r: Ruby
 
@@ -65,7 +95,7 @@ R is for {r}!
         }
 
         when:
-        def body = adocHtml(content) {
+        def body = adocHtml(doc) {
             it.body
         }
 
