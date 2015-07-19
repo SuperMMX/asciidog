@@ -54,6 +54,10 @@ class DocumentWalker {
     }
 
     void traversePreamble(DocumentContext context, Preamble preamble) {
+        if (preamble == null) {
+            return
+        }
+
         context.backend.preambleRenderer.pre(context, preamble)
 
         preamble.blocks.each { block ->
