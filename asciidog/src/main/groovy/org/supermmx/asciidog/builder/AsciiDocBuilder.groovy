@@ -1,5 +1,7 @@
 package org.supermmx.asciidog.builder
 
+import org.supermmx.asciidog.plugin.Plugin
+import org.supermmx.asciidog.plugin.PluginRegistry
 import org.supermmx.asciidog.builder.factory.*
 
 import groovy.util.FactoryBuilderSupport
@@ -26,6 +28,14 @@ class AsciiDocBuilder extends FactoryBuilderSupport {
         registerFactory(new CrossReferenceFactory())
 
         // TODO: register plugins factory
+        PluginRegistry pluginRegistry = PluginRegistry.instance
+        pluginRegistry.getPlugins { plugin ->
+            plugin.type == Plugin.Type.BUILDER
+        }.each { plugin ->
+            plugin.factories.each { factory ->
+                registerFactory(factory)
+            }
+        }
     }
 
     protected void registerFactory(AbstractNodeFactory nodeFactory) {
