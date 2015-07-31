@@ -35,7 +35,9 @@ abstract class AbstractNodeFactory extends AbstractFactory {
 
         // update references when the id is not null
         if (child.id != null) {
-            child.document.references[(child.id)] = child
+            if (child.document != null) {
+                child.document.references[(child.id)] = child
+            }
         }
     }
 
