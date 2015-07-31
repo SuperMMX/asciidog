@@ -14,17 +14,12 @@ class CriticParserSpec extends AsciidogSpec {
     def 'simple addition'() {
         given:
         def content = '{++addition content++}'
-        def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.ADDITION,
-                               inlineNodes: [
-                                   new TextNode('addition content')
-                               ])
-            ]
-        }
 
+        def expectedPara = builder.para {
+            criticAdd {
+                text 'addition content'
+            }
+        }
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -37,16 +32,11 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '{-- deletion content --}'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.DELETION,
-                               inlineNodes: [
-                                   new TextNode(' deletion content ')
-                               ])
-            ]
+        def expectedPara = builder.para {
+            criticDelete {
+                text ' deletion content '
+            }
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -59,16 +49,11 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '{>>this is a comment<<}'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.COMMENT,
-                               inlineNodes: [
-                                   new TextNode('this is a comment')
-                               ])
-            ]
+        def expectedPara = builder.para {
+            criticComment {
+                text 'this is a comment'
+            }
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -81,16 +66,11 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '{==highlight==}'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.HIGHLIGHT,
-                               inlineNodes: [
-                                   new TextNode('highlight')
-                               ])
-            ]
+        def expectedPara = builder.para {
+            criticHighlight {
+                text 'highlight'
+            }
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -103,25 +83,16 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '{~~deleted~>added~~}'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.SUBSTITUTION,
-                               inlineNodes: [
-                                   new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                                                  criticType: CriticNode.CriticType.DELETION,
-                                                  inlineNodes: [
-                                                      new TextNode('deleted')
-                                                  ]),
-                                   new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                                                  criticType: CriticNode.CriticType.ADDITION,
-                                                  inlineNodes: [
-                                                      new TextNode('added')
-                                                  ])
-                               ])
-            ]
+        def expectedPara = builder.para {
+            criticSubst {
+                criticDelete {
+                    text 'deleted'
+                }
+                criticAdd {
+                    text 'added'
+                }
+            }
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -134,21 +105,14 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '{==highlight==}{>>this is the comment<<}'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.HIGHLIGHT,
-                               inlineNodes: [
-                                   new TextNode('highlight')
-                               ]),
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.COMMENT,
-                               inlineNodes: [
-                                   new TextNode('this is the comment')
-                               ])
-            ]
+        def expectedPara = builder.para {
+            criticHighlight {
+                text 'highlight'
+            }
+            criticComment {
+                text 'this is the comment'
+            }
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -161,17 +125,12 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '{reference}{++ added++}'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new AttributeReferenceNode(name: 'reference'),
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.ADDITION,
-                               inlineNodes: [
-                                   new TextNode(' added')
-                               ])
-            ]
+        def expectedPara = builder.para {
+            aref 'reference'
+            criticAdd {
+                text ' added'
+            }
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -184,17 +143,12 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '{--{reference} deleted--}'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.DELETION,
-                               inlineNodes: [
-                                   new AttributeReferenceNode(name: 'reference'),
-                                   new TextNode(' deleted')
-                               ])
-            ]
+        def expectedPara = builder.para {
+            criticDelete {
+                aref 'reference'
+                text ' deleted'
+            }
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -207,18 +161,12 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '<<xref>>{>>comment<<}'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new CrossReferenceNode(type: Node.Type.CROSS_REFERENCE,
-                                       xrefId: 'xref'),
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.COMMENT,
-                               inlineNodes: [
-                                   new TextNode('comment')
-                               ])
-            ]
+        def expectedPara = builder.para {
+            xref 'xref'
+            criticComment {
+                text 'comment'
+            }
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -231,18 +179,12 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '{>>see <<xref>><<}'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.COMMENT,
-                               inlineNodes: [
-                                   new TextNode('see '),
-                                   new CrossReferenceNode(type: Node.Type.CROSS_REFERENCE,
-                                                          xrefId: 'xref'),
-                               ])
-            ]
+        def expectedPara = builder.para {
+            criticComment {
+                text 'see '
+                xref 'xref'
+            }
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
@@ -255,18 +197,13 @@ class CriticParserSpec extends AsciidogSpec {
         given:
         def content = '<<ref{>>comment<<}ref>>'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                new TextNode('<<ref'),
-                new CriticNode(type: CriticNode.CRITIC_NODE_TYPE,
-                               criticType: CriticNode.CriticType.COMMENT,
-                               inlineNodes: [
-                                   new TextNode('comment'),
-                               ]),
-                new TextNode('ref>>'),
-            ]
+        def expectedPara = builder.para {
+            text '<<ref'
+            criticComment {
+                text 'comment'
+            }
+            text 'ref>>'
         }
-
 
         when:
         def para = parser(content).parseParagraph(new Block())
