@@ -22,7 +22,9 @@ class ParserBlocksSpec extends AsciidogSpec {
 
         then:
         blocks.size() == 1
-        blocks[0] == para(content)
+        blocks[0] == builder.para {
+            text content
+        }
     }
 
     def 'parse: blocks: multiple blocks leading blank lines'() {
@@ -45,7 +47,14 @@ $text2
         def paras = parser.parseBlocks(new Block())
 
         then:
-        paras == [ para(text1), para(text2) ]
+        paras == [
+            builder.para {
+                text text1
+            },
+            builder.para {
+                text text2
+            }
+        ]
     }
 
     def 'parse: blocks: multiple blocks with section after'() {
@@ -71,7 +80,14 @@ $text2
         def paras = parser.parseBlocks(new Block())
 
         then:
-        paras == [ para(text1), para(text2) ]
+        paras == [
+            builder.para {
+                text text1
+            },
+            builder.para {
+                text text2
+            }
+        ]
     }
 
     def 'blocks with comment line in between'() {
@@ -96,6 +112,14 @@ $text2
         def blocks = parser.parseBlocks(new Block())
 
         then:
-        blocks == [ para(text1), new CommentLine(lines: [' comment line ']), para(text2) ]
+        blocks == [
+            builder.para {
+                text text1
+            },
+            builder.comment(' comment line '),
+            builder.para {
+                text text2
+            }
+        ]
     }
 }

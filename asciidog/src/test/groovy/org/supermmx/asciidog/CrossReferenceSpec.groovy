@@ -9,11 +9,8 @@ class CrossReferenceSpec extends AsciidogSpec {
         given:
         def content = '<<tigers>>'
         def length = content.length()
-        def expectedPara = builder.paragraph() {
-            current.inlineNodes = [
-                crossReferenceNode(type: Node.Type.CROSS_REFERENCE,
-                                   xrefId: 'tigers')
-            ]
+        def expectedPara = builder.para {
+            xref 'tigers'
         }
 
 

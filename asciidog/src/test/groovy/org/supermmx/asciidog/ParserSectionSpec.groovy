@@ -108,13 +108,16 @@ $text2
 
 
 """
-        def expectedSection = builder.section(title: 'Section Title',
+        def expectedSection = builder.section('Section Title',
                                               id: '_Section Title',
                                               level: 1) {
-            current.blocks = [
-                para(text1),
-                para(text2)
-            ]
+            para {
+                text text1
+            }
+
+            para {
+                text text2
+            }
         }
 
         def parser = parser(content)
@@ -145,18 +148,19 @@ $text1
 $text2
 
 """
-        def expectedSection = builder.section(title: 'Section Title',
+        def expectedSection = builder.section('Section Title',
                                               id: '_Section Title',
                                               level: 1) {
-            current.blocks = [
-                para(text1),
-                section(title: 'Subsection Title',
-                        id: '_Subsection Title') {
-                    current.blocks = [
-                        para(text2)
-                    ]
+            para {
+                text text1
+            }
+
+            section('Subsection Title',
+                    id: '_Subsection Title') {
+                para {
+                    text text2
                 }
-            ]
+            }
         }
 
         def parser = parser(content)
@@ -185,12 +189,12 @@ $text1
 $text2
 
 """
-        def expectedSection = builder.section(title: 'Section Title',
+        def expectedSection = builder.section('Section Title',
                                               id: '_Section Title',
                                               level: 1) {
-            current.blocks = [
-                para(text1)
-            ]
+            para {
+                text text1
+            }
         }
 
         def parser = parser(content)
@@ -214,7 +218,7 @@ $text2
 == Upper Section Title
 
 '''
-        def expectedSection = builder.section(title: 'Section Title',
+        def expectedSection = builder.section('Section Title',
                                               id: '_Section Title',
                                               level: 2) {
         }
@@ -241,13 +245,11 @@ $text2
 [[subid]]
 === Subsection Title
 '''
-        def expectedSection = builder.section(title: 'Section Title',
+        def expectedSection = builder.section('Section Title',
                                               id: '_Section Title',
                                               level: 1) {
-            current.blocks = [
-                section(title: 'Subsection Title',
-                        id: 'subid')
-            ]
+            section('Subsection Title',
+                    id: 'subid')
         }
 
         def parser = parser(content)
@@ -272,7 +274,7 @@ $text2
 [[sec-id]]
 == Next Section Title
 '''
-        def expectedSection = builder.section(title: 'Section Title',
+        def expectedSection = builder.section('Section Title',
                                               id: '_Section Title',
                                               level: 1)
 
@@ -298,7 +300,7 @@ $text2
 == Upper Section Title
 
 '''
-        def expectedSection = builder.section(title: 'Section Title',
+        def expectedSection = builder.section('Section Title',
                                               id: '_Section Title',
                                               level: 2)
 

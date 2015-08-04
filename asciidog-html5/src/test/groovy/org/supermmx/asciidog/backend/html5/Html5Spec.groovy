@@ -1,7 +1,7 @@
 package org.supermmx.asciidog.backend.html5
 
-import org.supermmx.asciidog.Parser
-import org.supermmx.asciidog.Reader
+import org.supermmx.asciidog.ast.Document
+import org.supermmx.asciidog.builder.AsciiDocBuilder
 import org.supermmx.asciidog.converter.DocumentWalker
 
 import groovy.xml.*
@@ -9,6 +9,9 @@ import groovy.xml.*
 import spock.lang.*
 
 class Html5Spec extends Specification {
+    @Shared
+    def builder = new AsciiDocBuilder()
+
     @Shared
     def backend = new Html5Backend()
 
@@ -28,12 +31,7 @@ class Html5Spec extends Specification {
      * Create xml slurper from AsciiDoc, and return the html string
      * of the element returned from the closure
      */
-    def adocHtml(String text, Closure closure) {
-        def parser = new Parser()
-        def reader = Reader.createFromString(text)
-        parser.reader = reader
-        def doc = parser.parseDocument()
-
+    def adocHtml(Document doc, Closure closure) {
         def baos = new ByteArrayOutputStream()
         walker.traverse(doc, backend, baos)
 

@@ -115,7 +115,11 @@ $text2
         def parser = parser(content)
 
         expect:
-        parser.parseParagraph(new Block()) == para(text1)
-        parser.parseParagraph(new Block()) == para(text2)
+        parser.parseParagraph(new Block()) == builder.para {
+            text text1
+        }
+        parser.parseParagraph(new Block()) == builder.para {
+            text text2
+        }
     }
 }

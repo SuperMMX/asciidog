@@ -5,7 +5,8 @@ import org.supermmx.asciidog.ast.Node
 abstract class Plugin {
     static enum Type {
         PARSER,
-        RENDERER
+        RENDERER,
+        BUILDER
     }
 
     String id

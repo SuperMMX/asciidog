@@ -11,7 +11,7 @@ to create one.
 This project is still in very early stage, and not ready for any
 kind of usage.
 
-== Implemented Features
+== Features
 
 === Parser
 
@@ -30,19 +30,34 @@ kind of usage.
 ** Ordered list
 ** Unordered list
 * Inline
-** Strong
-** Emphasis
+** Formatting
+*** Strong
+*** Emphasis
+** Attribute reference
+** Cross reference
 
 === Backend
 
 * AST Walker
 * Basic HTML5 backend
 
+=== Builder
+
+AsciiDoc builder to create the AST easily
+
+=== Plugin Infrastructure
+
+There are different types of plugins:
+* Parser: To parse custom text into AST nodes
+* Backend: To render and save the rendered result
+* Renderer: To render builtin or custom AST nodes
+* Builder: To create custom AST nodes in builder
+
+Sample plugins
+* CriticMarkup
+
 == TODO
 
-* Use context to replace inline info, which is not necessary
-to store in the node.
-** Put parser in inside parser package
-* Create builder to create AST easily
+* Put parser in inside parser package
 * Create include node instead of hiding it in reader
 
