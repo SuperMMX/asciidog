@@ -48,12 +48,14 @@ AsciiDoc builder to create the AST easily
 === Plugin Infrastructure
 
 There are different types of plugins:
+
 * Parser: To parse custom text into AST nodes
-* Backend: To render and save the rendered result
 * Renderer: To render builtin or custom AST nodes
 * Builder: To create custom AST nodes in builder
+* Backend: To render and save the rendered result
 
-Sample plugins
+Sample plugin suite:
+
 * CriticMarkup
 
 == TODO
