@@ -12,10 +12,10 @@ class Node {
     // FIXME: how to handle nodes from plugin?
     // here the node type should be basic ones
     static class Type {
-        static final NODE = new Type(name: 'node')
+        static final NODE = new Type(name: 'node', isAbstract: true)
 
-        static final BLOCK = new Type(parent: NODE, name: 'block')
-        static final INLINE = new Type(parent: NODE, name: 'inline')
+        static final BLOCK = new Type(parent: NODE, name: 'block', isAbstract: true)
+        static final INLINE = new Type(parent: NODE, name: 'inline', isAbstract: true)
 
         static final DOCUMENT = new Type(parent: BLOCK, name: 'document')
         static final HEADER = new Type(parent: BLOCK, name: 'header')
@@ -42,14 +42,18 @@ class Node {
         static final ORDERED_LIST = new Type(parent: LIST, name: 'olist')
         static final UNORDERED_LIST = new Type(parent: LIST, name: 'ulist')
 
-        static final DEFINE_ATTRIBUTE = new Type(parent: NODE, action: true, name: 'define_attribute')
-        static final SET_ATTRIBUTE = new Type(parent: INLINE, action: true, name: 'set_attribute')
-        static final SET_COUNTER = new Type(parent: INLINE, action: true, name: 'set_counter')
+        static final DEFINE_ATTRIBUTE = new Type(parent: NODE, isAction: true, name: 'define_attribute')
+        static final SET_ATTRIBUTE = new Type(parent: INLINE, isAction: true, name: 'set_attribute')
+        static final SET_COUNTER = new Type(parent: INLINE, isAction: true, name: 'set_counter')
 
+        /**
+         * Whether the node type is abstract
+         */
+        boolean isAbstract = false
         /**
          * Whether the node type is to do some action
          */
-        boolean action = false
+        boolean isAction = false
         /**
          * Parent type
          */
