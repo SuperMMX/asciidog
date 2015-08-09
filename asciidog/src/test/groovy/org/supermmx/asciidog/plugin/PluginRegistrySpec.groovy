@@ -36,14 +36,13 @@ class PluginRegistrySpec extends AsciidogSpec {
     def 'custom plugins'() {
         given:
         def testDir = new File(this.class.protectionDomain.codeSource.location.path)
-        def servicesFile = new File(testDir, 'META-INF/services/org.supermmx.asciidog.plugin.Plugin')
+        def servicesFile = new File(testDir, 'META-INF/services/org.supermmx.asciidog.plugin.PluginSuite')
         if (!servicesFile.parentFile.exists()) {
             servicesFile.parentFile.mkdirs()
         } else {
             servicesFile.delete()
         }
-        servicesFile << 'org.supermmx.asciidog.plugin.TestPlugin\n'
-        servicesFile << 'org.supermmx.asciidog.plugin.AnotherPlugin\n'
+        servicesFile << 'org.supermmx.asciidog.plugin.TestPluginSuite\n'
 
         when:
         def registry = new PluginRegistry("test")
@@ -51,6 +50,13 @@ class PluginRegistrySpec extends AsciidogSpec {
         then:
         registry.getPlugin('test-parser-plugin') instanceof TestPlugin
         registry.getPlugin('another-renderer-plugin') instanceof AnotherPlugin
+    }
+}
+
+class TestPluginSuite extends PluginSuite {
+    TestPluginSuite() {
+        plugins << new TestPlugin()
+        plugins << new AnotherPlugin()
     }
 }
 

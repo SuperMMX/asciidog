@@ -5,19 +5,13 @@ import org.supermmx.asciidog.ast.Node
 abstract class Plugin {
     static enum Type {
         PARSER,
+        BUILDER,
+        PROCESSOR,
         RENDERER,
-        BUILDER
     }
 
     String id
     Type type
+
     Node.Type nodeType
-
-    boolean isParserPlugin() {
-        type == Type.PARSER
-    }
-
-    boolean isRendererPlugin() {
-        type == Type.RENDERER
-    }
 }
