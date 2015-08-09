@@ -24,8 +24,6 @@ class PluginRegistry {
     PluginRegistry() {
         loadBackends()
 
-        registerDefaultPlugins()
-
         loadPlugins()
     }
 
@@ -62,8 +60,10 @@ class PluginRegistry {
 
     private void loadPlugins() {
         userLog.info('[PLUGIN] Looking up plugins...')
-        ServiceLoader.load(Plugin.class).each { plugin ->
-            register(plugin)
+        ServiceLoader.load(PluginSuite.class).each { suite ->
+            suite.plugins.each { plugin ->
+                register(plugin)
+            }
         }
     }
 
@@ -79,37 +79,19 @@ class PluginRegistry {
         return plugins.find { it.id == id }
     }
 
+    List<Plugin> getPlugins(Plugin.Type type) {
+        return getPlugins { plugin ->
+            plugin.type == type
+        }
+    }
+
     List<Plugin> getPlugins(Closure condition) {
         return plugins.findAll(condition)
     }
 
     List<InlineParserPlugin> getInlineParserPlugins() {
         return plugins.findAll { plugin ->
-            plugin.nodeType?.isInline() && plugin.isParserPlugin()
+            plugin.nodeType?.isInline() && plugin.type == Plugin.Type.PARSER
         }
-    }
-
-    final static def TEXT_FORMATTING_PLUGINS_DATA = [
-        // id, formatting type, constrained, pattern
-        [ 'strong_unconstrained', FormattingNode.FormattingType.STRONG, false, Parser.STRONG_UNCONSTRAINED_PATTERN ],
-        [ 'strong_constrained', FormattingNode.FormattingType.STRONG, true, Parser.STRONG_CONSTRAINED_PATTERN ],
-        [ 'emphasis_unconstrained', FormattingNode.FormattingType.EMPHASIS, false, Parser.EMPHASIS_UNCONSTRAINED_PATTERN ],
-        [ 'emphasis_constrained', FormattingNode.FormattingType.EMPHASIS, true, Parser.EMPHASIS_CONSTRAINED_PATTERN ],
-    ]
-
-    private void registerDefaultPlugins() {
-        TEXT_FORMATTING_PLUGINS_DATA.each { pluginData ->
-            def (id, ftType, constrained, pattern) = pluginData
-            def plugin = new TextFormattingInlineParserPlugin(id: id, formattingType: ftType,
-                                                              constrained: constrained, pattern: pattern)
-
-            register(plugin)
-        }
-
-        // Cross Reference Inline Parser Plugin
-        register(new CrossReferenceInlineParserPlugin())
-
-        // Attribute Reference
-        register(new AttributeReferenceInlineParserPlugin())
     }
 }
