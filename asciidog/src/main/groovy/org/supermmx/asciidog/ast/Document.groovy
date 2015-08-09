@@ -19,13 +19,40 @@ class Document extends Block {
     static final String TOC = 'toc'
 
     DocType docType
-    Header header
-    Preamble preamble
 
     // references in this document
     Map<String, Node> references = [:]
 
     Document() {
         type = Node.Type.DOCUMENT
+    }
+
+    Header getHeader() {
+        // only the first one
+        if (blocks.size() == 0) {
+            return null
+        }
+
+        Header header = null
+        Block block = blocks[0]
+        if (block in Header) {
+            header = block
+        }
+
+        return header
+    }
+
+    Preamble getPreamble() {
+        Preamble preamble = null
+
+        int index = (getHeader() == null) ? 0 : 1
+        if (index < blocks.size()) {
+            Block block = blocks[index]
+            if (block in Preamble) {
+                preamble = block
+            }
+        }
+
+        return preamble
     }
 }

@@ -304,24 +304,28 @@ _
         Document doc = new Document()
         doc.document = doc
 
-        doc.header = parseHeader()
+        Header header = parseHeader()
 
         def doctypeAttr = attrContainer.getAttribute(Document.DOCTYPE)
         doc.docType = Document.DocType.valueOf(doctypeAttr.value)
         log.debug("Document Type: ${doc.docType}")
 
-        if (doc.header == null) {
+        if (header == null) {
             return doc
         }
+
+        doc << header
 
         // get type
         def type = doc.docType
 
         // preamble blocks
         log.debug('Start parsing document preamble blocks...')
-        def preamble = new Preamble(parent: doc, document: doc.document)
+        def preamble = new Preamble(parent: doc, document: doc)
         parseBlocks(preamble)
-        doc.preamble = preamble
+        if (preamble.blocks.size() > 0) {
+            doc << preamble
+        }
 
         log.debug('Start parsing document sections...')
         // sections

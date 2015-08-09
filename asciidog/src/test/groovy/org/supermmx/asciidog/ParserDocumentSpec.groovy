@@ -22,9 +22,6 @@ class ParserDocumentSpec extends AsciidogSpec {
             header('Document Title') {
                 attribute 'doctype', 'book'
             }
-
-            preamble {
-            }
         }
     }
 
@@ -74,9 +71,6 @@ $text2
         then:
         doc == builder.document(docType: Document.DocType.article) {
             header 'Document Title'
-
-            preamble {
-            }
         }
     }
 
@@ -95,9 +89,6 @@ $text2
         doc == builder.document(docType: Document.DocType.book) {
             header('Document Title') {
                 attribute 'doctype', 'book'
-            }
-
-            preamble {
             }
         }
     }
