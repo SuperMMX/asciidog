@@ -9,7 +9,6 @@ import groovy.transform.ToString
 @ToString(excludes=['parent', 'document'], includePackage=false, includeNames=true)
 
 class Node {
-    // FIXME: how to handle nodes from plugin?
     // here the node type should be basic ones
     static class Type {
         static final NODE = new Type(name: 'node', isAbstract: true)
