@@ -47,12 +47,14 @@ AsciiDoc builder to create the AST easily
 
 === Plugin Infrastructure
 
+Backend: To render and save the rendered result
+
 There are different types of plugins:
 
-* Parser: To parse custom text into AST nodes
-* Renderer: To render builtin or custom AST nodes
-* Builder: To create custom AST nodes in builder
-* Backend: To render and save the rendered result
+* Parser: To parse text into AST nodes
+* Builder: To create AST nodes with DSL
+* Processor: To create, delete and transform the AST nodes
+* Renderer: To render AST nodes for a backend
 
 Sample plugin suite:
 
