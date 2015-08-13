@@ -38,18 +38,21 @@ interface Backend {
     String getExt()
 
     /**
-     * The renderer to render something before or after the document
-     * (not the document content)
+     * Register the renderer to this backend.
+     * FIXME: how to handle rendering based the subtype or other attributes?
+     *
+     * @param nodeType to render the node with the specified type
+     * @param renderer the renderer to render the node
      */
-    NodeRenderer getDocumentRenderer()
-    NodeRenderer getHeaderRenderer()
-    NodeRenderer getPreambleRenderer()
-    NodeRenderer getSectionRenderer()
-    NodeRenderer getListRenderer()
-    NodeRenderer getListItemRenderer()
-    NodeRenderer getParagraphRenderer()
+    void registerRenderer(Node.Type nodeType, NodeRenderer renderer)
 
-    LeafNodeRenderer getInlineTextRenderer()
-    NodeRenderer getInlineFormattingRenderer()
-    NodeRenderer getInlineXrefRenderer()
+    /**
+     * Get the renderer for the node type
+     */
+    NodeRenderer getRenderer(Node.Type nodeType)
+
+    /**
+     * Get the inline renderer for the node type
+     */
+    LeafNodeRenderer getInlineRenderer(Node.Type nodeType)
 }

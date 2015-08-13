@@ -32,16 +32,16 @@ class Html5Backend extends AbstractBackend {
         id = 'html5'
         ext = '.html'
 
-        documentRenderer = new Html5DocumentRenderer()
-        headerRenderer = new Html5HeaderRenderer()
-        preambleRenderer = new NullNodeRenderer()
-        sectionRenderer = new Html5SectionRenderer()
-        paragraphRenderer = new Html5ParagraphRenderer()
-        listRenderer = new Html5ListRenderer()
-        listItemRenderer = new Html5ListItemRenderer()
+        registerRenderer(Node.Type.DOCUMENT, new Html5DocumentRenderer())
+        registerRenderer(Node.Type.HEADER, new Html5HeaderRenderer())
+        registerRenderer(Node.Type.PREAMBLE, new NullNodeRenderer())
+        registerRenderer(Node.Type.SECTION, new Html5SectionRenderer())
+        registerRenderer(Node.Type.PARAGRAPH, new Html5ParagraphRenderer())
+        registerRenderer(Node.Type.LIST, new Html5ListRenderer())
+        registerRenderer(Node.Type.LIST_ITEM, new Html5ListItemRenderer())
 
-        inlineTextRenderer = new Html5InlineTextRenderer()
-        inlineFormattingRenderer = new Html5InlineFormattingRenderer()
-        inlineXrefRenderer = new Html5InlineXrefRenderer()
+        registerRenderer(Node.Type.TEXT, new Html5InlineTextRenderer())
+        registerRenderer(Node.Type.FORMATTING, new Html5InlineFormattingRenderer())
+        registerRenderer(Node.Type.CROSS_REFERENCE, new Html5InlineXrefRenderer())
     }
 }
