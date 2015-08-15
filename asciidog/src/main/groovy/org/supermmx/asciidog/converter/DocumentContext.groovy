@@ -11,7 +11,8 @@ class DocumentContext {
     Backend backend
     OutputStream outputStream
 
-    Map<String, Object> properties = [:]
+    private def stack = []
+    private def properties = [:]
 
     def propertyMissing(String name, value) {
         properties[(name)] = value
@@ -21,7 +22,28 @@ class DocumentContext {
         return properties[(name)]
     }
 
+    /**
+     * Push current context and keep a copy
+     */
+    void push() {
+        def newProperties = [:]
+        newProperties << properties
+
+        stack.push(properties)
+
+        properties = newProperties
+    }
+
+    /**
+     * Pop the previous context to replace current one
+     */
+    void pop() {
+        if (stack.size() > 0) {
+            properties = stack.pop()
+        }
+    }
+
     def remove(String name) {
-        properties.remove(name)
+        return properties.remove(name)
     }
 }

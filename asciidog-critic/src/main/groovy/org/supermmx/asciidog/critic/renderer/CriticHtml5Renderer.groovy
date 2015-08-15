@@ -17,7 +17,7 @@ class CriticHtml5Renderer extends AbstractNodeRenderer {
     }
 
     void doPre(DocumentContext context, Node criticNode) {
-        def tag = ''
+        def tag = null
 
         switch (criticNode.criticType) {
         case CriticNode.CriticType.ADDITION:
@@ -33,11 +33,13 @@ class CriticHtml5Renderer extends AbstractNodeRenderer {
             tag = 'mark'
             break
         case CriticNode.CriticType.SUBSTITUTION:
-            tag = 'substitution'
+            // child nodes of delete and add
             break
         }
 
-        if (tag != '') {
+        if (tag != null && tag != '') {
+            context.push()
+
             context.tag = tag
             context.writer.writeStartElement(tag)
 
@@ -49,6 +51,12 @@ class CriticHtml5Renderer extends AbstractNodeRenderer {
     }
 
     void doPost(DocumentContext context, Node criticNode) {
-        context.writer.writeEndElement()
+        def tag = context.tag
+
+        if (tag != null && tag != '') {
+            context.writer.writeEndElement()
+
+            context.pop()
+        }
     }
 }
