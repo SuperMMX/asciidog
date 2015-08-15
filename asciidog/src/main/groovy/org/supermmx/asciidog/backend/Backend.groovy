@@ -22,10 +22,6 @@ import org.supermmx.asciidog.converter.DocumentContext
  * the parsed document.
  */
 interface Backend {
-    static enum Step {
-        PRE, CONTENT, POST
-    }
-
     /**
      * The backend id
      */
