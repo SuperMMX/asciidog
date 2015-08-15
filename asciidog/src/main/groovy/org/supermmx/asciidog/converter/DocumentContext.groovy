@@ -20,4 +20,8 @@ class DocumentContext {
     def propertyMissing(String name) {
         return properties[(name)]
     }
+
+    def remove(String name) {
+        properties.remove(name)
+    }
 }
