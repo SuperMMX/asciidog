@@ -8,6 +8,11 @@ import org.supermmx.asciidog.converter.DocumentContext
  */
 interface NodeRenderer {
     /**
+     * Get the id of the backend that the renderer is for
+     */
+    String getBackendId()
+
+    /**
      * Whether this renderer can render this node
      */
     boolean accept(Node node)

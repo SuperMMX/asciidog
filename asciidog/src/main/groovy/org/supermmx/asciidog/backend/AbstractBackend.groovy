@@ -26,15 +26,32 @@ abstract class AbstractBackend implements Backend {
     String id
     String ext
 
-    NodeRenderer documentRenderer
-    NodeRenderer headerRenderer
-    NodeRenderer preambleRenderer
-    NodeRenderer sectionRenderer
-    NodeRenderer paragraphRenderer
-    NodeRenderer listRenderer
-    NodeRenderer listItemRenderer
+    protected Map<Node.Type, NodeRenderer> renderers = [:]
 
-    LeafNodeRenderer inlineTextRenderer
-    NodeRenderer inlineFormattingRenderer
-    NodeRenderer inlineXrefRenderer
+    NodeRenderer getRenderer(Node.Type nodeType) {
+        def renderer = null
+
+        while (renderer == null && nodeType != null) {
+            renderer = renderers[(nodeType)]
+            nodeType = nodeType.parent
+        }
+        return renderer
+    }
+
+    LeafNodeRenderer getInlineRenderer(Node.Type nodeType) {
+        if (!nodeType.isInline()) {
+            throw new IllegalArgumentException("Node type \"${nodeType}\" is not an inline type")
+        }
+
+        def renderer = renderers[(nodeType)]
+        if (!(renderer in LeafNodeRenderer)) {
+            renderer = null
+        }
+
+        return renderer
+    }
+
+    void registerRenderer(Node.Type nodeType, NodeRenderer renderer) {
+        renderers[(nodeType)] = renderer
+    }
 }

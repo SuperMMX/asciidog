@@ -8,6 +8,7 @@ import org.supermmx.asciidog.converter.DocumentContext
  */
 abstract class AbstractNodeRenderer implements NodeRenderer {
     Node.Type nodeType
+    String backendId
 
     boolean accept(Node node) {
         return nodeType == node.type

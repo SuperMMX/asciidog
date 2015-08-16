@@ -72,6 +72,17 @@ class PluginRegistry {
 
         if (plugins.find { it.id == plugin.id } == null) {
             plugins << plugin
+
+            if (plugin.type == Plugin.Type.RENDERER) {
+                // register to the backend
+                plugin.renderers.each { renderer ->
+                    def id = renderer.backendId
+                    def backend = getBackend(id)
+                    if (backend != null) {
+                        backend.registerRenderer(renderer.nodeType, renderer)
+                    }
+                }
+            }
         }
     }
 

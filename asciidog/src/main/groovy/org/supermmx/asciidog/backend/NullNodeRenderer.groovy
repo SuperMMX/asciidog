@@ -7,6 +7,10 @@ import org.supermmx.asciidog.converter.DocumentContext
  * Null node renderer that accept any node and render nothing
  */
 class NullNodeRenderer implements LeafNodeRenderer {
+    String getBackendId() {
+        return null
+    }
+
     boolean accept(Node node) {
         return true
     }

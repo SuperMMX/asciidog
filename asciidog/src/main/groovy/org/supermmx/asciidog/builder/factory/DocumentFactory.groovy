@@ -25,11 +25,25 @@ class DocumentFactory extends AbstractBlockFactory {
 
     @Override
     void doSetChild(FactoryBuilderSupport builder, parent, child) {
+        boolean callSuper = true
         if (child in Header) {
-            parent.header = child
+            if (parent.blocks.size() > 0) {
+                callSuper = false
+                throw new Exception('"header" should be the first child in "document"')
+            }
         } else if (child in Preamble) {
-            parent.preamble = child
-        } else {
+            if (parent.blocks.size() == 1) {
+                if (!(parent.blocks[0] in Header)) {
+                    callSuper = false
+                    throw new Exception('"preamble" should be after "header" and before "section"')
+                }
+            } else if (parent.blocks.size() > 1) {
+                callSuper = false
+                throw new Exception('"preamble" should be the first or second child in "document"')
+            }
+        }
+
+        if (callSuper) {
             super.doSetChild(builder, parent, child)
         }
     }
