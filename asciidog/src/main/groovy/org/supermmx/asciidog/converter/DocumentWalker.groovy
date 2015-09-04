@@ -20,15 +20,18 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 class DocumentWalker {
-    void traverse(Document document, Backend backend, OutputStream os) {
-        DocumentContext context = new DocumentContext(document: document,
-                                                      backend: backend,
-                                                      outputStream: os)
+    void traverse(Document document, Backend backend, DocumentContext context) {
         traverseBlock(context, document)
+
+        // end chunk
+        endChunk(context)
     }
 
     protected void traverseBlock(DocumentContext context, Block block) {
         def backend = context.backend
+
+        // chunking
+        startChunk(context, block)
 
         if (block.type.isAction) {
             // action nodes
@@ -45,13 +48,9 @@ class DocumentWalker {
         // get the renderer
         def renderer = backend.getRenderer(block.type)
 
-        if (renderer == null) {
-            log.warn "Renderer not found in backend \"${backend.id}\" for node type \"${block.type}\""
-            return
-        }
-
         // pre
-        renderer.pre(context, block)
+        log.debug "Pre rendering block: type: ${block.type}, title: ${block.title}"
+        renderer?.pre(context, block)
 
         // tranverse the child blocks or inlines
 
@@ -66,7 +65,8 @@ class DocumentWalker {
         }
 
         // post
-        renderer.post(context, block)
+        log.debug "Post rendering block: type: ${block.type}, title: ${block.title}"
+        renderer?.post(context, block)
     }
 
     protected void traverseInlineContainer(DocumentContext context, InlineContainer container) {
@@ -97,20 +97,79 @@ class DocumentWalker {
 
         def renderer = backend.getRenderer(inline.type)
 
-        if (renderer == null) {
-            log.warn "Node Renderer not found in backend \"${backend.id}\" for node type \"${inline.type}\""
-            return
-        }
-
-        renderer.pre(context, inline)
+        log.debug "Pre rendering inline: type: ${inline.type}"
+        renderer?.pre(context, inline)
 
         if (inline in InlineContainer) {
             traverseInlineContainer(context, inline)
         } else {
+            log.debug "Rendering inline: type: ${inline.type}"
+
             renderer = backend.getInlineRenderer(inline.type)
-            renderer.render(context, inline)
+            renderer?.render(context, inline)
         }
 
-        renderer.post(context, inline)
+        log.debug "Post rendering inline: type: ${inline.type}"
+        renderer?.post(context, inline)
+    }
+
+    protected void startChunk(DocumentContext context, Block block) {
+        // whether it is chunked or not
+        def chunked = context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED)
+
+        // whether to create the chunk, a chunk is always created for a document
+        def createChunk = chunked
+
+        def type = block.type
+
+        if (type == Node.Type.DOCUMENT) {
+            createChunk = true
+        } else if (chunked) {
+            createChunk = (block.type == Node.Type.SECTION)
+        }
+
+        if (createChunk) {
+
+            // TODO: check previous chunk
+            def previousChunk = context.chunk
+            if (previousChunk != null) {
+                endChunk(context)
+            }
+
+            def renderer = context.backend.getChunkRenderer()
+
+            context.push()
+
+            // TODO: find next chunk
+
+
+            def base = context.attrContainer.getAttribute('base')
+
+            def chunk = new OutputChunk(base:base, chunked: chunked, block: block)
+            context.chunk = chunk
+
+            // create output file
+            def chunkFile = new File(context.outputDir, chunk.getName() + context.backend.ext)
+            log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
+
+            context.outputStream = chunkFile.newOutputStream()
+
+            renderer?.pre(context, block)
+        }
+    }
+
+    protected void endChunk(DocumentContext context) {
+        def chunk = context.chunk
+        if (chunk != null) {
+            log.info "End chunk: block type: ${chunk.block.type}"
+
+            def renderer = context.backend.getChunkRenderer()
+
+            renderer?.post(context, chunk.block)
+
+            context.outputStream.close()
+
+            context.pop()
+        }
     }
 }

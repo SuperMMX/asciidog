@@ -18,6 +18,11 @@ class Document extends Block {
     static final String DOCTYPE = 'doctype'
     static final String TOC = 'toc'
 
+    /**
+     * Whether the output should be chunked
+     */
+    static final String OUTPUT_CHUNKED = 'output-chunked'
+
     DocType docType
 
     // references in this document

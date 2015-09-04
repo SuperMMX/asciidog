@@ -9,7 +9,6 @@ class DocumentContext {
 
     Document document
     Backend backend
-    OutputStream outputStream
 
     private def stack = []
     private def properties = [:]
