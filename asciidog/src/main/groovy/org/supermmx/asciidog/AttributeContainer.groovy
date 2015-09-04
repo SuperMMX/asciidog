@@ -41,8 +41,20 @@ class AttributeContainer {
         setAttribute(name, null, value, false)
     }
 
+    Attribute removeAttribute(String name) {
+        removeAttribute(name, false)
+    }
+
     Attribute setSystemAttribute(String name, Attribute.ValueType type, String value) {
         setAttribute(name, type, value, true)
+    }
+
+    Attribute removeSystemAttribute(String name) {
+        removeAttribute(name, true)
+    }
+
+    void removeSystemAttributes() {
+        removeAttributes(true)
     }
 
     Attribute setAttribute(String name, Attribute.ValueType type, String value) {
@@ -149,6 +161,25 @@ class AttributeContainer {
         }
 
         return attr
+    }
+
+    Attribute removeAttribute(String name, boolean isSystem) {
+        def attr = null
+        if (isSystem) {
+            attr = systemAttributes.remove(name)
+        } else {
+            attr = attributes.remove(name)
+        }
+
+        return attr
+    }
+
+    void removeAttributes(boolean isSystem) {
+        if (isSystem) {
+            systemAttributes.clear()
+        } else {
+            attributes.clear()
+        }
     }
 
     /**
@@ -289,6 +320,8 @@ class AttributeContainer {
     private static def DEFAULT_ATTR_DEFS = [
         [ Document.DOCTYPE, Attribute.ValueType.STRING, Document.DocType.article.toString() ],
         [ Document.TOC, Attribute.ValueType.STRING, 'auto' ],
+
+        [ Document.OUTPUT_CHUNKED, Attribute.ValueType.BOOLEAN, false ],
     ]
 
     static {
