@@ -23,7 +23,15 @@ class Converter {
         println writer.toString()
     }
 
-    void convertToFile(Document doc, String file,
+    /**
+     * Convert the input file and save to the specified output directory
+     *
+     * @param doc the input document
+     * @param dir the output directory
+     * @param backendId the backend id
+     * @param options the options for the backend
+     */
+    void convertToFile(Document doc, String dir,
                        String backendId,
                        Map<String, Object> options) {
         // load backend and rendering plugins
@@ -34,17 +42,23 @@ class Converter {
             return
         }
 
-        def fileObj = new File(file)
-        def dir = fileObj.parentFile
-        if (!dir.exists()) {
-            dir.mkdirs();
+        def dirObj = new File(dir)
+        if (!dirObj.exists()) {
+            dirObj.mkdirs();
         }
-        def os = fileObj.newOutputStream()
+
+        def context = new DocumentContext(document: doc,
+                                          backend: backend)
+        context.outputDir = dirObj
+
+        // convert all options to document attributes
+        context.attrContainer.removeSystemAttributes()
+        options.each { k, v ->
+            context.attrContainer.setSystemAttribute(k, v)
+        }
 
         def walker = new DocumentWalker()
-        walker.traverse(doc, backend, os)
-
-        os.close()
+        walker.traverse(doc, backend, context)
     }
 
     void convertToHtml(Document doc, Writer writer) {

@@ -12,14 +12,22 @@ import org.slf4j.Logger
 class AsciiDog {
     static void main(String[] args) {
         if (args.length < 2) {
-            log.error('Usage: AsciiDog <Input File> <Output File>')
+            log.error('Usage: AsciiDog <Input File> <Output Directory> <Base Name>')
             return
         }
 
         String file = args[0]
         String output = args[1]
+        String base = null
+        if (args.length >= 3) {
+            base = args[2]
+        } else {
+            base = file.split("\\.")[0]
+        }
+
         log.info("AsciiDoc Input File: {}", file)
-        log.info("Converted Output File: {}", output)
+        log.info("Converted Output Directory: {}", output)
+        log.info("Converted Output Base Name: {}", base)
 
         Parser parser = new Parser()
         Document doc = parser.parseFile(file)
@@ -27,7 +35,8 @@ class AsciiDog {
         Converter converter = new Converter()
 
         PluginRegistry.instance.backends.each { id, backend ->
-            converter.convertToFile(doc, output + backend.ext, id, [:])
+            converter.convertToFile(doc, output, id,
+                                    ['base': base, 'output-chunked': 'true' ])
         }
     }
 }
