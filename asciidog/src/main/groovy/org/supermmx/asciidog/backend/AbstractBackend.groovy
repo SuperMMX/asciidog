@@ -28,6 +28,8 @@ abstract class AbstractBackend implements Backend {
 
     protected Map<Node.Type, NodeRenderer> renderers = [:]
 
+    ChunkRenderer chunkRenderer
+
     NodeRenderer getRenderer(Node.Type nodeType) {
         def renderer = null
 
