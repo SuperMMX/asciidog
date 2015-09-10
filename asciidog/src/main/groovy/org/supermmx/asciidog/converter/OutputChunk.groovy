@@ -4,6 +4,11 @@ import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 
 class OutputChunk {
+    int index
+
+    OutputChunk prev
+    OutputChunk next
+
     String base
     boolean chunked
     Block block
