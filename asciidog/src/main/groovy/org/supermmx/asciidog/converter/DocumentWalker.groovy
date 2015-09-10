@@ -21,17 +21,19 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class DocumentWalker {
     void traverse(Document document, Backend backend, DocumentContext context) {
+        context.chunkingStrategy = new DefaultChunkingStrategy(context)
+
         traverseBlock(context, document)
 
-        // end chunk
+        // end the last chunk
         endChunk(context)
     }
 
     protected void traverseBlock(DocumentContext context, Block block) {
-        def backend = context.backend
-
         // chunking
         startChunk(context, block)
+
+        def backend = context.backend
 
         if (block.type.isAction) {
             // action nodes
@@ -114,48 +116,29 @@ class DocumentWalker {
     }
 
     protected void startChunk(DocumentContext context, Block block) {
-        // whether it is chunked or not
-        def chunked = context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED)
-
-        // whether to create the chunk, a chunk is always created for a document
-        def createChunk = chunked
-
-        def type = block.type
-
-        if (type == Node.Type.DOCUMENT) {
-            createChunk = true
-        } else if (chunked) {
-            createChunk = (block.type == Node.Type.SECTION)
+        def chunk = context.chunkingStrategy.getChunk(block)
+        if (chunk == null) {
+            return
         }
 
-        if (createChunk) {
+        // end previous chunk
+        endChunk(context)
 
-            // TODO: check previous chunk
-            def previousChunk = context.chunk
-            if (previousChunk != null) {
-                endChunk(context)
-            }
+        // create new chunk
+        context.chunk = chunk
 
-            def renderer = context.backend.getChunkRenderer()
+        def base = context.attrContainer.getAttribute('base')
 
-            context.push()
+        // create chunk output file
+        def chunkFile = new File(context.outputDir, chunk.getName() + context.backend.ext)
+        log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
 
-            // TODO: find next chunk
+        context.outputStream = chunkFile.newOutputStream()
 
+        // render the chunk
+        def renderer = context.backend.getChunkRenderer()
 
-            def base = context.attrContainer.getAttribute('base')
-
-            def chunk = new OutputChunk(base:base, chunked: chunked, block: block)
-            context.chunk = chunk
-
-            // create output file
-            def chunkFile = new File(context.outputDir, chunk.getName() + context.backend.ext)
-            log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
-
-            context.outputStream = chunkFile.newOutputStream()
-
-            renderer?.pre(context, block)
-        }
+        renderer?.pre(context, block)
     }
 
     protected void endChunk(DocumentContext context) {
@@ -168,8 +151,6 @@ class DocumentWalker {
             renderer?.post(context, chunk.block)
 
             context.outputStream.close()
-
-            context.pop()
         }
     }
 }
