@@ -21,6 +21,8 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class DocumentWalker {
     void traverse(Document document, Backend backend, DocumentContext context) {
+        context.document = document
+        context.backend = backend
         context.chunkingStrategy = new DefaultChunkingStrategy(context)
 
         traverseBlock(context, document)
@@ -127,11 +129,13 @@ class DocumentWalker {
         // create new chunk
         context.chunk = chunk
 
-        def chunkFile = new File(context.outputDir, chunk.fileName)
+        if (!context.attrContainer.getAttribute(Document.OUTPUT_STREAM)) {
+            def chunkFile = new File(context.outputDir, chunk.fileName)
 
-        log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
+            log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
 
-        context.outputStream = chunkFile.newOutputStream()
+            context.outputStream = chunkFile.newOutputStream()
+        }
 
         // render the chunk
         def renderer = context.backend.getChunkRenderer()
@@ -148,7 +152,9 @@ class DocumentWalker {
 
             renderer?.post(context, chunk.block)
 
-            context.outputStream.close()
+            if (!context.attrContainer.getAttribute(Document.OUTPUT_STREAM)) {
+                context.outputStream.close()
+            }
         }
     }
 }

@@ -15,11 +15,12 @@ class DefaultChunkingStrategy extends AbstractChunkingStrategy {
 
         // whether it is chunked or not
         def chunked = context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED)
+        def isStream = context.attrContainer.getAttribute(Document.OUTPUT_STREAM)
         def type = block.type
 
         if (type == Node.Type.DOCUMENT) {
             createChunk = true
-        } else if (chunked) {
+        } else if (chunked && !isStream) {
             // TODO: check levels
             createChunk = (block.type == Node.Type.SECTION)
         }

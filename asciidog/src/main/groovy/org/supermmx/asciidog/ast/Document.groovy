@@ -19,9 +19,13 @@ class Document extends Block {
     static final String TOC = 'toc'
 
     /**
-     * Whether the output should be chunked
+     * Whether the output should be chunked, default false
      */
     static final String OUTPUT_CHUNKED = 'output-chunked'
+    /**
+     * Whehter the output is to stream, default false
+     */
+    static final String OUTPUT_STREAM = 'output-stream'
 
     DocType docType
 
