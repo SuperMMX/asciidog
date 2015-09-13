@@ -1,6 +1,7 @@
 package org.supermmx.asciidog.converter
 
 import org.supermmx.asciidog.ast.Block
+import org.supermmx.asciidog.ast.Node
 
 /**
  * The strategy to decide when to create the chunk,
@@ -13,4 +14,9 @@ interface ChunkingStrategy {
      * @return new chunk if needed, null otherwise
      */
     OutputChunk getChunk(Block block)
+
+    /**
+     * Find the chunk that the node belongs to
+     */
+    OutputChunk findChunk(Node node)
 }

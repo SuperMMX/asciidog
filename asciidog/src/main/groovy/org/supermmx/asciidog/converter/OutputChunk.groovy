@@ -21,6 +21,11 @@ class OutputChunk {
     Block block
 
     /**
+     * The chunk output file name
+     */
+    String fileName
+
+    /**
      * Get the chunk name whic is used as
      * the part of the output file
      */

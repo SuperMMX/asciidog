@@ -2,6 +2,7 @@ package org.supermmx.asciidog.converter
 
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Block
+import org.supermmx.asciidog.ast.Node
 
 /**
  * The strategy to decide when to create the chunk,
@@ -12,6 +13,7 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
 
     protected int index = -1
     protected List<OutputChunk> chunks = []
+    protected LinkedHashMap<Block, OutputChunk> chunkMap = [:]
 
     /**
      * Checking all blocks and create the corresponding chunks
@@ -26,13 +28,16 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
                 def chunkIndex = chunks.size()
                 def chunk = new OutputChunk(block: block,
                                             index: chunkIndex)
-                if (index > 0) {
-                   def prev = chunks[index - 1]
+                chunk.fileName = getChunkFileName(chunk)
+
+                if (chunkIndex > 0) {
+                   def prev = chunks[chunkIndex - 1]
                    prev.next = chunk
                    chunk.prev = prev
                 }
 
                 chunks << chunk
+                chunkMap[(block)] = chunk
             }
 
             // deep-first, only blocks
@@ -48,10 +53,44 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
 
     @Override
     OutputChunk getChunk(Block block) {
-        def chunk = null
-        if (isChunkingPoint(block)) {
-            index ++
-            chunk = chunks[index]
+        return chunkMap[(block)]
+    }
+
+    @Override
+    OutputChunk findChunk(Node node) {
+        // find the parent block
+        def block = null
+        while (!(node in Block)) {
+            node = node.parent
         }
+
+        block = node
+        while (!isChunkingPoint(block)) {
+            // TODO: checking previous sibling blocks
+
+            // checking parent
+            block = block.parent
+        }
+
+        return chunkMap[(block)]
+    }
+
+    /**
+     * Get the output file name for the chunk
+     */
+    protected getChunkFileName(OutputChunk chunk) {
+        // construct the file name for the chunk
+
+        def name = ''
+        if (context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED)) {
+            name = chunk.getName()
+        } else {
+            name = context.attrContainer.getAttribute('base')
+        }
+        // TODO: temp extensions
+
+        name += context.backend.ext
+
+        return name
     }
 }
