@@ -127,10 +127,8 @@ class DocumentWalker {
         // create new chunk
         context.chunk = chunk
 
-        def base = context.attrContainer.getAttribute('base')
+        def chunkFile = new File(context.outputDir, chunk.fileName)
 
-        // create chunk output file
-        def chunkFile = new File(context.outputDir, chunk.getName() + context.backend.ext)
         log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
 
         context.outputStream = chunkFile.newOutputStream()
