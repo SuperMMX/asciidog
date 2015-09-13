@@ -36,9 +36,13 @@ kind of usage.
 ** Attribute reference
 ** Cross reference
 
-=== Backend
+=== Converter
 
 * AST Walker
+* Chunked output
+
+=== Backend
+
 * Basic HTML5 backend
 
 === Builder
@@ -64,4 +68,12 @@ Sample plugin suite:
 
 * Put parser in inside parser package
 * Create include node instead of hiding it in reader
+
+== Issues
+
+=== Rendering
+
+* Inline
+** Extra new lines before and after the inline elements in html5
+   backend
 
