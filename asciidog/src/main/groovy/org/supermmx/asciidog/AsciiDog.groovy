@@ -36,7 +36,7 @@ class AsciiDog {
 
         PluginRegistry.instance.backends.each { id, backend ->
             converter.convertToFile(doc, output, id,
-                                    ['base': base, 'output-chunked': 'true' ])
+                                    ['base': base])
         }
     }
 }
