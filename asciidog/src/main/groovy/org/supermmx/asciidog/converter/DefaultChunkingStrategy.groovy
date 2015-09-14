@@ -14,8 +14,8 @@ class DefaultChunkingStrategy extends AbstractChunkingStrategy {
         def createChunk = false
 
         // whether it is chunked or not
-        def chunked = context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED)
-        def isStream = context.attrContainer.getAttribute(Document.OUTPUT_STREAM)
+        def chunked = context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED).value
+        def isStream = context.attrContainer.getAttribute(Document.OUTPUT_STREAM).value
         def type = block.type
 
         if (type == Node.Type.DOCUMENT) {

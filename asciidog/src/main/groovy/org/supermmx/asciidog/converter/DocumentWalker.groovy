@@ -129,7 +129,7 @@ class DocumentWalker {
         // create new chunk
         context.chunk = chunk
 
-        if (!context.attrContainer.getAttribute(Document.OUTPUT_STREAM)) {
+        if (!context.attrContainer.getAttribute(Document.OUTPUT_STREAM).value) {
             def chunkFile = new File(context.outputDir, chunk.fileName)
 
             log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
@@ -152,7 +152,7 @@ class DocumentWalker {
 
             renderer?.post(context, chunk.block)
 
-            if (!context.attrContainer.getAttribute(Document.OUTPUT_STREAM)) {
+            if (!context.attrContainer.getAttribute(Document.OUTPUT_STREAM).value) {
                 context.outputStream.close()
             }
         }
