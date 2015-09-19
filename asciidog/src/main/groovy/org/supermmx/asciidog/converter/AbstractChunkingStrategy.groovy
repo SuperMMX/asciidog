@@ -82,10 +82,10 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
         // construct the file name for the chunk
 
         def name = ''
-        if (context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED)) {
+        if (context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED).value) {
             name = chunk.getName()
         } else {
-            name = context.attrContainer.getAttribute('base')
+            name = context.attrContainer.getAttribute(Document.OUTPUT_BASE).value
         }
         // TODO: temp extensions
 
