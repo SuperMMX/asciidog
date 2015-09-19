@@ -321,6 +321,7 @@ class AttributeContainer {
         [ Document.DOCTYPE, Attribute.ValueType.STRING, Document.DocType.article.toString() ],
         [ Document.TOC, Attribute.ValueType.STRING, 'auto' ],
 
+        [ Document.OUTPUT_BASE, Attribute.ValueType.STRING, '' ],
         [ Document.OUTPUT_CHUNKED, Attribute.ValueType.BOOLEAN, false ],
         [ Document.OUTPUT_STREAM, Attribute.ValueType.BOOLEAN, false ],
     ]

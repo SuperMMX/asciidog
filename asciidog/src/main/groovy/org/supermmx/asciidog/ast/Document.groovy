@@ -19,6 +19,11 @@ class Document extends Block {
     static final String TOC = 'toc'
 
     /**
+     * Base name for the output
+     */
+    static final String OUTPUT_BASE = 'output-base'
+
+    /**
      * Whether the output should be chunked, default false
      */
     static final String OUTPUT_CHUNKED = 'output-chunked'
