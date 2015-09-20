@@ -91,6 +91,8 @@ class Node {
         }
     }
 
+    static final String ATTRIBUTE_CHUNK_NAME = 'chunk-name'
+
     Type type
     String id
     Map<String, String> attributes = [:]

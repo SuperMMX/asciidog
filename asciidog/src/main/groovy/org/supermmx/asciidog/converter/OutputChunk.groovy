@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.converter
 
+import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 
@@ -35,10 +36,13 @@ class OutputChunk {
         if (block in Document) {
             name = 'index'
         } else {
+            name = block.attributes[(Node.ATTRIBUTE_CHUNK_NAME)]
+        }
+
+        if (name == null) {
             name = block.id
         }
 
-        // attribute 'chunk-name'
         return name
     }
 }
