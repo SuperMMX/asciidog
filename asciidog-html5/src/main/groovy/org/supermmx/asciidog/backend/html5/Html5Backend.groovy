@@ -32,7 +32,7 @@ class Html5Backend extends AbstractBackend {
         id = 'html5'
         ext = '.html'
 
-        registerRenderer(Node.Type.DOCUMENT, new Html5DocumentRenderer())
+        //registerRenderer(Node.Type.DOCUMENT, new Html5DocumentRenderer())
         registerRenderer(Node.Type.HEADER, new Html5HeaderRenderer())
         registerRenderer(Node.Type.PREAMBLE, new NullNodeRenderer())
         registerRenderer(Node.Type.SECTION, new Html5SectionRenderer())
@@ -43,5 +43,7 @@ class Html5Backend extends AbstractBackend {
         registerRenderer(Node.Type.TEXT, new Html5InlineTextRenderer())
         registerRenderer(Node.Type.FORMATTING, new Html5InlineFormattingRenderer())
         registerRenderer(Node.Type.CROSS_REFERENCE, new Html5InlineXrefRenderer())
+
+        chunkRenderer = new Html5ChunkRenderer()
     }
 }

@@ -18,6 +18,20 @@ class Document extends Block {
     static final String DOCTYPE = 'doctype'
     static final String TOC = 'toc'
 
+    /**
+     * Base name for the output
+     */
+    static final String OUTPUT_BASE = 'output-base'
+
+    /**
+     * Whether the output should be chunked, default false
+     */
+    static final String OUTPUT_CHUNKED = 'output-chunked'
+    /**
+     * Whehter the output is to stream, default false
+     */
+    static final String OUTPUT_STREAM = 'output-stream'
+
     DocType docType
 
     // references in this document

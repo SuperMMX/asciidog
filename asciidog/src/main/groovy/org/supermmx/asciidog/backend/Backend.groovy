@@ -51,4 +51,6 @@ interface Backend {
      * Get the inline renderer for the node type
      */
     LeafNodeRenderer getInlineRenderer(Node.Type nodeType)
+
+    ChunkRenderer getChunkRenderer()
 }

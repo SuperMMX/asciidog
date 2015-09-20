@@ -20,4 +20,20 @@ class CrossReferenceSpec extends AsciidogSpec {
         then:
         para == expectedPara
     }
+
+    def 'xref with undercore and space'() {
+        given:
+        def content = '<<_cross ref>>'
+        def length = content.length()
+        def expectedPara = builder.para {
+            xref '_cross ref'
+        }
+
+
+        when:
+        def para = parser(content).parseParagraph(new Block())
+
+        then:
+        para == expectedPara
+    }
 }

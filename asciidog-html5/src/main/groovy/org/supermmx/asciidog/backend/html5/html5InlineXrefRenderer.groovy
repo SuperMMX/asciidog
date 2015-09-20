@@ -13,7 +13,23 @@ class Html5InlineXrefRenderer extends AbstractLeafNodeRenderer {
     void doPre(DocumentContext context, Node xrefNode) {
         context.writer.with {
             writeStartElement('a')
-            writeAttribute('href', "#${xrefNode.xrefId}")
+
+            // find out the target chunk file
+            def file = ''
+            if (context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED)) {
+                def targetNode = context.document.references[(xrefNode.xrefId)]
+
+                if (targetNode != null) {
+                    def targetChunk = context.chunkingStrategy.findChunk(targetNode)
+
+                    def chunk = context.chunk
+                    if (chunk != targetChunk) {
+                        file = context.chunkingStrategy.getChunkFileName(targetChunk)
+                    }
+                }
+            }
+
+            writeAttribute('href', "${file}#${xrefNode.xrefId}")
         }
     }
 

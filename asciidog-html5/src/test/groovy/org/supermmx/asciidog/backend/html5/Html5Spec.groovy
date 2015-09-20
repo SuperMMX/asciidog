@@ -1,8 +1,10 @@
 package org.supermmx.asciidog.backend.html5
 
+import org.supermmx.asciidog.Attribute
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.builder.AsciiDocBuilder
 import org.supermmx.asciidog.converter.DocumentWalker
+import org.supermmx.asciidog.converter.DocumentContext
 
 import groovy.xml.*
 
@@ -33,7 +35,14 @@ class Html5Spec extends Specification {
      */
     def adocHtml(Document doc, Closure closure) {
         def baos = new ByteArrayOutputStream()
-        walker.traverse(doc, backend, baos)
+        def context = new DocumentContext(document: doc, backend: backend)
+        context.outputStream = baos
+        context.attrContainer.setSystemAttribute(Document.OUTPUT_STREAM,
+                                                 'true')
+
+        walker.traverse(doc, backend, context)
+
+        baos.close()
 
         def htmlText = baos.toString('UTF-8')
 
