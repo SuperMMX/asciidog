@@ -32,7 +32,7 @@ class AsciiDog {
 
         def base = options.B
         if (!base) {
-            base = file.split("\\.")[0]
+            base = new File(file).name.split('\\.')[0]
         }
 
         def backends = options.bs
