@@ -393,7 +393,8 @@ _
                                       id: id,
                                       document: parent.document,
                                       level: level,
-                                      title: title)
+                                      title: title,
+                                      attributes: blockHeader.attributes)
         if (parent != null) {
             parent << section
 
@@ -403,6 +404,8 @@ _
 
         // go over section line
         reader.nextLine()
+
+        blockHeader = null
 
         // blocks in the section
         log.debug('Start parsing section blocks...')
@@ -444,7 +447,10 @@ _
                 block = parseParagraph(parent)
             } else {
                 first = false
-                parseBlockHeader()
+
+                if (blockHeader == null) {
+                    parseBlockHeader()
+                }
 
                 if (blockHeader.type == null) {
                     break
@@ -464,6 +470,9 @@ _
                 case Node.Type.COMMENT_LINE:
                     block = new CommentLine()
                     block.lines << blockHeader.properties[BlockHeader.COMMENT_LINE_COMMENT]
+                    block.attributes = blockHeader.attributes
+
+                    blockHeader = null
 
                     reader.nextLine()
                     break
@@ -548,6 +557,8 @@ _
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
         list.level = 1
+        list.attributes = blockHeader.attributes
+
         if (parent.type == Node.Type.LIST_ITEM) {
             list.level = parent.parent.level + 1
         }
@@ -628,6 +639,8 @@ _
                     if (firstLine != null) {
                         line = firstLine
                     }
+
+                    blockHeader = null
                 } else {
                     // is list continuation
                     if (isListContinuation(line) != null) {
@@ -647,6 +660,9 @@ _
                 para = new Paragraph()
                 para.parent = parent
                 para.document = parent.document
+                if (blockHeader != null) {
+                    para.attributes = blockHeader.attributes
+                }
             }
             lines << line
 
@@ -661,6 +677,11 @@ _
         parseInlineNodes(para, lines.join('\n'))
 
         log.debug('End parsing paragraph, parent type: {}', parent.type)
+
+        if (line == null || line.length() == 0) {
+            blockHeader = null
+        }
+
         return para
     }
 
