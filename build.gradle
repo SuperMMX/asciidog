@@ -47,7 +47,9 @@ mainClassName = 'org.supermmx.asciidog.AsciiDog'
 
 run {
     // -Pargs="-i INPUT.adoc -o build"
-    args = project.args.split(' ') as List
+    if (project.hasProperty('args')) {
+        args = project.args.split(' ') as List
+    }
 
     systemProperties System.properties
 }
