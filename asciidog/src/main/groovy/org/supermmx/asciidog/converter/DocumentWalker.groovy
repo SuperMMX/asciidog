@@ -23,12 +23,17 @@ class DocumentWalker {
     void traverse(Document document, Backend backend, DocumentContext context) {
         context.document = document
         context.backend = backend
+
+        backend.startRendering(context)
+
         context.chunkingStrategy = new DefaultChunkingStrategy(context)
 
         traverseBlock(context, document)
 
         // end the last chunk
         endChunk(context)
+
+        backend.endRendering(context)
     }
 
     protected void traverseBlock(DocumentContext context, Block block) {

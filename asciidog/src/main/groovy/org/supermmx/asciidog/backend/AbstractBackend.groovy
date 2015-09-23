@@ -56,4 +56,18 @@ abstract class AbstractBackend implements Backend {
     void registerRenderer(Node.Type nodeType, NodeRenderer renderer) {
         renderers[(nodeType)] = renderer
     }
+
+    void startRendering(DocumentContext context) {
+        doStartRendering(context)
+    }
+
+    void endRendering(DocumentContext context) {
+        doEndRendering(context)
+    }
+
+    void doStartRendering(DocumentContext context) {
+    }
+
+    void doEndRendering(DocumentContext context) {
+    }
 }
