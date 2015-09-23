@@ -19,8 +19,11 @@ class DefaultChunkingStrategy extends AbstractChunkingStrategy {
         def type = block.type
 
         if (type == Node.Type.DOCUMENT) {
+            // always create a chunk for document
             createChunk = true
         } else if (chunked && !isStream) {
+            // no need to create chunk for streaming
+
             // TODO: check levels
             createChunk = (block.type == Node.Type.SECTION)
         }
