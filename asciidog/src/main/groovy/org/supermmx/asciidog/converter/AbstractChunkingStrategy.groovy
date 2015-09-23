@@ -4,15 +4,19 @@ import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 
+import groovy.util.logging.Slf4j
+
 /**
  * The strategy to decide when to create the chunk,
  * and what's the name of the chunk
  */
+@Slf4j
 abstract class AbstractChunkingStrategy implements ChunkingStrategy {
+    List<OutputChunk> chunks = []
+
     protected DocumentContext context
 
     protected int index = -1
-    protected List<OutputChunk> chunks = []
     protected LinkedHashMap<Block, OutputChunk> chunkMap = [:]
 
     /**
@@ -87,9 +91,14 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
         } else {
             name = context.attrContainer.getAttribute(Document.OUTPUT_BASE).value
         }
-        // TODO: temp extensions
 
-        name += context.backend.ext
+        def ext = context.chunkExt
+
+        if (ext == null) {
+            ext = context.backend.ext
+        }
+
+        name += ext
 
         return name
     }
