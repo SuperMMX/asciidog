@@ -23,6 +23,11 @@ import org.supermmx.asciidog.converter.DocumentContext
  */
 interface Backend {
     /**
+     * Get the parent backend id
+     */
+    String getParentId()
+
+    /**
      * The backend id
      */
     String getId()
