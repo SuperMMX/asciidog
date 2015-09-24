@@ -315,6 +315,7 @@ _
         }
 
         doc << header
+        doc.title = header.title
 
         // get type
         def type = doc.docType
