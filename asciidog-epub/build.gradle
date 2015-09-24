@@ -1,4 +1,6 @@
 dependencies {
     compile project(':asciidog')
     compile project(':asciidog-html5')
+
+    compile 'nl.siegmann.epublib:epublib-core:3.1'
 }
