@@ -19,4 +19,6 @@ interface ChunkingStrategy {
      * Find the chunk that the node belongs to
      */
     OutputChunk findChunk(Node node)
+
+    List<OutputChunk> getChunks()
 }
