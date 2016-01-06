@@ -8,6 +8,7 @@ import org.supermmx.asciidog.ast.Document
 import org.supermmx.epug.creator.EpubCreator
 import org.supermmx.epug.epub.dcmi.DcElement
 import org.supermmx.epug.epub.dcmi.DcesTerm
+import org.supermmx.epug.epub.dcmi.DcmiTerm
 
 import groovy.util.logging.Slf4j
 
@@ -45,16 +46,18 @@ class EpubBackend extends Html5Backend {
         rendition.uniqueIdentifier = 'epub-id'
         def idAttr= context.attrContainer.getAttribute('epub-id')
         def id = idAttr ? idAttr.value : doc.title
-        rendition.metadata.dcTerms << new DcElement(id: 'epub-id', term: DcesTerm.identifier, value: id)
+        epubCreator.addDcElement(DcesTerm.identifier, id, 'epub-id')
 
         // title
-        rendition.metadata.dcTerms << new DcElement(term: DcesTerm.title, value: doc.title)
+        epubCreator.addDcElement(DcesTerm.title, doc.title, null)
 
         // language
         def langAttr = context.attrContainer.getAttribute('language')
-        def lang= langAttr ? langAttr.value : 'en'
+        def lang = langAttr ? langAttr.value : 'en'
+        epubCreator.addDcElement(DcesTerm.language, lang, null)
 
-        rendition.metadata.dcTerms << new DcElement(term: DcesTerm.language, value: lang)
+        // modified
+        epubCreator.addMetaModified(new Date())
 
         // find all the chunks
         context.chunkingStrategy.chunks.each { chunk ->
