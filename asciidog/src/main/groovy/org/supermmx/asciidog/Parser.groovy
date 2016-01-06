@@ -1486,11 +1486,15 @@ _
     public static void generateId(Node node) {
         switch (node.type) {
         case Node.Type.SECTION:
-            node.id = "_${node.title}"
+            node.id = normalizeId("_${node.title}")
             break;
         default:
             break
         }
+    }
+
+    public static String normalizeId(String id) {
+        return id;
     }
 
     void walk(Node node, Closure closure) {
