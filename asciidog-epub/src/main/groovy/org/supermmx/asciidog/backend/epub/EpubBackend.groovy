@@ -37,7 +37,24 @@ class EpubBackend extends Html5Backend {
         def outputDir = context.outputDir
 
         def epubCreator = new EpubCreator()
-        epubCreator.publication.rendition.metadata.dcTerms << new DcElement(term: DcesTerm.title, value: doc.title)
+
+        def rendition = epubCreator.publication.rendition
+
+        // Unique Identifier
+        // the id reference is always 'epub-id'
+        rendition.uniqueIdentifier = 'epub-id'
+        def idAttr= context.attrContainer.getAttribute('epub-id')
+        def id = idAttr ? idAttr.value : doc.title
+        rendition.metadata.dcTerms << new DcElement(id: 'epub-id', term: DcesTerm.identifier, value: id)
+
+        // title
+        rendition.metadata.dcTerms << new DcElement(term: DcesTerm.title, value: doc.title)
+
+        // language
+        def langAttr = context.attrContainer.getAttribute('language')
+        def lang= langAttr ? langAttr.value : 'en'
+
+        rendition.metadata.dcTerms << new DcElement(term: DcesTerm.language, value: lang)
 
         // find all the chunks
         context.chunkingStrategy.chunks.each { chunk ->
