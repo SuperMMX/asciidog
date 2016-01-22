@@ -254,11 +254,10 @@ _
     /**
      * XML Name start chars
      */
-    static final def ID_START_CHARS = [
-        new IntRange(true, (int)(':' as char), (int)(':' as char)),
-        ('A' as char)..('Z' as char),
-        new IntRange(true, (int)('_' as char), (int)('_' as char)),
-        ('a' as char)..('z' as char),
+    static final List<IntRange> ID_START_CHARS = [
+        ((int)('A' as char))..((int)('Z' as char)),
+        ((int)('_' as char))..((int)('_' as char)),
+        ((int)('a' as char))..((int)('z' as char)),
         0xC0..0xD6,
         0xD8..0xF6,
         0xF8..0x2FF,
@@ -276,15 +275,14 @@ _
     /**
      * XML Name start chars
      */
-    static final def ID_CHARS = new ArrayList(ID_START_CHARS).addAll(
-        [
-            new IntRange(true, (int)('_' as char), (int)('_' as char)),
-            new IntRange(true, (int)('.' as char), (int)('.' as char)),
-            ('0' as char)..('9' as char),
-            new IntRange(true, 0xB7, 0xB7),
+    static final List<IntRange> ID_CHARS = ID_START_CHARS + [
+            ((int)('-' as char))..((int)('-' as char)),
+            ((int)('.' as char))..((int)('.' as char)),
+            ((int)('0' as char))..((int)('9' as char)),
+            0xB7..0xB7,
             0x0300..0x036F,
             0x203F..0x2040
-        ])
+    ]
 
     /**
      * internal class

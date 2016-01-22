@@ -10,7 +10,7 @@ class Utils {
     public static void generateId(Node node) {
         switch (node.type) {
         case Node.Type.SECTION:
-            node.id = Utils.normalizeId("_${node.title}")
+            node.id = Utils.normalizeId(node.title)
             break
         default:
             break
@@ -24,12 +24,14 @@ class Utils {
         id.each { ch ->
             if (first) {
                 if (!inRangeList(ch as char, Parser.ID_START_CHARS)) {
-                    ch = '_'
+                    // prefix with '_'
+                    sb.append('_')
                 }
-            } else {
-                if (!inRangeList(ch as char, Parser.ID_CHARS)) {
-                    ch = '_'
-                }
+                first = false
+            }
+
+            if (!inRangeList(ch as char, Parser.ID_CHARS)) {
+                ch = '_'
             }
 
             sb.append(ch)
@@ -38,11 +40,11 @@ class Utils {
         return sb.toString()
     }
 
-    private static boolean inRangeList(char ch, List<Range> rangeList) {
+    private static boolean inRangeList(char ch, List<IntRange> rangeList) {
         boolean res = false
         for (Range range : rangeList) {
-            if (range.contains(ch)) {
-                res = true
+            res = range.contains((int)ch)
+            if (res) {
                 break
             }
         }
