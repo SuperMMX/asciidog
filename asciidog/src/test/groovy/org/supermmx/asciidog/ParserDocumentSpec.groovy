@@ -18,7 +18,8 @@ class ParserDocumentSpec extends AsciidogSpec {
         def doc = parser(content).parseDocument()
 
         then:
-        doc == builder.document(docType: Document.DocType.book) {
+        doc == builder.document(docType: Document.DocType.book,
+                                title: 'Document Title') {
             header('Document Title') {
                 attribute 'doctype', 'book'
             }
@@ -43,7 +44,8 @@ $text2
         def doc = parser(content).parseDocument()
 
         then:
-        doc == builder.document(docType: Document.DocType.article) {
+        doc == builder.document(docType: Document.DocType.article,
+                                title: 'Document Title') {
             header 'Document Title'
 
             preamble {
@@ -69,7 +71,8 @@ $text2
         def doc = parser(content).parseDocument()
 
         then:
-        doc == builder.document(docType: Document.DocType.article) {
+        doc == builder.document(docType: Document.DocType.article,
+                                title: 'Document Title') {
             header 'Document Title'
         }
     }
@@ -86,7 +89,8 @@ $text2
         def doc = parser(content).parseDocument()
 
         then:
-        doc == builder.document(docType: Document.DocType.book) {
+        doc == builder.document(docType: Document.DocType.book,
+                                title: 'Document Title') {
             header('Document Title') {
                 attribute 'doctype', 'book'
             }

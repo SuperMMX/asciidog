@@ -55,7 +55,7 @@ class ParserSectionSpec extends AsciidogSpec {
 
 '''
         def expectedSection = builder.section(title: 'Section Title',
-                                              id: '_Section Title',
+                                              id: '_Section_Title',
                                               level: 1)
         def parser = parser(content)
 
@@ -109,7 +109,7 @@ $text2
 
 """
         def expectedSection = builder.section('Section Title',
-                                              id: '_Section Title',
+                                              id: '_Section_Title',
                                               level: 1) {
             para {
                 text text1
@@ -149,14 +149,14 @@ $text2
 
 """
         def expectedSection = builder.section('Section Title',
-                                              id: '_Section Title',
+                                              id: '_Section_Title',
                                               level: 1) {
             para {
                 text text1
             }
 
             section('Subsection Title',
-                    id: '_Subsection Title') {
+                    id: '_Subsection_Title') {
                 para {
                     text text2
                 }
@@ -190,7 +190,7 @@ $text2
 
 """
         def expectedSection = builder.section('Section Title',
-                                              id: '_Section Title',
+                                              id: '_Section_Title',
                                               level: 1) {
             para {
                 text text1
@@ -219,7 +219,7 @@ $text2
 
 '''
         def expectedSection = builder.section('Section Title',
-                                              id: '_Section Title',
+                                              id: '_Section_Title',
                                               level: 2) {
         }
 
@@ -246,7 +246,7 @@ $text2
 === Subsection Title
 '''
         def expectedSection = builder.section('Section Title',
-                                              id: '_Section Title',
+                                              id: '_Section_Title',
                                               level: 1) {
             section('Subsection Title',
                     id: 'subid')
@@ -275,7 +275,7 @@ $text2
 == Next Section Title
 '''
         def expectedSection = builder.section('Section Title',
-                                              id: '_Section Title',
+                                              id: '_Section_Title',
                                               level: 1)
 
         def parser = parser(content)
@@ -301,7 +301,7 @@ $text2
 
 '''
         def expectedSection = builder.section('Section Title',
-                                              id: '_Section Title',
+                                              id: '_Section_Title',
                                               level: 2)
 
         def parser = parser(content)

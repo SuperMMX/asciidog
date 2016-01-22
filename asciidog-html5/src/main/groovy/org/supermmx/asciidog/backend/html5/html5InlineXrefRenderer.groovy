@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.backend.html5
 
+import org.supermmx.asciidog.Utils
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.backend.AbstractLeafNodeRenderer
@@ -34,7 +35,8 @@ class Html5InlineXrefRenderer extends AbstractLeafNodeRenderer {
     }
 
     void doRender(DocumentContext context, Node xrefNode) {
-        context.writer.writeCharacters(context.document.references[(xrefNode.xrefId)].title)
+        def id = Utils.normalizeId(xrefNode.xrefId)
+        context.writer.writeCharacters(context.document.references[(id)].title)
     }
 
     void doPost(DocumentContext context, Node xrefNode) {
