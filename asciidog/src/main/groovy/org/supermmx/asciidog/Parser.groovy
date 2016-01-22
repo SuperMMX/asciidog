@@ -252,6 +252,41 @@ _
 '''
 
     /**
+     * XML Name start chars
+     */
+    static final def ID_START_CHARS = [
+        new IntRange(true, (int)(':' as char), (int)(':' as char)),
+        ('A' as char)..('Z' as char),
+        new IntRange(true, (int)('_' as char), (int)('_' as char)),
+        ('a' as char)..('z' as char),
+        0xC0..0xD6,
+        0xD8..0xF6,
+        0xF8..0x2FF,
+        0x370..0x37D,
+        0x37F..0x1FFF,
+        0x200C..0x200D,
+        0x2070..0x218F,
+        0x2C00..0x2FFF,
+        0x3001..0xD7FF,
+        0xF900..0xFDCF,
+        0xFDF0..0xFFFD,
+        0x10000..0xEFFFF
+    ]
+
+    /**
+     * XML Name start chars
+     */
+    static final def ID_CHARS = new ArrayList(ID_START_CHARS).addAll(
+        [
+            new IntRange(true, (int)('_' as char), (int)('_' as char)),
+            new IntRange(true, (int)('.' as char), (int)('.' as char)),
+            ('0' as char)..('9' as char),
+            new IntRange(true, 0xB7, 0xB7),
+            0x0300..0x036F,
+            0x203F..0x2040
+        ])
+
+    /**
      * internal class
      */
     protected static class BlockHeader {
@@ -1470,31 +1505,15 @@ _
 
         if (node.id == null) {
             // TODO: duplicated id
-            generateId(node)
+            Utils.generateId(node)
         }
 
         id = node.id
 
         if (id != null && node.document != null) {
+            id = Utils.normalizeId(id)
             node.document.references[(id)] = node
         }
-    }
-
-    /**
-     * Gerneate id for the node
-     */
-    public static void generateId(Node node) {
-        switch (node.type) {
-        case Node.Type.SECTION:
-            node.id = normalizeId("_${node.title}")
-            break;
-        default:
-            break
-        }
-    }
-
-    public static String normalizeId(String id) {
-        return id;
     }
 
     void walk(Node node, Closure closure) {
