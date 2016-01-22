@@ -1,7 +1,7 @@
 package org.supermmx.asciidog.builder.factory
 
 import org.supermmx.asciidog.ast.Section
-import org.supermmx.asciidog.Parser
+import org.supermmx.asciidog.Utils
 
 /**
  * Node factory that only accepts define classes as the children
@@ -47,7 +47,7 @@ abstract class AbstractNodeFactory extends AbstractFactory {
         if (node in Section) {
             if (attributes['id'] == null) {
                 // Update ID
-                Parser.generateId(node)
+                Utils.generateId(node)
             }
         }
 
