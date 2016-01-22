@@ -8,7 +8,7 @@ class CrossReferenceSpec extends Html5Spec {
 
             preamble {
                 para {
-                    xref '_Section'
+                    xref 'Section'
                 }
             }
 
@@ -19,9 +19,9 @@ class CrossReferenceSpec extends Html5Spec {
             body {
                 h1 'Document Title'
                 p {
-                    a(href: '#_Section', 'Section')
+                    a(href: '#Section', 'Section')
                 }
-                h2(id: '_Section', 'Section')
+                h2(id: 'Section', 'Section')
             }
         }
 
