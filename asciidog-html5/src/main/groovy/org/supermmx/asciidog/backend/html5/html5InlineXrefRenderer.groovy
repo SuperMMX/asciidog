@@ -12,13 +12,16 @@ class Html5InlineXrefRenderer extends AbstractLeafNodeRenderer {
     }
 
     void doPre(DocumentContext context, Node xrefNode) {
+        def id = Utils.normalizeId(xrefNode.xrefId)
+        context.xrefId = id
+
         context.writer.with {
             writeStartElement('a')
 
             // find out the target chunk file
             def file = ''
             if (context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED)) {
-                def targetNode = context.document.references[(xrefNode.xrefId)]
+                def targetNode = context.document.references[(id)]
 
                 if (targetNode != null) {
                     def targetChunk = context.chunkingStrategy.findChunk(targetNode)
@@ -30,16 +33,16 @@ class Html5InlineXrefRenderer extends AbstractLeafNodeRenderer {
                 }
             }
 
-            writeAttribute('href', "${file}#${xrefNode.xrefId}")
+            writeAttribute('href', "${file}#${id}")
         }
     }
 
     void doRender(DocumentContext context, Node xrefNode) {
-        def id = Utils.normalizeId(xrefNode.xrefId)
-        context.writer.writeCharacters(context.document.references[(id)].title)
+        context.writer.writeCharacters(context.document.references[(context.xrefId)].title)
     }
 
     void doPost(DocumentContext context, Node xrefNode) {
         context.writer.writeEndElement()
+        context.remove('xrefId')
     }
 }
