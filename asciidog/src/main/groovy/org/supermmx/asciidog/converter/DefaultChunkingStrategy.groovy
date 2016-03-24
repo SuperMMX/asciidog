@@ -5,7 +5,18 @@ import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Document
 
 class DefaultChunkingStrategy extends AbstractChunkingStrategy {
-    DefaultChunkingStrategy(DocumentContext context) {
+    /**
+     * Default chunking section level
+     */
+    public static final int DEFAULT_CHUNKING_LEVEL = 1
+    /**
+     * Section level to chunk on, -1 means all sections
+     */
+    int level = DEFAULT_CHUNKING_LEVEL;
+
+    DefaultChunkingStrategy(DocumentContext context, int level = DEFAULT_CHUNKING_LEVEL) {
+        this.level = level
+
         initialize(context)
     }
 
@@ -25,7 +36,7 @@ class DefaultChunkingStrategy extends AbstractChunkingStrategy {
             // no need to create chunk for streaming
 
             // TODO: check levels
-            createChunk = (block.type == Node.Type.SECTION)
+            createChunk = (block.type == Node.Type.SECTION && block.level <= level)
         }
 
         return createChunk

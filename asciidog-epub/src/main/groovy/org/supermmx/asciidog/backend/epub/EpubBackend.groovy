@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.backend.epub
 
+import org.supermmx.asciidog.Utils
 import org.supermmx.asciidog.backend.html5.Html5Backend
 import org.supermmx.asciidog.backend.AbstractBackend
 import org.supermmx.asciidog.converter.DocumentContext
@@ -107,6 +108,8 @@ class EpubBackend extends Html5Backend {
             def childItem = new NavigationItem(title: node.title,
                                                file: chunk?.fileName,
                                                anchor: anchor)
+            anchor = null
+
             item.items << childItem
 
             item = childItem
