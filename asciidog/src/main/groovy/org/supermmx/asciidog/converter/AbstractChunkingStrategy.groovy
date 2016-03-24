@@ -17,7 +17,7 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
     protected DocumentContext context
 
     protected int index = -1
-    protected LinkedHashMap<Block, OutputChunk> chunkMap = [:]
+    protected LinkedHashMap<Long, OutputChunk> chunkMap = [:]
 
     /**
      * Checking all blocks and create the corresponding chunks
@@ -41,7 +41,7 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
                 }
 
                 chunks << chunk
-                chunkMap[(block)] = chunk
+                chunkMap[(block.seq)] = chunk
             }
 
             // deep-first, only blocks
@@ -52,12 +52,12 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
 
         process(context.document)
     }
-    
+
     protected abstract boolean isChunkingPoint(Block block)
 
     @Override
     OutputChunk getChunk(Block block) {
-        return chunkMap[(block)]
+        return chunkMap[(block.seq)]
     }
 
     @Override
@@ -76,7 +76,7 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
             block = block.parent
         }
 
-        return chunkMap[(block)]
+        return chunkMap[(block.seq)]
     }
 
     /**

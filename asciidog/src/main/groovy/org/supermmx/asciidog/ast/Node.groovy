@@ -4,10 +4,17 @@ import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-@Canonical(excludes=['parent', 'document'])
-@EqualsAndHashCode(excludes=['parent', 'document'])
-@ToString(excludes=['parent', 'document'], includePackage=false, includeNames=true)
+import groovy.util.logging.Slf4j
 
+import java.util.concurrent.atomic.AtomicLong
+
+import org.slf4j.Logger
+
+@Canonical(excludes=['parent', 'document', 'seq'])
+@EqualsAndHashCode(excludes=['parent', 'document', 'seq'])
+@ToString(excludes=['parent', 'document', 'seq'], includePackage=false, includeNames=true)
+
+@Slf4j
 class Node {
     // here the node type should be basic ones
     static class Type {
@@ -28,7 +35,7 @@ class Node {
         static final TABLE = new Type(parent: BLOCK, name: 'table')
         static final MACRO = new Type(parent: BLOCK, name: 'macro')
         static final COMMENT_LINE = new Type(parent: BLOCK, name: 'comment_line')
-        
+
         static final AUTHOR = new Type(parent: INLINE, name: 'author')
         static final NULL = new Type(parent: INLINE, name: 'null')
         static final ATTRIBUTE_REFERENCE = new Type(parent: INLINE, name: 'attribute_reference')
@@ -93,14 +100,37 @@ class Node {
 
     static final String ATTRIBUTE_CHUNK_NAME = 'chunk-name'
 
+    private static AtomicLong INDEX = new AtomicLong()
+
+    /**
+     * Unique squence number across all nodes
+     */
+    long seq
+
+    /**
+     * Node Type
+     */
     Type type
+    /**
+     * Node ID specified by user or generated
+     */
     String id
+    /**
+     * Node Attributes
+     */
     Map<String, String> attributes = [:]
+    /**
+     * The parent node
+     */
     Node parent
 
+    /**
+     * The document that contains this node
+     */
     Document document
 
     Node() {
         type = Node.Type.NODE
+        seq = INDEX.getAndIncrement()
     }
 }
