@@ -71,7 +71,7 @@ ${AUTHOR_REGEX}
 :
 (?:
   \\p{Blank}+
-  (.*)          # 2, attrinute value
+  (.*)          # 2, attribute value
 )?
 """
     static final def BLOCK_ANCHOR_PATTERN = ~'''(?x)
