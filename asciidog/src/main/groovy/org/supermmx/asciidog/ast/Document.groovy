@@ -28,9 +28,18 @@ class Document extends Block {
      */
     static final String OUTPUT_CHUNKED = 'output-chunked'
     /**
+     * The default chunking level
+     */
+    static final String OUTPUT_CHUNKING_LEVEL = 'output-chunking-level'
+    /**
      * Whehter the output is to stream, default false
      */
     static final String OUTPUT_STREAM = 'output-stream'
+
+    /**
+     * Default chunking section level, chapter level by default
+     */
+    static final int DEFAULT_CHUNKING_LEVEL = 1
 
     DocType docType
 
