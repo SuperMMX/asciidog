@@ -19,6 +19,10 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
     protected int index = -1
     protected LinkedHashMap<Long, OutputChunk> chunkMap = [:]
 
+    AbstractChunkingStrategy(DocumentContext context) {
+        this.context = context;
+    }
+
     /**
      * Checking all blocks and create the corresponding chunks
      */
@@ -53,11 +57,19 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
         process(context.document)
     }
 
-    protected abstract boolean isChunkingPoint(Block block)
-
     @Override
     OutputChunk getChunk(Block block) {
-        return chunkMap[(block.seq)]
+        OutputChunk chunk = null
+        if (!chunkMap.containsKey(block.seq)) {
+            if (isChunkingPoint(block)) {
+                chunk = createChunk(block)
+            }
+            chunkMap[(block.seq)] = chunk
+        } else {
+            chunk = chunkMap[(block.seq)]
+        }
+
+        return chunk
     }
 
     @Override
@@ -76,7 +88,7 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
             block = block.parent
         }
 
-        return chunkMap[(block.seq)]
+        return getChunk(block)
     }
 
     /**
@@ -101,5 +113,53 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
         name += ext
 
         return name
+    }
+
+    /**
+     * Check whether need to chunk on the specified block
+     */
+    protected boolean isChunkingPoint(Block block) {
+        def createChunk = false
+
+        // whether it is chunked or not
+        def chunked = context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED).value
+        def isStream = context.attrContainer.getAttribute(Document.OUTPUT_STREAM).value
+        def type = block.type
+
+        if (type == Node.Type.DOCUMENT) {
+            // always create a chunk for document
+            createChunk = true
+        } else if (chunked && !isStream) {
+            // no need to create chunk for streaming
+            createChunk = doCheckChunkingPoint(block)
+        }
+
+        return createChunk
+    }
+
+    /**
+     * Extra chunking point checking beside the common ones
+     */
+    protected abstract boolean doCheckChunkingPoint(Block block)
+
+    /**
+     * Actually create the chunk for the block
+     */
+    protected OutputChunk createChunk(Block block) {
+        def chunkIndex = chunks.size()
+        def chunk = new OutputChunk(block: block,
+                                    index: chunkIndex)
+        chunk.fileName = getChunkFileName(chunk)
+
+        if (chunkIndex > 0) {
+            def prev = chunks[chunkIndex - 1]
+            prev.next = chunk
+            chunk.prev = prev
+        }
+
+        chunks << chunk
+        chunkMap[(block.seq)] = chunk
+
+        return chunk;
     }
 }
