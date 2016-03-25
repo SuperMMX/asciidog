@@ -35,8 +35,8 @@ class DefaultChunkingStrategy extends AbstractChunkingStrategy {
         } else if (chunked && !isStream) {
             // no need to create chunk for streaming
 
-            // TODO: check levels
-            createChunk = (block.type == Node.Type.SECTION && block.level <= level)
+            createChunk = (block.type == Node.Type.SECTION
+                           && (level == -1 || block.level <= level))
         }
 
         return createChunk
