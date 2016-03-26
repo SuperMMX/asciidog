@@ -840,6 +840,8 @@ _
 
         def line = null
         while ((line = reader.peekLine()) != null) {
+            // TODO: check attribute definition
+
             // check id
             def (anchorId, anchorRef) = isBlockAnchor(line)
             if (anchorId != null) {
