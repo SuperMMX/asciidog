@@ -22,4 +22,26 @@ class Block extends Node {
 
         return this
     }
+
+    /**
+     * Conditionally walk all this block recursively
+     */
+    void walk(Closure condition, Closure action,
+              Closure pre = null, Closure post = null) {
+        if (pre) {
+            pre(this)
+        }
+
+        blocks.each { block ->
+            if (condition(block)) {
+                action(block)
+            }
+
+            block.walk(condition, action, pre, post)
+        }
+
+        if (post) {
+            post(this)
+        }
+    }
 }

@@ -4,27 +4,21 @@ import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Document
 
+import groovy.util.logging.Slf4j
+
+import org.slf4j.Logger
+
+@Slf4j
 class DefaultChunkingStrategy extends AbstractChunkingStrategy {
     DefaultChunkingStrategy(DocumentContext context) {
-        initialize(context)
+        super(context)
     }
 
     @Override
-    protected boolean isChunkingPoint(Block block) {
-        def createChunk = false
+    protected boolean doCheckChunkingPoint(Block block) {
+        def level = context.attrContainer.getAttribute(Document.OUTPUT_CHUNKING_LEVEL).value
 
-        // whether it is chunked or not
-        def chunked = context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED).value
-        def isStream = context.attrContainer.getAttribute(Document.OUTPUT_STREAM).value
-        def type = block.type
-
-        if (type == Node.Type.DOCUMENT) {
-            createChunk = true
-        } else if (chunked && !isStream) {
-            // TODO: check levels
-            createChunk = (block.type == Node.Type.SECTION)
-        }
-
-        return createChunk
+        return (block.type == Node.Type.SECTION
+                && (level == -1 || block.level <= level))
     }
 }

@@ -71,7 +71,7 @@ ${AUTHOR_REGEX}
 :
 (?:
   \\p{Blank}+
-  (.*)          # 2, attrinute value
+  (.*)          # 2, attribute value
 )?
 """
     static final def BLOCK_ANCHOR_PATTERN = ~'''(?x)
@@ -252,6 +252,39 @@ _
 '''
 
     /**
+     * XML Name start chars
+     */
+    static final List<IntRange> ID_START_CHARS = [
+        ((int)('A' as char))..((int)('Z' as char)),
+        ((int)('_' as char))..((int)('_' as char)),
+        ((int)('a' as char))..((int)('z' as char)),
+        0xC0..0xD6,
+        0xD8..0xF6,
+        0xF8..0x2FF,
+        0x370..0x37D,
+        0x37F..0x1FFF,
+        0x200C..0x200D,
+        0x2070..0x218F,
+        0x2C00..0x2FFF,
+        0x3001..0xD7FF,
+        0xF900..0xFDCF,
+        0xFDF0..0xFFFD,
+        0x10000..0xEFFFF
+    ]
+
+    /**
+     * XML Name start chars
+     */
+    static final List<IntRange> ID_CHARS = ID_START_CHARS + [
+            ((int)('-' as char))..((int)('-' as char)),
+            ((int)('.' as char))..((int)('.' as char)),
+            ((int)('0' as char))..((int)('9' as char)),
+            0xB7..0xB7,
+            0x0300..0x036F,
+            0x203F..0x2040
+    ]
+
+    /**
      * internal class
      */
     protected static class BlockHeader {
@@ -315,6 +348,7 @@ _
         }
 
         doc << header
+        doc.title = header.title
 
         // get type
         def type = doc.docType
@@ -806,6 +840,8 @@ _
 
         def line = null
         while ((line = reader.peekLine()) != null) {
+            // TODO: check attribute definition
+
             // check id
             def (anchorId, anchorRef) = isBlockAnchor(line)
             if (anchorId != null) {
@@ -1469,26 +1505,14 @@ _
 
         if (node.id == null) {
             // TODO: duplicated id
-            generateId(node)
+            Utils.generateId(node)
         }
 
         id = node.id
 
         if (id != null && node.document != null) {
+            id = Utils.normalizeId(id)
             node.document.references[(id)] = node
-        }
-    }
-
-    /**
-     * Gerneate id for the node
-     */
-    public static void generateId(Node node) {
-        switch (node.type) {
-        case Node.Type.SECTION:
-            node.id = "_${node.title}"
-            break;
-        default:
-            break
         }
     }
 

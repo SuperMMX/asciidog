@@ -2,17 +2,37 @@ plugins {
     id 'application'
 }
 
-allprojects {
-    apply plugin: 'groovy'
+task publishToLocal
 
-    targetCompatibility = 1.6
-        
+allprojects {
+    group = 'org.supermmx.asciidog'
+    version = '0.0.1-SNAPSHOT'
+
     repositories {
         mavenLocal()
 
         jcenter()
         mavenCentral()
+
+        maven {
+            url = 'https://github.com/psiegman/mvn-repo/raw/master/releases'
+        }
     }
+}
+
+subprojects {
+    /*
+    plugins {
+        id 'groovy'
+        id 'maven-publish'
+    }
+    */
+
+    apply plugin: 'groovy'
+    apply plugin: 'maven-publish'
+
+
+    targetCompatibility = 1.6
 
     dependencies {
         compile 'org.codehaus.groovy:groovy-all:2.4.3'
@@ -26,10 +46,24 @@ allprojects {
         runtime 'ch.qos.logback:logback-classic:1.1.2'
     }
 
+    compileGroovy {
+        groovyOptions.configurationScript = file("${rootDir}/groovyConfig.groovy")
+    }
+
     test {
         systemProperties System.properties
         testLogging.showStandardStreams = true
     }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                from components.java
+            }
+        }
+    }
+
+    rootProject.publishToLocal.dependsOn tasks.matching { it.name == 'publishToMavenLocal' }
 }
 
 task wrapper(type: Wrapper) {
@@ -37,8 +71,9 @@ task wrapper(type: Wrapper) {
 }
 
 dependencies {
-    runtime project(':asciidog')
+    runtime project(':asciidog-core')
     runtime project(':asciidog-html5')
+    runtime project(':asciidog-epub')
     //runtime project(':asciidog-pdf')
     runtime project(':asciidog-critic')
 }

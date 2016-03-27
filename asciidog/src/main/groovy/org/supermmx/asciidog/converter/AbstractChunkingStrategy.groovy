@@ -4,16 +4,24 @@ import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 
+import groovy.util.logging.Slf4j
+
 /**
  * The strategy to decide when to create the chunk,
  * and what's the name of the chunk
  */
+@Slf4j
 abstract class AbstractChunkingStrategy implements ChunkingStrategy {
+    List<OutputChunk> chunks = []
+
     protected DocumentContext context
 
     protected int index = -1
-    protected List<OutputChunk> chunks = []
-    protected LinkedHashMap<Block, OutputChunk> chunkMap = [:]
+    protected LinkedHashMap<Long, OutputChunk> chunkMap = [:]
+
+    AbstractChunkingStrategy(DocumentContext context) {
+        this.context = context;
+    }
 
     /**
      * Checking all blocks and create the corresponding chunks
@@ -37,7 +45,7 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
                 }
 
                 chunks << chunk
-                chunkMap[(block)] = chunk
+                chunkMap[(block.seq)] = chunk
             }
 
             // deep-first, only blocks
@@ -48,12 +56,20 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
 
         process(context.document)
     }
-    
-    protected abstract boolean isChunkingPoint(Block block)
 
     @Override
     OutputChunk getChunk(Block block) {
-        return chunkMap[(block)]
+        OutputChunk chunk = null
+        if (!chunkMap.containsKey(block.seq)) {
+            if (isChunkingPoint(block)) {
+                chunk = createChunk(block)
+            }
+            chunkMap[(block.seq)] = chunk
+        } else {
+            chunk = chunkMap[(block.seq)]
+        }
+
+        return chunk
     }
 
     @Override
@@ -72,7 +88,7 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
             block = block.parent
         }
 
-        return chunkMap[(block)]
+        return getChunk(block)
     }
 
     /**
@@ -87,10 +103,63 @@ abstract class AbstractChunkingStrategy implements ChunkingStrategy {
         } else {
             name = context.attrContainer.getAttribute(Document.OUTPUT_BASE).value
         }
-        // TODO: temp extensions
 
-        name += context.backend.ext
+        def ext = context.chunkExt
+
+        if (ext == null) {
+            ext = context.backend.ext
+        }
+
+        name += ext
 
         return name
+    }
+
+    /**
+     * Check whether need to chunk on the specified block
+     */
+    protected boolean isChunkingPoint(Block block) {
+        def createChunk = false
+
+        // whether it is chunked or not
+        def chunked = context.attrContainer.getAttribute(Document.OUTPUT_CHUNKED).value
+        def isStream = context.attrContainer.getAttribute(Document.OUTPUT_STREAM).value
+        def type = block.type
+
+        if (type == Node.Type.DOCUMENT) {
+            // always create a chunk for document
+            createChunk = true
+        } else if (chunked && !isStream) {
+            // no need to create chunk for streaming
+            createChunk = doCheckChunkingPoint(block)
+        }
+
+        return createChunk
+    }
+
+    /**
+     * Extra chunking point checking beside the common ones
+     */
+    protected abstract boolean doCheckChunkingPoint(Block block)
+
+    /**
+     * Actually create the chunk for the block
+     */
+    protected OutputChunk createChunk(Block block) {
+        def chunkIndex = chunks.size()
+        def chunk = new OutputChunk(block: block,
+                                    index: chunkIndex)
+        chunk.fileName = getChunkFileName(chunk)
+
+        if (chunkIndex > 0) {
+            def prev = chunks[chunkIndex - 1]
+            prev.next = chunk
+            chunk.prev = prev
+        }
+
+        chunks << chunk
+        chunkMap[(block.seq)] = chunk
+
+        return chunk;
     }
 }

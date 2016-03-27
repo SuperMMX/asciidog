@@ -323,6 +323,7 @@ class AttributeContainer {
 
         [ Document.OUTPUT_BASE, Attribute.ValueType.STRING, '' ],
         [ Document.OUTPUT_CHUNKED, Attribute.ValueType.BOOLEAN, false ],
+        [ Document.OUTPUT_CHUNKING_LEVEL, Attribute.ValueType.INTEGER, Document.DEFAULT_CHUNKING_LEVEL ],
         [ Document.OUTPUT_STREAM, Attribute.ValueType.BOOLEAN, false ],
     ]
 

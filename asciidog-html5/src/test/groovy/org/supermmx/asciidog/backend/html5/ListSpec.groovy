@@ -31,7 +31,7 @@ class ListSpec extends Html5Spec {
         def expectedBody = markupHtml {
             body {
                 h1 'Document Title'
-                h2 (id: '_Lists', 'Lists')
+                h2 (id: 'Lists', 'Lists')
                 ul {
                     li {
                         p 'Foo'

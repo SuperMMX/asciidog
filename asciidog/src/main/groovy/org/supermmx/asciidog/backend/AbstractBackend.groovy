@@ -18,11 +18,17 @@ import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.CrossReferenceNode
 import org.supermmx.asciidog.converter.DocumentContext
+import org.supermmx.asciidog.plugin.PluginRegistry
+
+import groovy.util.logging.Slf4j
 
 /**
  * Abstract backend
  */
+@Slf4j
 abstract class AbstractBackend implements Backend {
+    String parentId
+
     String id
     String ext
 
@@ -33,9 +39,17 @@ abstract class AbstractBackend implements Backend {
     NodeRenderer getRenderer(Node.Type nodeType) {
         def renderer = null
 
-        while (renderer == null && nodeType != null) {
-            renderer = renderers[(nodeType)]
-            nodeType = nodeType.parent
+        def type = nodeType
+        while (renderer == null && type != null) {
+            renderer = renderers[(type)]
+            type = type.parent
+        }
+
+        if (renderer == null) {
+            def parentBackend = PluginRegistry.instance.getBackend(parentId)
+            if (parentBackend != null) {
+                renderer = parentBackend.getRenderer(nodeType)
+            }
         }
         return renderer
     }
@@ -45,7 +59,7 @@ abstract class AbstractBackend implements Backend {
             throw new IllegalArgumentException("Node type \"${nodeType}\" is not an inline type")
         }
 
-        def renderer = renderers[(nodeType)]
+        def renderer = getRenderer(nodeType)
         if (!(renderer in LeafNodeRenderer)) {
             renderer = null
         }
@@ -55,5 +69,19 @@ abstract class AbstractBackend implements Backend {
 
     void registerRenderer(Node.Type nodeType, NodeRenderer renderer) {
         renderers[(nodeType)] = renderer
+    }
+
+    void startRendering(DocumentContext context) {
+        doStartRendering(context)
+    }
+
+    void endRendering(DocumentContext context) {
+        doEndRendering(context)
+    }
+
+    void doStartRendering(DocumentContext context) {
+    }
+
+    void doEndRendering(DocumentContext context) {
     }
 }

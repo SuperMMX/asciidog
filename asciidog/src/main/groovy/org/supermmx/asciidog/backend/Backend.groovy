@@ -23,6 +23,11 @@ import org.supermmx.asciidog.converter.DocumentContext
  */
 interface Backend {
     /**
+     * Get the parent backend id
+     */
+    String getParentId()
+
+    /**
      * The backend id
      */
     String getId()
@@ -53,4 +58,8 @@ interface Backend {
     LeafNodeRenderer getInlineRenderer(Node.Type nodeType)
 
     ChunkRenderer getChunkRenderer()
+
+    void startRendering(DocumentContext context)
+
+    void endRendering(DocumentContext context)
 }
