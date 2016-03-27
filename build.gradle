@@ -6,7 +6,7 @@ task publishToLocal
 
 allprojects {
     group = 'org.supermmx.asciidog'
-    version = '0.0.1'
+    version = '0.0.1-SNAPSHOT'
 
     repositories {
         mavenLocal()
