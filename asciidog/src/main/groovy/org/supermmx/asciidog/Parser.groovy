@@ -229,7 +229,7 @@ _
   \\]
 )?
 <<
-([\\w\\x{20}]+?)          # 3, id
+(.*?)          # 3, id, allow any characters
 >>
 '''
     static final def ATTRIBUTE_REFERENCE_PATTERN = ~'''(?Usxm)
@@ -1041,7 +1041,10 @@ _
 
             def m = matchers[(pluginId)]
 
-            log.debug "Index: ${startIndex}, From plugin: ${pluginId}, group = ${m.group()}"
+            if (log.debugEnabled) {
+                log.debug "==== START ===="
+                log.debug "Index: ${startIndex}, From plugin: ${pluginId}, group = ${m.group()}"
+            }
 
             def plugin = PluginRegistry.instance.getPlugin(pluginId)
 
@@ -1052,16 +1055,35 @@ _
 
             def infoList = plugin.parse(m, groupList)
 
-            infoList.each { info ->
+            for (def info: infoList) {
                 def parentInfo = findParentInfo(topInfo, info)
                 if (parentInfo != null) {
                     def parentNode = parentInfo.inlineNode
                     def childNode = info.inlineNode
 
-                    // fill the gap before
-                    if (parentInfo.fillGap) {
-                        fillGap(parentInfo, info)
+                    // whether the node can be fit into the parent node
+                    def lastEnd = parentInfo.contentStart
+                    def lastNodeInfo = null
+                    if (parentInfo.children.size() > 0) {
+                        lastNodeInfo = parentInfo.children.last()
                     }
+                    if (lastNodeInfo != null) {
+                        lastEnd = lastNodeInfo.end
+                    }
+
+                    if (log.debugEnabled) {
+                        log.debug "Check new node in parent: lastEnd = ${lastEnd}, start = ${info.start}"
+                    }
+                    if (info.start < lastEnd) {
+                        break
+                    }
+
+                    if (log.debugEnabled) {
+                        log.debug("Fill the gap and append the new node");
+                    }
+
+                    // fill the gap before
+                    fillGap(parentInfo, info)
 
                     parentInfo << info
 
@@ -1072,13 +1094,21 @@ _
                     if (parentInfo == topInfo) {
                         resultInlines << childNode
                     }
+                } else {
+                    break
                 }
             }
 
             sortingPlugins.remove(startIndex)
             if (m.find()) {
+                if (log.debugEnabled) {
                 log.debug "Next match: start = ${m.start()}"
+                }
                 sortingPlugins[(m.start())] = plugin.id
+            }
+
+            if (log.debugEnabled) {
+                log.debug "==== END ===="
             }
         }
 

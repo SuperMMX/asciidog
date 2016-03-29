@@ -36,4 +36,20 @@ class CrossReferenceSpec extends AsciidogSpec {
         then:
         para == expectedPara
     }
+
+    def 'xref start with colon'() {
+        given:
+        def content = '<<:title>>'
+        def length = content.length()
+        def expectedPara = builder.para {
+            xref ':title'
+        }
+
+
+        when:
+        def para = parser(content).parseParagraph(new Block())
+
+        then:
+        para == expectedPara
+    }
 }

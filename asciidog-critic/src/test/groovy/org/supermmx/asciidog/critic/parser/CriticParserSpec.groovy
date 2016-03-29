@@ -198,11 +198,9 @@ class CriticParserSpec extends AsciidogSpec {
         def content = '<<ref{>>comment<<}ref>>'
         def length = content.length()
         def expectedPara = builder.para {
-            text '<<ref'
-            criticComment {
-                text 'comment'
-            }
-            text 'ref>>'
+            xref 'ref{'
+            text 'comment'
+            xref '}ref'
         }
 
         when:
