@@ -329,6 +329,37 @@ class InlineSpec extends AsciidogSpec {
         Parser.parseInlineNodes(new Paragraph(), text) == nodes
     }
 
+    def 'xref cut in the middle of strong'() {
+        given:
+        def text = '*strong with <<xref* node>>'
+        def nodes = [
+            builder.strong {
+                builder.text('strong with <<xref')
+            },
+            builder.text(' node>>')
+        ]
+
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+    }
+
+    def 'strong cut in the middle of xref'() {
+        given:
+        def text = '<<xref *node>> in *strong words*'
+        def nodes = [
+            builder.xref('xref *node'),
+            builder.strong {
+                builder.text('strong words')
+            }
+        ]
+
+        // FIXME: need to re-think the inline parsing
+        /*
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+        */
+    }
+
     def 'simple nodes'() {
         expect:
         Parser.parseInlineNodes(new Paragraph(), text) == [ node ]

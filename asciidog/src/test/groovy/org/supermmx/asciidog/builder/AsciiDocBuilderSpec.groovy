@@ -23,8 +23,6 @@ class AsciiDocBuilderSpec extends Specification {
                 }
             }
         }
-
-        println "doc = ${doc}"
     }
 
     def 'list'() {
@@ -55,8 +53,6 @@ class AsciiDocBuilderSpec extends Specification {
                 }
             }
         }
-
-        println "doc = ${doc}"
     }
 
     def 'attr'() {
@@ -69,7 +65,5 @@ class AsciiDocBuilderSpec extends Specification {
                 attribute('name')
             }
         }
-
-        println "doc = ${doc}"
     }
 }

@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.backend.html5
 
+import org.supermmx.asciidog.Utils
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.backend.AbstractNodeRenderer
@@ -13,7 +14,7 @@ class Html5SectionRenderer extends AbstractNodeRenderer {
     void doPre(DocumentContext context, Node section) {
         context.writer.with {
             writeStartElement('h2')
-            writeAttribute('id', section.id)
+            writeAttribute('id', Utils.normalizeId(section.id))
             writeCharacters(section.title)
             writeEndElement()
         }
