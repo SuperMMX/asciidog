@@ -109,4 +109,27 @@ abc
             builder.text text
         }
     }
+
+    def 'parse: paragraph: with action in headers'() {
+        given:
+        def text = 'this is a paragraph'
+        def content = """
+[[id]]
+.title
+:name: value
+[attribute]
+$text
+"""
+
+        def parser = parser(content)
+
+        expect:
+        parser.parseBlockHeader()
+        parser.parseParagraph(new Block()) == builder.para(id: 'id',
+                                                           title: 'title',
+                                                           attributes: [attribute:null]) {
+            attribute('name', 'value')
+            builder.text text
+        }
+    }
 }
