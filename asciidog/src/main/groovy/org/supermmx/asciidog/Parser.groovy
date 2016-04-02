@@ -3,6 +3,7 @@ package org.supermmx.asciidog
 import org.supermmx.asciidog.ast.AdocList
 import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Author
+import org.supermmx.asciidog.ast.Blank
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.CommentLine
 import org.supermmx.asciidog.ast.Document
@@ -306,6 +307,8 @@ _
 
         // other properties
         def properties = [:]
+
+        def actionBlocks = []
     }
 
     // Reader
@@ -501,10 +504,16 @@ _
                 }
 
                 switch (blockHeader.type) {
+                case { it.isAction }:
+                    block = new Blank()
+                    fillBlockHeaders(block)
+
+                    blockHeader = null
+                    break
                 case Node.Type.COMMENT_LINE:
                     block = new CommentLine()
+                    fillBlockHeaders(block)
                     block.lines << blockHeader.properties[BlockHeader.COMMENT_LINE_COMMENT]
-                    block.attributes = blockHeader.attributes
 
                     blockHeader = null
 
@@ -585,13 +594,14 @@ _
             break
         }
 
+        fillBlockHeaders(list)
+
         list.parent = parent
         list.document = parent.document
         list.lead = blockHeader.properties[BlockHeader.LIST_LEAD]
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
         list.level = 1
-        list.attributes = blockHeader.attributes
 
         if (parent.type == Node.Type.LIST_ITEM) {
             list.level = parent.parent.level + 1
@@ -629,6 +639,7 @@ _
         def line = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
 
         ListItem item = new ListItem()
+        fillBlockHeaders(item)
         item.parent = list
         item.document = list.document
 
@@ -695,7 +706,7 @@ _
                 para.parent = parent
                 para.document = parent.document
                 if (blockHeader != null) {
-                    para.attributes = blockHeader.attributes
+                    fillBlockHeaders(para)
                 }
             }
             lines << line
@@ -818,13 +829,29 @@ _
 
         reader.nextLine()
 
-        // FIXME: value of multiple lines
-
-        AttributeEntry attr = new AttributeEntry([ name: name, value: value ])
+        AttributeEntry attr = createAttribute(name, value)
 
         log.debug('End parsing attribute')
 
         return attr
+    }
+
+    protected AttributeEntry createAttribute(String name, String value) {
+        // FIXME: value of multiple lines
+        AttributeEntry attr = new AttributeEntry([ name: name, value: value ])
+        return attr
+    }
+
+    /**
+     * Fill common block headers for the current block
+     */
+    protected void fillBlockHeaders(Block block) {
+        block.with {
+            id = blockHeader.id
+            title = blockHeader.title
+            attributes = blockHeader.attributes
+            blocks.addAll(0, blockHeader.actionBlocks)
+        }
     }
 
     /**
@@ -840,7 +867,20 @@ _
 
         def line = null
         while ((line = reader.peekLine()) != null) {
-            // TODO: check attribute definition
+            if (line.length() == 0) {
+                break
+            }
+
+            // check attribute definition
+            def (attrName, attrValue) = isAttribute(line)
+            if (attrName != null) {
+                header.type = Node.Type.DEFINE_ATTRIBUTE
+
+                reader.nextLine()
+                header.actionBlocks << createAttribute(attrName, attrValue)
+
+                continue
+            }
 
             // check id
             def (anchorId, anchorRef) = isBlockAnchor(line)
@@ -855,7 +895,7 @@ _
             // check attributes
             def attrs = isBlockAttributes(line)
             if (attrs != null) {
-                header.attributes << attrs
+                header.attributes.putAll(attrs)
 
                 reader.nextLine()
 
@@ -916,6 +956,7 @@ _
                   header.type, header.id, header.title)
         log.debug('  Attributes: {}', header.attributes)
         log.debug('  Properties: {}', header.properties)
+        log.debug('  Action Blocks: {}', header.actionBlocks)
 
         log.debug('End parsing block header')
 
