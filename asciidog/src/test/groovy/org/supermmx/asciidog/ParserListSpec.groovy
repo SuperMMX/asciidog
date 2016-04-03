@@ -549,4 +549,46 @@ item4
         expect:
         parser(content).parseList(new Block()) == expectedList
     }
+
+    def 'headers for list item continuation'() {
+        given:
+        def content = '''
+* this is a
+paragraph
++
+:name: value
+.title
+[[id]]
+[attribute]
+and the second paragraph
+:name2: value2
+[[id-2]]
+* item2
+'''
+
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'this is a\nparagraph'
+                }
+                para(id: 'id', title: 'title',
+                     attributes: ['attribute': null]) {
+                    attribute('name', 'value')
+                    text 'and the second paragraph'
+                }
+            }
+            item(id: 'id-2') {
+                attribute('name2', 'value2')
+                para {
+                    text 'item2'
+                }
+            }
+        }
+
+        expect:
+        parser(content).parseList(new Block()) == expectedList
+    }
+
 }

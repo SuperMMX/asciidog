@@ -309,6 +309,14 @@ _
         def properties = [:]
 
         def actionBlocks = []
+
+        String toString() {
+            return """Block Header:
+  Type: ${type}, ID: ${id}, Title: ${title}
+  Attributes: ${attributes}
+  Properties: ${properties}
+  Action Blocks: ${actionBlocks}"""
+        }
     }
 
     // Reader
@@ -503,6 +511,9 @@ _
                     break
                 }
 
+                log.debug('current block header: ')
+                log.debug('{}', blockHeader)
+
                 switch (blockHeader.type) {
                 case { it.isAction }:
                     block = new Blank()
@@ -555,15 +566,21 @@ _
             if (inList) {
                 // in list
                 def line = reader.peekLine()
+                log.debug('ListItem Blocks: nextLine = {}', line)
 
                 // list continuation
                 def lead = isListContinuation(line)
                 if (lead != null && lead == parent.parent.lead) {
                     reader.nextLine()
                     listContinuation = true
+                    blockHeader = null
                 } else {
                     listContinuation = false
                 }
+
+                log.debug('ListItem Blocks: lead = {}, list continuation = {}',
+                          lead, listContinuation)
+
             }
         }
 
@@ -696,9 +713,8 @@ _
                     def firstLine = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
                     if (firstLine != null) {
                         line = firstLine
+                        blockHeader = null
                     }
-
-                    blockHeader = null
                 } else {
                     // is list continuation
                     if (isListContinuation(line) != null) {
@@ -862,6 +878,7 @@ _
      * Fill common block headers for the current block
      */
     protected void fillBlockHeaders(Block block) {
+        log.debug('Fill headers for block: {}', block.type)
         block.with {
             id = blockHeader.id
             title = blockHeader.title
@@ -968,12 +985,7 @@ _
 
         blockHeader = header
 
-        log.debug('  Type: {}, ID: {}, Title: {}',
-                  header.type, header.id, header.title)
-        log.debug('  Attributes: {}', header.attributes)
-        log.debug('  Properties: {}', header.properties)
-        log.debug('  Action Blocks: {}', header.actionBlocks)
-
+        log.debug('{}', header)
         log.debug('End parsing block header')
 
         return header
