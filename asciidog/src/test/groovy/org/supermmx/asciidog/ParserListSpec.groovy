@@ -483,4 +483,70 @@ item4
         expect:
         parser(content).parseList(new Block()) == expectedList
     }
+
+    def 'top level list headers'() {
+        given:
+        def content = '''
+:name: value
+.title
+[[id]]
+[attribute]
+* item1
+* item2
+'''
+
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1,
+                                      title: 'title',
+                                      id: 'id',
+                                      attributes: ['attribute':null]) {
+            attribute('name', 'value')
+            item {
+                para {
+                    text 'item1'
+                }
+            }
+            item {
+                para {
+                    text 'item2'
+                }
+            }
+        }
+
+        expect:
+        parser(content).parseList(new Block()) == expectedList
+    }
+
+    def 'headers for the list items'() {
+        given:
+        def content = '''
+* item1
+:name: value
+.title
+[[id]]
+[attribute]
+* item2
+'''
+
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1'
+                }
+            }
+            item(id: 'id', title: 'title',
+                 attributes: ['attribute':null]) {
+                attribute('name', 'value')
+                para {
+                    text 'item2'
+                }
+            }
+        }
+
+        expect:
+        parser(content).parseList(new Block()) == expectedList
+    }
 }

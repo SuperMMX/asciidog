@@ -603,6 +603,12 @@ _
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
         list.level = 1
 
+        // cleanup the header to parse the list items
+        def newBlockHeader = new BlockHeader()
+        newBlockHeader.type = blockHeader.type
+        newBlockHeader.properties = blockHeader.properties
+        blockHeader = newBlockHeader
+
         if (parent.type == Node.Type.LIST_ITEM) {
             list.level = parent.parent.level + 1
         }
@@ -643,14 +649,18 @@ _
         item.parent = list
         item.document = list.document
 
+        def newBlockHeader = new BlockHeader()
+
+        newBlockHeader.type = blockHeader.type
+        newBlockHeader.properties = blockHeader.properties
+        blockHeader = newBlockHeader
+
         // parse list item blocks
         def blocks = parseBlocks(item)
 
         if (blocks.size() == 0) {
             item = null
         } else {
-            Paragraph para = item.blocks[0]
-
             list << item
         }
 
@@ -676,6 +686,9 @@ _
 
         boolean first = true
         def line = reader.peekLine()
+        if (log.isDebugEnabled()) {
+            log.debug 'paragraph line = {}', line
+        }
         while (line != null && line.length() > 0) {
             if (inList) {
                 if (first) {
@@ -714,6 +727,9 @@ _
             reader.nextLine()
 
             line = reader.peekLine()
+            if (log.isDebugEnabled()) {
+                log.debug 'paragraph line = {}', line
+            }
 
             first = false
         }
@@ -980,7 +996,7 @@ _
 
         // go through all inline plugins
         PluginRegistry.instance.getInlineParserPlugins().each { plugin ->
-            log.debug "Parse inline with plugin: ${plugin.id}"
+            log.debug 'Parse inline with plugin: {}', plugin.id
             def m = plugin.pattern.matcher(text)
             if (m.find()) {
                 matchers[(plugin.id)] = m
