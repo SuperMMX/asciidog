@@ -3,9 +3,14 @@ package org.supermmx.asciidog.builder.factory
 import org.supermmx.asciidog.ast.Section
 import org.supermmx.asciidog.Utils
 
+import groovy.util.logging.Slf4j
+
+import org.slf4j.Logger
+
 /**
  * Node factory that only accepts define classes as the children
  */
+@Slf4j
 abstract class AbstractNodeFactory extends AbstractFactory {
     /**
      * The node names that this factory can handle
@@ -25,6 +30,11 @@ abstract class AbstractNodeFactory extends AbstractFactory {
     void setChild(FactoryBuilderSupport builder, parent, child) {
         if (accept(builder, parent, child)) {
             doSetChild(builder, parent, child)
+        } else {
+            log.warn('Child {} with class {} not accepted by parent {}',
+                     builder.getProperty(builder.CURRENT_NAME),
+                     child.getClass(),
+                     builder.getProperty(builder.PARENT_NAME))
         }
     }
 
