@@ -8,7 +8,7 @@ import groovy.transform.ToString
 @EqualsAndHashCode(callSuper=true)
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 
-class AttributeEntry extends Block {
+class AttributeEntry extends Action {
     /**
      * Attribute name, read-only
      */

@@ -222,31 +222,31 @@ new paragraph
         def expectedList = builder.ol(lead: '', marker: '.',
                                       markerLevel: 1,
                                       level: 1) {
-                item {
-                    para {
-                        text 'item1\nparagraph1'
-                    }
+            item {
+                para {
+                    text 'item1\nparagraph1'
+                }
 
-                    ol(lead: '', marker: '.',
-                       markerLevel: 2,
-                       level: 2) {
-                        item {
-                            para {
-                                text 'item2\nparagraph2'
-                            }
+                ol(lead: '', marker: '.',
+                   markerLevel: 2,
+                   level: 2) {
+                    item {
+                        para {
+                            text 'item2\nparagraph2'
+                        }
 
-                            ol(lead: '', marker: '.',
-                               markerLevel: 3,
-                               level: 3) {
-                                item {
-                                    para {
-                                        text 'item3\nparagraph3'
-                                    }
+                        ol(lead: '', marker: '.',
+                           markerLevel: 3,
+                           level: 3) {
+                            item {
+                                para {
+                                    text 'item3\nparagraph3'
                                 }
                             }
                         }
                     }
                 }
+            }
         }
 
         expect:
@@ -483,4 +483,186 @@ item4
         expect:
         parser(content).parseList(new Block()) == expectedList
     }
+
+    def 'top level list headers'() {
+        given:
+        def content = '''
+:name: value
+.title
+[[id]]
+[attribute]
+* item1
+* item2
+'''
+
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1,
+                                      title: 'title',
+                                      id: 'id',
+                                      attributes: ['attribute':null]) {
+            attribute('name', 'value')
+            item {
+                para {
+                    text 'item1'
+                }
+            }
+            item {
+                para {
+                    text 'item2'
+                }
+            }
+        }
+
+        expect:
+        parser(content).parseList(new Block()) == expectedList
+    }
+
+    def 'headers for the list items'() {
+        given:
+        def content = '''
+* item1
+:name: value
+.title
+[[id]]
+[attribute]
+* item2
+'''
+
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'item1'
+                }
+            }
+            item(id: 'id', title: 'title',
+                 attributes: ['attribute':null]) {
+                attribute('name', 'value')
+                para {
+                    text 'item2'
+                }
+            }
+        }
+
+        expect:
+        parser(content).parseList(new Block()) == expectedList
+    }
+
+    def 'headers for list item continuation'() {
+        given:
+        def content = '''
+* this is a
+paragraph
++
+:name: value
+.title
+[[id]]
+[attribute]
+and the second paragraph
+:name2: value2
+[[id-2]]
+* item2
+'''
+
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'this is a\nparagraph'
+                }
+                para(id: 'id', title: 'title',
+                     attributes: ['attribute': null]) {
+                    attribute('name', 'value')
+                    text 'and the second paragraph'
+                }
+            }
+            item(id: 'id-2') {
+                attribute('name2', 'value2')
+                para {
+                    text 'item2'
+                }
+            }
+        }
+
+        expect:
+        parser(content).parseList(new Block()) == expectedList
+    }
+
+    def 'headers for nested list'() {
+        given:
+        def content = '''
+* this is a paragraph
+:name: value
+.title
+[[id]]
+[attribute]
+. nested
+'''
+
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'this is a paragraph'
+                }
+                ol(lead: '', marker: '.',
+                   markerLevel: 1,
+                   level: 2,
+                   id: 'id', title: 'title',
+                   attributes: ['attribute': null]) {
+                    attribute('name', 'value')
+                    item {
+                        para {
+                            text 'nested'
+                        }
+                    }
+                }
+            }
+        }
+
+        expect:
+        parser(content).parseList(new Block()) == expectedList
+    }
+
+    def 'headers for nested list with same marker'() {
+        given:
+        def content = '''
+* this is a paragraph
+:name: value
+.title
+[[id]]
+[attribute]
+** nested
+'''
+
+        def expectedList = builder.ul(lead: '', marker: '*',
+                                      markerLevel: 1,
+                                      level: 1) {
+            item {
+                para {
+                    text 'this is a paragraph'
+                }
+                ul(lead: '', marker: '*',
+                   markerLevel: 2,
+                   level: 2,
+                   id: 'id', title: 'title',
+                   attributes: ['attribute': null]) {
+                    attribute('name', 'value')
+                    item {
+                        para {
+                            text 'nested'
+                        }
+                    }
+                }
+            }
+        }
+
+        expect:
+        parser(content).parseList(new Block()) == expectedList
+    }
+
 }

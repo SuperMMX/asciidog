@@ -2,6 +2,7 @@ package org.supermmx.asciidog
 
 import org.supermmx.asciidog.Parser.BlockHeader
 
+import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Header
@@ -203,5 +204,35 @@ test of multiple lines
 
         header.properties.size() == 1
         header.properties[BlockHeader.COMMENT_LINE_COMMENT] == ' comment line '
+    }
+
+    def 'only block headers'() {
+        given:
+        def content =
+'''
+:name: value
+[[id]]
+[attribute]
+.title
+:name2: value2
+'''
+
+        def parser = new Parser()
+        def reader = Reader.createFromString(content)
+        parser.reader = reader
+
+        when:
+        def header = parser.parseBlockHeader()
+
+        then:
+        header.type == Node.Type.DEFINE_ATTRIBUTE
+
+        header.id == 'id'
+        header.title == 'title'
+        header.attributes == ['attribute': null]
+        header.actionBlocks == [
+            new AttributeEntry([name: 'name', value: 'value']),
+            new AttributeEntry([name: 'name2', value: 'value2'])
+        ]
     }
 }

@@ -3,6 +3,7 @@ package org.supermmx.asciidog
 import org.supermmx.asciidog.ast.AdocList
 import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Author
+import org.supermmx.asciidog.ast.Blank
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.CommentLine
 import org.supermmx.asciidog.ast.Document
@@ -306,6 +307,16 @@ _
 
         // other properties
         def properties = [:]
+
+        def actionBlocks = []
+
+        String toString() {
+            return """Block Header:
+  Type: ${type}, ID: ${id}, Title: ${title}
+  Attributes: ${attributes}
+  Properties: ${properties}
+  Action Blocks: ${actionBlocks}"""
+        }
     }
 
     // Reader
@@ -500,11 +511,20 @@ _
                     break
                 }
 
+                log.debug('current block header: ')
+                log.debug('{}', blockHeader)
+
                 switch (blockHeader.type) {
+                case { it.isAction }:
+                    block = new Blank()
+                    fillBlockHeaders(block)
+
+                    blockHeader = null
+                    break
                 case Node.Type.COMMENT_LINE:
                     block = new CommentLine()
+                    fillBlockHeaders(block)
                     block.lines << blockHeader.properties[BlockHeader.COMMENT_LINE_COMMENT]
-                    block.attributes = blockHeader.attributes
 
                     blockHeader = null
 
@@ -546,15 +566,21 @@ _
             if (inList) {
                 // in list
                 def line = reader.peekLine()
+                log.debug('ListItem Blocks: nextLine = {}', line)
 
                 // list continuation
                 def lead = isListContinuation(line)
                 if (lead != null && lead == parent.parent.lead) {
                     reader.nextLine()
                     listContinuation = true
+                    blockHeader = null
                 } else {
                     listContinuation = false
                 }
+
+                log.debug('ListItem Blocks: lead = {}, list continuation = {}',
+                          lead, listContinuation)
+
             }
         }
 
@@ -585,13 +611,20 @@ _
             break
         }
 
+        fillBlockHeaders(list)
+
         list.parent = parent
         list.document = parent.document
         list.lead = blockHeader.properties[BlockHeader.LIST_LEAD]
         list.marker = blockHeader.properties[BlockHeader.LIST_MARKER]
         list.markerLevel = blockHeader.properties[BlockHeader.LIST_MARKER_LEVEL]
         list.level = 1
-        list.attributes = blockHeader.attributes
+
+        // cleanup the header to parse the list items
+        def newBlockHeader = new BlockHeader()
+        newBlockHeader.type = blockHeader.type
+        newBlockHeader.properties = blockHeader.properties
+        blockHeader = newBlockHeader
 
         if (parent.type == Node.Type.LIST_ITEM) {
             list.level = parent.parent.level + 1
@@ -629,8 +662,15 @@ _
         def line = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
 
         ListItem item = new ListItem()
+        fillBlockHeaders(item)
         item.parent = list
         item.document = list.document
+
+        def newBlockHeader = new BlockHeader()
+
+        newBlockHeader.type = blockHeader.type
+        newBlockHeader.properties = blockHeader.properties
+        blockHeader = newBlockHeader
 
         // parse list item blocks
         def blocks = parseBlocks(item)
@@ -638,8 +678,6 @@ _
         if (blocks.size() == 0) {
             item = null
         } else {
-            Paragraph para = item.blocks[0]
-
             list << item
         }
 
@@ -665,6 +703,9 @@ _
 
         boolean first = true
         def line = reader.peekLine()
+        if (log.isDebugEnabled()) {
+            log.debug 'paragraph line = {}', line
+        }
         while (line != null && line.length() > 0) {
             if (inList) {
                 if (first) {
@@ -672,9 +713,8 @@ _
                     def firstLine = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
                     if (firstLine != null) {
                         line = firstLine
+                        blockHeader = null
                     }
-
-                    blockHeader = null
                 } else {
                     // is list continuation
                     if (isListContinuation(line) != null) {
@@ -695,7 +735,7 @@ _
                 para.parent = parent
                 para.document = parent.document
                 if (blockHeader != null) {
-                    para.attributes = blockHeader.attributes
+                    fillBlockHeaders(para)
                 }
             }
             lines << line
@@ -703,6 +743,9 @@ _
             reader.nextLine()
 
             line = reader.peekLine()
+            if (log.isDebugEnabled()) {
+                log.debug 'paragraph line = {}', line
+            }
 
             first = false
         }
@@ -818,13 +861,30 @@ _
 
         reader.nextLine()
 
-        // FIXME: value of multiple lines
-
-        AttributeEntry attr = new AttributeEntry([ name: name, value: value ])
+        AttributeEntry attr = createAttribute(name, value)
 
         log.debug('End parsing attribute')
 
         return attr
+    }
+
+    protected AttributeEntry createAttribute(String name, String value) {
+        // FIXME: value of multiple lines
+        AttributeEntry attr = new AttributeEntry([ name: name, value: value ])
+        return attr
+    }
+
+    /**
+     * Fill common block headers for the current block
+     */
+    protected void fillBlockHeaders(Block block) {
+        log.debug('Fill headers for block: {}', block.type)
+        block.with {
+            id = blockHeader.id
+            title = blockHeader.title
+            attributes = blockHeader.attributes
+            blocks.addAll(0, blockHeader.actionBlocks)
+        }
     }
 
     /**
@@ -840,7 +900,20 @@ _
 
         def line = null
         while ((line = reader.peekLine()) != null) {
-            // TODO: check attribute definition
+            if (line.length() == 0) {
+                break
+            }
+
+            // check attribute definition
+            def (attrName, attrValue) = isAttribute(line)
+            if (attrName != null) {
+                header.type = Node.Type.DEFINE_ATTRIBUTE
+
+                reader.nextLine()
+                header.actionBlocks << createAttribute(attrName, attrValue)
+
+                continue
+            }
 
             // check id
             def (anchorId, anchorRef) = isBlockAnchor(line)
@@ -855,7 +928,7 @@ _
             // check attributes
             def attrs = isBlockAttributes(line)
             if (attrs != null) {
-                header.attributes << attrs
+                header.attributes.putAll(attrs)
 
                 reader.nextLine()
 
@@ -912,11 +985,7 @@ _
 
         blockHeader = header
 
-        log.debug('  Type: {}, ID: {}, Title: {}',
-                  header.type, header.id, header.title)
-        log.debug('  Attributes: {}', header.attributes)
-        log.debug('  Properties: {}', header.properties)
-
+        log.debug('{}', header)
         log.debug('End parsing block header')
 
         return header
@@ -939,7 +1008,7 @@ _
 
         // go through all inline plugins
         PluginRegistry.instance.getInlineParserPlugins().each { plugin ->
-            log.debug "Parse inline with plugin: ${plugin.id}"
+            log.debug 'Parse inline with plugin: {}', plugin.id
             def m = plugin.pattern.matcher(text)
             if (m.find()) {
                 matchers[(plugin.id)] = m

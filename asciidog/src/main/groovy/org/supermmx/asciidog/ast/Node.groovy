@@ -21,6 +21,7 @@ class Node {
         static final NODE = new Type(name: 'node', isAbstract: true)
 
         static final BLOCK = new Type(parent: NODE, name: 'block', isAbstract: true)
+        static final ACTION= new Type(parent: BLOCK, name: 'action', isAbstract: true, isAction: true)
         static final INLINE = new Type(parent: NODE, name: 'inline', isAbstract: true)
 
         static final DOCUMENT = new Type(parent: BLOCK, name: 'document')
@@ -35,6 +36,7 @@ class Node {
         static final TABLE = new Type(parent: BLOCK, name: 'table')
         static final MACRO = new Type(parent: BLOCK, name: 'macro')
         static final COMMENT_LINE = new Type(parent: BLOCK, name: 'comment_line')
+        static final BLANK = new Type(parent: BLOCK, name: 'blank')
 
         static final AUTHOR = new Type(parent: INLINE, name: 'author')
         static final NULL = new Type(parent: INLINE, name: 'null')
@@ -48,7 +50,7 @@ class Node {
         static final ORDERED_LIST = new Type(parent: LIST, name: 'olist')
         static final UNORDERED_LIST = new Type(parent: LIST, name: 'ulist')
 
-        static final DEFINE_ATTRIBUTE = new Type(parent: NODE, isAction: true, name: 'define_attribute')
+        static final DEFINE_ATTRIBUTE = new Type(parent: ACTION, isAction: true, name: 'define_attribute')
         static final SET_ATTRIBUTE = new Type(parent: INLINE, isAction: true, name: 'set_attribute')
         static final SET_COUNTER = new Type(parent: INLINE, isAction: true, name: 'set_counter')
 
