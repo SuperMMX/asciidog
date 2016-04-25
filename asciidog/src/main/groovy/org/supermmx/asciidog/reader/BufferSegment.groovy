@@ -264,7 +264,7 @@ $
      *
      * The curret line will be modified
      */
-    void skipChars(int count) {
+    int skipChars(int count) {
         peekLine()
 
         if (lines.size() == 0) {
@@ -280,12 +280,14 @@ $
         line = line.substring(count)
 
         lines[0] = line
+
+        return count
     }
 
     /**
      * Skip blank characters for the current line
      */
-    void skipBlanks() {
+    int skipBlanks() {
         def line = peekLine()
 
         def index = 0
@@ -299,6 +301,6 @@ $
             }
         }
 
-        skipChars(index)
+        return skipChars(index)
     }
 }

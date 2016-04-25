@@ -345,9 +345,10 @@ line2
         def segment = new BufferSegment(reader)
 
         when:
-        segment.skipChars(2)
+        def skips = segment.skipChars(2)
 
         then:
+        skips == 2
         segment.cursor.column == 2
         segment.peekLine() == 'ne1'
         segment.nextLine() == 'ne1'
@@ -363,9 +364,10 @@ line2
         def segment = new BufferSegment(reader)
 
         when:
-        segment.skipChars(10)
+        def skips = segment.skipChars(10)
 
         then:
+        skips == 'line1'.length()
         segment.cursor.column == 'line1'.length()
         segment.peekLine() == ''
         segment.nextLine() == ''
@@ -381,16 +383,18 @@ line2
         def segment = new BufferSegment(reader)
 
         when:
-        segment.skipChars(2)
+        def skips = segment.skipChars(2)
 
         then:
+        skips == 2
         segment.cursor.column == 2
         segment.peekLine() == 'ne1'
 
         when:
-        segment.skipChars(2)
+        skips = segment.skipChars(2)
 
         then:
+        skips == 2
         segment.cursor.column == 4
         segment.peekLine() == '1'
     }
@@ -405,16 +409,18 @@ line2
         def segment = new BufferSegment(reader)
 
         when:
-        segment.skipChars(2)
+        def skips = segment.skipChars(2)
 
         then:
+        skips == 2
         segment.cursor.column == 2
         segment.peekLine() == 'ne1'
 
         when:
-        segment.skipChars(5)
+        skips = segment.skipChars(5)
 
         then:
+        skips == 3
         segment.cursor.column == 5
         segment.peekLine() == ''
     }
@@ -429,17 +435,19 @@ line2
         def segment = new BufferSegment(reader)
 
         when:
-        segment.skipBlanks()
+        def skips = segment.skipBlanks()
 
         then:
+        skips == 2
         segment.cursor.column == 2
         segment.peekLine() == 'li   ne1'
 
         when:
         segment.skipChars(3)
-        segment.skipBlanks()
+        skips = segment.skipBlanks()
 
         then:
+        skips == 2
         segment.cursor.column == 7
         segment.peekLine() == 'ne1'
     }

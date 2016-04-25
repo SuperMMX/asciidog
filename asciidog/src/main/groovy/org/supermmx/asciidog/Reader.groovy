@@ -165,14 +165,14 @@ class Reader {
     /**
      * Skip specified number of characters in the current line
      */
-    void skipChars(int count) {
-        segment.skipChars(count)
+    int skipChars(int count) {
+        return segment.skipChars(count)
     }
 
     /**
      * Skip specified number of characters in the current line
      */
-    void skipBlanks() {
-        segment.skipBlanks()
+    int skipBlanks() {
+        return segment.skipBlanks()
     }
 }
