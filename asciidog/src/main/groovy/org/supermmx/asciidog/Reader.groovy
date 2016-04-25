@@ -161,4 +161,11 @@ class Reader {
 
         return skipped
     }
+
+    /**
+     * Skip specified number of characters in the current line
+     */
+    void skipChars(int count) {
+        segment.skipChars(count)
+    }
 }

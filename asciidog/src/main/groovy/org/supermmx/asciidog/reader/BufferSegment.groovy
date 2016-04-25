@@ -260,7 +260,7 @@ $
     }
 
     /**
-     * Skip the specified count of characters for a line
+     * Skip the specified number of characters for the current line
      */
     void skipChars(int count) {
         peekLine()
