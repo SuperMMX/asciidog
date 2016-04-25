@@ -270,13 +270,12 @@ $
         }
 
         def line = lines[0]
-        cursor.column += count
-        if (cursor.column >= line.length()) {
-            cursor.column = -1
-            line = ''
-        } else {
-            line = line.substring(cursor.column)
+        if (count >= line.length()) {
+            count = line.length();
         }
+
+        cursor.column += count
+        line = line.substring(count)
 
         lines[0] = line
     }

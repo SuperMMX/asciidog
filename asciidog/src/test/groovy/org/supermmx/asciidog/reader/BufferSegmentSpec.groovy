@@ -353,7 +353,7 @@ line2
         segment.nextLine() == 'ne1'
     }
 
-    def 'skip characters more than length'() {
+    def 'skip characters and exceed'() {
         given:
 
         def content = '''line1
@@ -366,9 +366,57 @@ line2
         segment.skipChars(10)
 
         then:
-        segment.cursor.column == -1
+        segment.cursor.column == 'line1'.length()
         segment.peekLine() == ''
         segment.nextLine() == ''
+    }
+
+    def 'skip characters more than once'() {
+        given:
+
+        def content = '''line1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        segment.skipChars(2)
+
+        then:
+        segment.cursor.column == 2
+        segment.peekLine() == 'ne1'
+
+        when:
+        segment.skipChars(2)
+
+        then:
+        segment.cursor.column == 4
+        segment.peekLine() == '1'
+    }
+
+    def 'skip characters more than once and exceed'() {
+        given:
+
+        def content = '''line1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        segment.skipChars(2)
+
+        then:
+        segment.cursor.column == 2
+        segment.peekLine() == 'ne1'
+
+        when:
+        segment.skipChars(5)
+
+        then:
+        segment.cursor.column == 5
+        segment.peekLine() == ''
     }
 }
 
