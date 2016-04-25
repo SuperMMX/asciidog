@@ -20,7 +20,7 @@ class ReaderSpec extends Specification {
         then:
         line == 'line1'
     }
-    
+
     def 'next line'() {
         given:
         def reader = Reader.createFromString('''line1
