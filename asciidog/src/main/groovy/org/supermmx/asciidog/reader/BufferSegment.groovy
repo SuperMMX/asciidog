@@ -91,6 +91,7 @@ $
         if (lines.size() > 0) {
             lines.remove(0)
             cursor.lineno ++
+            cursor.column = 0
         }
 
         return line
@@ -141,6 +142,7 @@ $
             lines.remove(0)
 
             cursor.lineno ++
+            cursor.column = 0
         }
 
         return retLines
@@ -255,5 +257,27 @@ $
         def attributes = m[0][3]
 
         return [ file, attributes, isComment ]
+    }
+
+    /**
+     * Skip the specified count of characters for a line
+     */
+    void skipChars(int count) {
+        peekLine()
+
+        if (lines.size() == 0) {
+            return
+        }
+
+        def line = lines[0]
+        cursor.column += count
+        if (cursor.column >= line.length()) {
+            cursor.column = -1
+            line = ''
+        } else {
+            line = line.substring(cursor.column)
+        }
+
+        lines[0] = line
     }
 }

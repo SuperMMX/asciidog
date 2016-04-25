@@ -6,12 +6,13 @@ package org.supermmx.asciidog.reader
 class Cursor {
     String uri
     int lineno
+    int column
 
     Cursor() {
         lineno = 0
     }
 
     String toString() {
-        return "${uri}:${lineno}"
+        return "${uri}:(${lineno}, ${column})"
     }
 }
