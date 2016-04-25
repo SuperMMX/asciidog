@@ -334,5 +334,41 @@ line6
         continuousSegment.nextLine() == 'line5'
         continuousSegment.cursor.lineno == 5
     }
+
+    def 'skip characters'() {
+        given:
+
+        def content = '''line1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        segment.skipChars(2)
+
+        then:
+        segment.cursor.column == 2
+        segment.peekLine() == 'ne1'
+        segment.nextLine() == 'ne1'
+    }
+
+    def 'skip characters more than length'() {
+        given:
+
+        def content = '''line1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        segment.skipChars(10)
+
+        then:
+        segment.cursor.column == -1
+        segment.peekLine() == ''
+        segment.nextLine() == ''
+    }
 }
 
