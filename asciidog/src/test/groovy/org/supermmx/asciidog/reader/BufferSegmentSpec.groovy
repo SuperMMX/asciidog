@@ -418,5 +418,30 @@ line2
         segment.cursor.column == 5
         segment.peekLine() == ''
     }
+
+    def 'skip blanks'() {
+        given:
+
+        def content = '''  li   ne1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        segment.skipBlanks()
+
+        then:
+        segment.cursor.column == 2
+        segment.peekLine() == 'li   ne1'
+
+        when:
+        segment.skipChars(3)
+        segment.skipBlanks()
+
+        then:
+        segment.cursor.column == 7
+        segment.peekLine() == 'ne1'
+    }
 }
 

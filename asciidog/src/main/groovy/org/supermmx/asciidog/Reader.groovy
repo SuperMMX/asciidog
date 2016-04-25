@@ -168,4 +168,11 @@ class Reader {
     void skipChars(int count) {
         segment.skipChars(count)
     }
+
+    /**
+     * Skip specified number of characters in the current line
+     */
+    void skipBlanks() {
+        segment.skipBlanks()
+    }
 }

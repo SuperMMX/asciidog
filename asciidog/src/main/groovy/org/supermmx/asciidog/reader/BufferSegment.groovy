@@ -260,7 +260,9 @@ $
     }
 
     /**
-     * Skip the specified number of characters for the current line
+     * Skip the specified number of characters for the current line.
+     *
+     * The curret line will be modified
      */
     void skipChars(int count) {
         peekLine()
@@ -271,12 +273,32 @@ $
 
         def line = lines[0]
         if (count >= line.length()) {
-            count = line.length();
+            count = line.length()
         }
 
         cursor.column += count
         line = line.substring(count)
 
         lines[0] = line
+    }
+
+    /**
+     * Skip blank characters for the current line
+     */
+    void skipBlanks() {
+        def line = peekLine()
+
+        def index = 0
+        while (index < line.length()) {
+            def ch = line[index]
+            if (ch == (' ' as char)
+                || ch == ('\t' as char)) {
+                index ++
+            } else {
+                break
+            }
+        }
+
+        skipChars(index)
     }
 }
