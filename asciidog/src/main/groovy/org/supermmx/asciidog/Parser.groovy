@@ -658,19 +658,27 @@ _
             return null
         }
 
-        // first line of the list item
-        def line = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
-
         ListItem item = new ListItem()
         fillBlockHeaders(item)
         item.parent = list
         item.document = list.document
 
+        /*
         def newBlockHeader = new BlockHeader()
 
         newBlockHeader.type = blockHeader.type
         newBlockHeader.properties = blockHeader.properties
         blockHeader = newBlockHeader
+        */
+
+        // first line of the list item
+        def line = reader.peekLine()
+        def firstLine = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
+        blockHeader = null
+
+        // skip the list markers
+        def index = line.indexOf(firstLine)
+        reader.skipChars(index)
 
         // parse list item blocks
         def blocks = parseBlocks(item)
@@ -709,12 +717,14 @@ _
         while (line != null && line.length() > 0) {
             if (inList) {
                 if (first) {
+                    /*
                     // only get the content of the first line that comes from a list item
                     def firstLine = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
                     if (firstLine != null) {
                         line = firstLine
                         blockHeader = null
                     }
+                    */
                 } else {
                     // is list continuation
                     if (isListContinuation(line) != null) {
