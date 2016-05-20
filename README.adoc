@@ -11,6 +11,27 @@ to create one.
 This project is still in very early stage, and not ready for any
 kind of usage.
 
+== Quick Start
+
+[source, shell]
+----
+# ePug library
+git clone https://github.com/SuperMMX/epug.git
+
+# build and publish
+cd epug
+./gradlew publishToMavenLocal
+
+# AsciiDog
+git clone https://github.com/SuperMMX/asciidog.git
+
+# Convert README.adoc to html5 and epub
+cd asciidog
+./gradlew run -Dargs="-i README.adoc -b html5,epub -o build"
+
+# View build/README.html and build/README.epub
+----
+
 == Features
 
 === Parser
