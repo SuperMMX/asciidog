@@ -4,6 +4,8 @@ import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.converter.Converter
 import org.supermmx.asciidog.plugin.PluginRegistry
 
+import org.apache.commons.cli.Option
+
 import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger
@@ -16,7 +18,7 @@ class AsciiDog {
             i(longOpt: 'input-file', args: 1, argName: 'input-file', required: true, 'Input AsciiDoc file')
             o(longOpt: 'output-dir', args: 1, argName: 'output-dir', required: true, 'Output directory')
             B(longOpt: 'base', args: 1, argName: 'base', 'Base name')
-            b(longOpt: 'backends', args: 1, argName: 'backends', valueSeparator: ',', 'Comma-separated backend IDs')
+            b(longOpt: 'backends', args: Option.UNLIMITED_VALUES, argName: 'backends', valueSeparator: ',', 'Comma-separated backend IDs')
 
             oc(longOpt: 'output-chunked', 'Enable chunked output')
         }
@@ -47,11 +49,12 @@ class AsciiDog {
             adOptions[(Document.OUTPUT_CHUNKED)] = options.oc.toString()
         }
 
-        log.info("AsciiDoc Input File: {}", file)
-        log.info("Converted Output Directory: {}", output)
-        log.info("Converted Output Base Name: {}", base)
+        log.info("[Converter] AsciiDoc Input File: {}", file)
+        log.info("[Converter] Backends: {}", backends)
+        log.info("[Converter] Converted Output Directory: {}", output)
+        log.info("[Converter] Converted Output Base Name: {}", base)
 
-        log.info("Options: ${adOptions}")
+        log.info("[Converter] Options: ${adOptions}")
 
         Parser parser = new Parser()
         Document doc = parser.parseFile(file)
@@ -59,6 +62,7 @@ class AsciiDog {
         Converter converter = new Converter()
 
         backends.each{ id ->
+            log.info("[Converter] Rendering with backend {}...", id);
             converter.convertToFile(doc, output, id,
                                     adOptions)
         }
