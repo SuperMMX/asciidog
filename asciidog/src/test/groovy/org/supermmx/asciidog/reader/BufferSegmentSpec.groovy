@@ -334,5 +334,122 @@ line6
         continuousSegment.nextLine() == 'line5'
         continuousSegment.cursor.lineno == 5
     }
+
+    def 'skip characters'() {
+        given:
+
+        def content = '''line1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        def skips = segment.skipChars(2)
+
+        then:
+        skips == 2
+        segment.cursor.column == 2
+        segment.peekLine() == 'ne1'
+        segment.nextLine() == 'ne1'
+    }
+
+    def 'skip characters and exceed'() {
+        given:
+
+        def content = '''line1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        def skips = segment.skipChars(10)
+
+        then:
+        skips == 'line1'.length()
+        segment.cursor.column == 'line1'.length()
+        segment.peekLine() == ''
+        segment.nextLine() == ''
+    }
+
+    def 'skip characters more than once'() {
+        given:
+
+        def content = '''line1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        def skips = segment.skipChars(2)
+
+        then:
+        skips == 2
+        segment.cursor.column == 2
+        segment.peekLine() == 'ne1'
+
+        when:
+        skips = segment.skipChars(2)
+
+        then:
+        skips == 2
+        segment.cursor.column == 4
+        segment.peekLine() == '1'
+    }
+
+    def 'skip characters more than once and exceed'() {
+        given:
+
+        def content = '''line1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        def skips = segment.skipChars(2)
+
+        then:
+        skips == 2
+        segment.cursor.column == 2
+        segment.peekLine() == 'ne1'
+
+        when:
+        skips = segment.skipChars(5)
+
+        then:
+        skips == 3
+        segment.cursor.column == 5
+        segment.peekLine() == ''
+    }
+
+    def 'skip blanks'() {
+        given:
+
+        def content = '''  li   ne1
+line2
+'''
+        def reader = SingleReader.createFromString(content)
+        def segment = new BufferSegment(reader)
+
+        when:
+        def skips = segment.skipBlanks()
+
+        then:
+        skips == 2
+        segment.cursor.column == 2
+        segment.peekLine() == 'li   ne1'
+
+        when:
+        segment.skipChars(3)
+        skips = segment.skipBlanks()
+
+        then:
+        skips == 2
+        segment.cursor.column == 7
+        segment.peekLine() == 'ne1'
+    }
 }
 

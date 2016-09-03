@@ -161,4 +161,18 @@ class Reader {
 
         return skipped
     }
+
+    /**
+     * Skip specified number of characters in the current line
+     */
+    int skipChars(int count) {
+        return segment.skipChars(count)
+    }
+
+    /**
+     * Skip specified number of characters in the current line
+     */
+    int skipBlanks() {
+        return segment.skipBlanks()
+    }
 }

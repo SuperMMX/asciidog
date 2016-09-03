@@ -91,6 +91,7 @@ $
         if (lines.size() > 0) {
             lines.remove(0)
             cursor.lineno ++
+            cursor.column = 0
         }
 
         return line
@@ -141,6 +142,7 @@ $
             lines.remove(0)
 
             cursor.lineno ++
+            cursor.column = 0
         }
 
         return retLines
@@ -255,5 +257,50 @@ $
         def attributes = m[0][3]
 
         return [ file, attributes, isComment ]
+    }
+
+    /**
+     * Skip the specified number of characters for the current line.
+     *
+     * The curret line will be modified
+     */
+    int skipChars(int count) {
+        peekLine()
+
+        if (lines.size() == 0) {
+            return
+        }
+
+        def line = lines[0]
+        if (count >= line.length()) {
+            count = line.length()
+        }
+
+        cursor.column += count
+        line = line.substring(count)
+
+        lines[0] = line
+
+        return count
+    }
+
+    /**
+     * Skip blank characters for the current line
+     */
+    int skipBlanks() {
+        def line = peekLine()
+
+        def index = 0
+        while (index < line.length()) {
+            def ch = line[index]
+            if (ch == (' ' as char)
+                || ch == ('\t' as char)) {
+                index ++
+            } else {
+                break
+            }
+        }
+
+        return skipChars(index)
     }
 }
