@@ -79,9 +79,9 @@ class ParserSpec extends AsciidogSpec {
         null               | [ null, null, null, -1, null ]
         ''                 | [ null, null, null, -1, null ]
         '  == abc '        | [ null, null, null, -1, null ]
-        '*  line  '        | [ Node.Type.UNORDERED_LIST, '', '*', 1, 'line  ' ]
-        '   ...  line  '   | [ Node.Type.ORDERED_LIST, '   ', '.', 3, 'line  ' ]
-        '  -  line  '      | [ Node.Type.UNORDERED_LIST, '  ', '-', 1, 'line  ' ]
+        '*  line  '        | [ Node.Type.UNORDERED_LIST, '', '*', 1, 3 ]
+        '   ...  line  '   | [ Node.Type.ORDERED_LIST, '   ', '.', 3, 8 ]
+        '  -  line  '      | [ Node.Type.UNORDERED_LIST, '  ', '-', 1, 5 ]
     }
 
     def 'static: is comment line'() {

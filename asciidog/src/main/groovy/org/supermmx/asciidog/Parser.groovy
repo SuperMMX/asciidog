@@ -295,7 +295,7 @@ _
         static final String LIST_LEAD = 'listLead'
         static final String LIST_MARKER = 'listMarker'
         static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
-        static final String LIST_FIRST_LINE = 'listFirstLine'
+        static final String LIST_CONTENT_START = 'listContentStart'
 
         static final String COMMENT_LINE_COMMENT = 'comment'
 
@@ -673,11 +673,10 @@ _
 
         // first line of the list item
         def line = reader.peekLine()
-        def firstLine = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
+        def index = blockHeader.properties[BlockHeader.LIST_CONTENT_START]
         blockHeader = null
 
         // skip the list markers
-        def index = line.indexOf(firstLine)
         reader.skipChars(index)
 
         // parse list item blocks
@@ -975,13 +974,13 @@ _
             }
 
             // check list
-            def (listType, listLead, listMarker, markerLevel, listFirstLine) = isListLine(line)
+            def (listType, listLead, listMarker, markerLevel, listContentStart) = isListLine(line)
             if (listType != null) {
                 header.type = listType
                 header.properties[BlockHeader.LIST_LEAD] = listLead
                 header.properties[BlockHeader.LIST_MARKER] = listMarker
                 header.properties[BlockHeader.LIST_MARKER_LEVEL] = markerLevel
-                header.properties[BlockHeader.LIST_FIRST_LINE] = listFirstLine
+                header.properties[BlockHeader.LIST_CONTENT_START] = listContentStart
 
                 break
             }
@@ -1479,7 +1478,7 @@ _
      * @return the type of list
      *         the list marker, *, - or .
      *         the level of the list
-     *         the first line of the list item content
+     *         the start index of the first line of the list item content
      */
     protected static List isListLine(String line) {
         if (line == null) {
@@ -1495,7 +1494,7 @@ _
 
         def lead = m[0][1]
         def markers = m[0][2]
-        String firstLine = m[0][3]
+        def contentStart = m.start(3);
         int markerLevel = markers.length()
 
         def marker = markers[0]
@@ -1512,7 +1511,7 @@ _
             break
         }
 
-        return [ type, lead, marker, markerLevel, firstLine ]
+        return [ type, lead, marker, markerLevel, contentStart ]
     }
 
     /**
