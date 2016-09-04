@@ -663,20 +663,12 @@ _
         item.parent = list
         item.document = list.document
 
-        /*
-        def newBlockHeader = new BlockHeader()
-
-        newBlockHeader.type = blockHeader.type
-        newBlockHeader.properties = blockHeader.properties
-        blockHeader = newBlockHeader
-        */
-
         // first line of the list item
         def line = reader.peekLine()
         def index = blockHeader.properties[BlockHeader.LIST_CONTENT_START]
         blockHeader = null
 
-        // skip the list markers
+        // skip the list markers and blanks before the real content
         reader.skipChars(index)
 
         // parse list item blocks
@@ -715,16 +707,7 @@ _
         }
         while (line != null && line.length() > 0) {
             if (inList) {
-                if (first) {
-                    /*
-                    // only get the content of the first line that comes from a list item
-                    def firstLine = blockHeader.properties[BlockHeader.LIST_FIRST_LINE]
-                    if (firstLine != null) {
-                        line = firstLine
-                        blockHeader = null
-                    }
-                    */
-                } else {
+                if (!first) {
                     // is list continuation
                     if (isListContinuation(line) != null) {
                         break
