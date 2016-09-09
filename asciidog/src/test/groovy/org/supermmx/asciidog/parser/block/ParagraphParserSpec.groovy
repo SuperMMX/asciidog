@@ -1,16 +1,30 @@
 package org.supermmx.asciidog.parser.block
 
 import org.supermmx.asciidog.AsciidogSpec
+import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.ast.Block
+import org.supermmx.asciidog.parser.ParserContext
 
 class ParagraphParserPluginSpec extends AsciidogSpec{
-    def 'is start of a paragraph'() {
-        given:
-        def parser = new ParagraphParser()
-        def header = new BlockParserPlugin.BlockHeader()
+    def parser
+    def context
 
+    def setup() {
+        parser = new ParagraphParser()
+        context = new ParserContext()
+
+        def parent = new Block()
+        def parentParser = Mock(BlockParserPlugin)
+
+        context.blockHeader = new BlockParserPlugin.BlockHeader()
+        context.parents.push(parent)
+        context.parentParsers.push(parentParser)
+
+    }
+
+    def 'is start of a paragraph'() {
         expect:
-        parser.isStart(line, header) == value
+        parser.isStart(line, context.blockHeader) == value
 
         where:
         line      | value
@@ -25,19 +39,27 @@ class ParagraphParserPluginSpec extends AsciidogSpec{
         given:
         def content = '''first line
 second line'''
-        def parser = new ParagraphParser()
-        def header = new BlockParserPlugin.BlockHeader()
+        context.reader = Reader.createFromString(content)
 
-        def context = parserContext(content)
+        context.parentParser.toEndParagraph(_, _) >> false
 
-        def parent = new Block()
-        def parentParser = Mock(BlockParserPlugin)
+        when:
+        def para = parser.parse(context)
 
-        context.blockHeader = header
-        context.parents.push(parent)
-        context.parentParsers.push(parentParser)
+        then:
+        para.lines == [ 'first line', 'second line' ]
+    }
 
-        parentParser.toEndParagraph(_, _) >> false
+    def 'end paragraph parsing'() {
+        given:
+        def content = '''first line
+second line
+--
+fourth line'''
+        context.reader = Reader.createFromString(content)
+
+        context.parentParser.toEndParagraph(_, '--') >> true
+        context.parentParser.toEndParagraph(_, _) >> false
 
         when:
         def para = parser.parse(context)
