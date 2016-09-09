@@ -67,4 +67,24 @@ fourth line'''
         then:
         para.lines == [ 'first line', 'second line' ]
     }
+
+    def 'blank lines before and after'() {
+        given:
+        def content = '''
+
+first line
+second line
+third line
+
+'''
+        context.reader = Reader.createFromString(content)
+
+        context.parentParser.toEndParagraph(_, _) >> false
+
+        when:
+        def para = parser.parse(context)
+
+        then:
+        para.lines == [ 'first line', 'second line', 'third line' ]
+    }
 }
