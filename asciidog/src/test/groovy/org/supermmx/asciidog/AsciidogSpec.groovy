@@ -6,6 +6,7 @@ import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.builder.AsciiDocBuilder
+import org.supermmx.asciidog.parser.ParserContext
 
 import spock.lang.*
 
@@ -32,5 +33,16 @@ class AsciidogSpec extends Specification {
         parser.reader = reader
 
         return parser
+    }
+
+    /**
+     * Create a parser context reading from a text
+     */
+    def parserContext(def text) {
+        def context = new ParserContext()
+        def reader = Reader.createFromString(text)
+        context.reader = reader
+
+        return context
     }
 }
