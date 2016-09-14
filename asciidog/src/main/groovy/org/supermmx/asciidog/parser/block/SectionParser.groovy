@@ -4,6 +4,7 @@ import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
+import org.supermmx.asciidog.ast.Section
 import org.supermmx.asciidog.parser.ParserContext
 
 import groovy.util.logging.Slf4j
@@ -24,6 +25,10 @@ class SectionParser extends BlockParserPlugin {
 )
 \\s*
 '''
+
+    static final String HEADER_PROPERTY_SECTION_TITLE = 'secTitle'
+    static final String HEADER_PROPERTY_SECTION_LEVEL = 'secLevel'
+
     static final String ID = 'plugin:parser:block:section'
 
     SectionParser() {
@@ -32,7 +37,7 @@ class SectionParser extends BlockParserPlugin {
     }
 
     @Override
-    boolean isStart(String line, BlockHeader header) {
+    protected boolean doCheckStart(String line, BlockHeader header) {
         def (level, title) = isSection(line)
 
         if (level == -1) {
@@ -41,23 +46,36 @@ class SectionParser extends BlockParserPlugin {
 
         if (header != null) {
             header.type = Node.Type.SECTION
-            header.properties[BlockHeader.SECTION_LEVEL] = secLevel
-            header.properties[BlockHeader.SECTION_TITLE] = secTitle
+            header.properties[HEADER_PROPERTY_SECTION_LEVEL] = level
+            header.properties[HEADER_PROPERTY_SECTION_TITLE] = title
         }
 
         return true
     }
 
     @Override
-    Block parse(ParserContext context) {
-        def reader = context.reader
-        def parent = context.parent
-        def parentParser = context.parentParser
-        def blockHeader = context.blockHeader
+    protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
+        def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
+        def title = header.properties[HEADER_PROPERTY_SECTION_TITLE]
 
-        log.debug('Start parsing section, parent type: {}', parent.type)
+        Section section = new Section(parent: parent,
+                                      document: parent.document,
+                                      level: level)
+        fillBlockFromHeader(section, header)
 
-        return doc
+        section.title = title
+
+        return section
+    }
+
+    @Override
+    protected List<Node> doParseChildren(ParserContext context, Block parent) {
+        return null
+    }
+
+    @Override
+    protected boolean doIsValidChild(ParserContext context, Block parent, BlockHeader header) {
+        return true
     }
 
     /**
