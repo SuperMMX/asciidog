@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.parser.block
 
+import org.supermmx.asciidog.ast.Blank
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.parser.ParserContext
@@ -16,19 +17,114 @@ import org.slf4j.Logger
 @Slf4j
 @Slf4j(value='userLog', category="AsciiDog")
 abstract class BlockParserPlugin extends ParserPlugin {
+    protected boolean isSkippingBlankLines = true
+
     /**
      * Check weather the line is the start of the block,
      * if yes, some necessary information is saved in the header.
      */
-    abstract boolean isStart(String line, BlockHeader header)
+    boolean checkStart(String line, BlockHeader header) {
+        return doCheckStart(line, header)
+    }
 
-    abstract Block parse(ParserContext context)
+    /**
+     * Parse the block based on current context
+     */
+    Block parse(ParserContext context) {
+        // checking
+        def header = context.blockHeader
+        def parent = context.parent
+        def reader = context.reader
+
+        log.trace('Trying parse block type {} with header {}',
+                  nodeType, header)
+
+        // skip blank lines if necessary
+        if (isSkippingBlankLines) {
+            reader.skipBlankLines()
+        }
+
+        def isStart = false
+
+        if (header == null) {
+            header = new BlockHeader()
+            def line = reader.peekLine()
+
+            isStart = checkStart(line, header)
+        } else {
+            isStart = (header.type == nodeType)
+        }
+
+        if (!isStart) {
+            return null
+        }
+
+        log.debug('Parsing block type {}, parent type {}, parent seq {}',
+                  nodeType, parent?.type, parent?.seq)
+
+        // create the block
+        Block block = createBlock(context, parent, header)
+        if (parent != null) {
+            block.parent = parent
+            block.document = parent.document
+        }
+
+        context.blockHeader = null
+
+        context.parents.push(block)
+        context.parentParsers.push(this)
+
+        // parsing the child
+        def children = parseChildren(context, block)
+        block.children.addAll(children)
+
+        context.parents.pop()
+        context.parentParsers.pop()
+
+        log.debug('Parsing block {}, parent type {}, parent seq {}...Done',
+                  nodeType, parent?.type, parent?.seq)
+
+        return block
+    }
+
+    /**
+     * Create the block from current context, especially from current block header
+     */
+    protected Block createBlock(ParserContext context, Block parent, BlockHeader header) {
+        return doCreateBlock(context, parent, header)
+    }
+
+    protected List<Node> parseChildren(ParserContext context, Block parent) {
+        return doParseChildren(context, parent);
+    }
+
+    /**
+     * Check whether the expected block from the block header is valid
+     * for current block
+     */
+    protected boolean isValidChild(ParserContext context, Block parent, BlockHeader header) {
+        return doIsValidChild(context, parent, header);
+    }
 
     /**
      * This block parser should determine whether to end the current child
      * paragraph parsing or not.
      */
     protected boolean toEndParagraph(ParserContext context, String line) {
+        return doToEndParagraph(context, line)
+    }
+
+    abstract protected boolean doCheckStart(String line, BlockHeader header)
+
+    abstract protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header)
+
+    abstract protected List<Node> doParseChildren(ParserContext context, Block parent)
+
+    protected boolean doIsValidChild(ParserContext context, Block parent, BlockHeader header) {
+        return true
+    }
+
+    protected boolean doToEndParagraph(ParserContext context, String line) {
         return false
     }
 
@@ -36,9 +132,6 @@ abstract class BlockParserPlugin extends ParserPlugin {
      * internal class
      */
     protected static class BlockHeader {
-        static final String SECTION_TITLE = 'secTitle'
-        static final String SECTION_LEVEL = 'secLevel'
-
         static final String LIST_LEAD = 'listLead'
         static final String LIST_MARKER = 'listMarker'
         static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
@@ -47,6 +140,8 @@ abstract class BlockParserPlugin extends ParserPlugin {
         static final String COMMENT_LINE_COMMENT = 'comment'
 
         Node.Type type
+        BlockParserPlugin parserPlugin
+
         def id
         def title
         // block attributes
@@ -57,6 +152,11 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
         def actionBlocks = []
 
+        /**
+         * Set by a block parse to determine whether to stop trying
+         * even a block start has been found.  The default value is true,
+         * meaning if a block is found, stop trying for next one.
+         */
         boolean stop = true
 
         String toString() {
@@ -69,11 +169,11 @@ abstract class BlockParserPlugin extends ParserPlugin {
     }
 
     /**
-     * Parse a block header that is used to parse content further.
+     * Utility to get next block header that is used to parse content further.
      * The id, attribute, title are read, but not the block start line.
      * These will determine what type the next block is.
      */
-    protected static BlockHeader parseBlockHeader(ParserContext context) {
+    protected BlockHeader nextBlockHeader(ParserContext context) {
         def reader = context.reader
 
         log.debug('Start parsing block header...')
@@ -107,8 +207,16 @@ abstract class BlockParserPlugin extends ParserPlugin {
         if (header.type == null) {
             // no block is found
 
-            // check the action blocks
-            context.parent.blocks.addAll(header.actionBlocks)
+            /*
+            def actionBlocks = header.actionBlocks
+            if (actionBlocks.size() > 0) {
+                // check the action blocks
+                def blank = new Blank()
+                blank.blocks.addAll(actionBlocks)
+
+                context.parent << blank
+            }
+            */
 
             header = null
         }
@@ -116,6 +224,37 @@ abstract class BlockParserPlugin extends ParserPlugin {
         context.blockHeader = header
 
         return header
+    }
+
+    /**
+     * Utility to get a list of blocks
+     */
+    protected List<Block> parseBlocks(ParserContext context, Block parent) {
+        log.debug('Parsing blocks for parent type: {}...', parent.type)
+
+        def blocks = []
+        def header = context.blockHeader
+        if (header == null) {
+            header = parseBlockHeader(context)
+        }
+
+        while (header != null) {
+            if (!checkIsValidChild(context, block, header)) {
+                break
+            }
+
+            def block = header.parserPlugin.parse(context)
+            blocks << block
+
+            header = context.blockHeader
+            if (header == null) {
+                header = parseBlockHeader(context)
+            }
+        }
+
+        log.debug('Parsing blocks for parent type: {}...Done', parent.type)
+
+        return blocks
     }
 
     /**
@@ -131,7 +270,8 @@ abstract class BlockParserPlugin extends ParserPlugin {
             id = header.id
             title = header.title
             attributes = header.attributes
-            blocks.addAll(0, header.actionBlocks)
+
+            //blocks.addAll(0, header.actionBlocks)
         }
     }
 
