@@ -1,13 +1,10 @@
 package org.supermmx.asciidog.ast
 
-import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
+import groovy.transform.TupleConstructor
 
-@Canonical
 @EqualsAndHashCode(callSuper=true)
-@ToString(includeSuper=true, includePackage=false, includeNames=true)
-
+@TupleConstructor
 class Document extends Block {
     static enum DocType {
         article,
@@ -52,12 +49,12 @@ class Document extends Block {
 
     Header getHeader() {
         // only the first one
-        if (blocks.size() == 0) {
+        if (children.size() == 0) {
             return null
         }
 
         Header header = null
-        Block block = blocks[0]
+        Block block = children[0]
         if (block in Header) {
             header = block
         }
@@ -69,8 +66,8 @@ class Document extends Block {
         Preamble preamble = null
 
         int index = (getHeader() == null) ? 0 : 1
-        if (index < blocks.size()) {
-            Block block = blocks[index]
+        if (index < children.size()) {
+            Block block = children[index]
             if (block in Preamble) {
                 preamble = block
             }

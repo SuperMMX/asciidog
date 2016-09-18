@@ -1,13 +1,10 @@
 package org.supermmx.asciidog.ast
 
-import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
+import groovy.transform.TupleConstructor
 
-@Canonical
 @EqualsAndHashCode(callSuper=true)
-@ToString(includeSuper=true, includePackage=false, includeNames=true)
-
+@TupleConstructor
 class Block extends Node {
     Block() {
         type = Node.Type.BLOCK
@@ -15,13 +12,6 @@ class Block extends Node {
 
     String title
     List<String> lines = []
-    List<Block> blocks = []
-
-    Block leftShift(Block block) {
-        blocks << block
-
-        return this
-    }
 
     /**
      * Conditionally walk all this block recursively

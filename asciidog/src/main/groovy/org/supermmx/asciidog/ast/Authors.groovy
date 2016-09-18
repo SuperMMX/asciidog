@@ -7,14 +7,8 @@ import groovy.transform.TupleConstructor
 
 @EqualsAndHashCode(callSuper=true)
 @TupleConstructor
-class Author extends Inline {
-    Author() {
-        type = Node.Type.AUTHOR
+class Authors extends Block {
+    Authors() {
+        type = Node.Type.AUTHORS
     }
-
-    String first
-    String middle
-    String last
-    String initials
-    String email
 }
