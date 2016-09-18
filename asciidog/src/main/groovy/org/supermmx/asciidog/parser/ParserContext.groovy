@@ -22,10 +22,10 @@ class ParserContext {
     BlockHeader blockHeader
 
     Block getParent() {
-        return parents.peek()
+        return parents.empty() ? null : parents.peek()
     }
 
     BlockParserPlugin getParentParser() {
-        return parentParsers.peek()
+        return parentParsers.empty() ? null: parentParsers.peek()
     }
 }

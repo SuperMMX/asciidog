@@ -72,7 +72,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
         Block block = createBlock(context, parent, header)
         if (parent != null) {
             block.parent = parent
-            block.document = parent.document
+            block.document = parent?.document
         }
 
         context.blockHeader = null
@@ -236,7 +236,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
      * Utility to get a list of blocks
      */
     protected List<Block> parseBlocks(ParserContext context, Block parent) {
-        log.debug('Parsing blocks for parent type: {}...', parent.type)
+        log.debug('Parsing blocks for parent type: {}...', parent?.type)
 
         def blocks = []
 
@@ -259,7 +259,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
             blocks << block
         }
 
-        log.debug('Parsing blocks for parent type: {}...Done', parent.type)
+        log.debug('Parsing blocks for parent type: {}...Done', parent?.type)
 
         return blocks
     }

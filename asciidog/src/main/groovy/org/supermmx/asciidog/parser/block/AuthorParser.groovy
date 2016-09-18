@@ -73,7 +73,7 @@ ${AUTHOR_REGEX}
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
         def authors = new Authors(parent: parent,
-                                  document: parent.document)
+                                  document: parent?.document)
 
         return authors
     }
@@ -94,7 +94,7 @@ ${AUTHOR_REGEX}
         line.split(";").each {
             def author = createAuthor(it)
             author.parent = parent
-            author.document = parent.document
+            author.document = parent?.document
 
             children << author
         }
@@ -126,7 +126,6 @@ ${AUTHOR_REGEX}
             email = groups[4]
 
             def names = [ first , middle, last ] - null
-            //author = names.join(' ')
 
             initials = names.collect{ it[0] }.join('')
         }

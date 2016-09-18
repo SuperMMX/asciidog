@@ -89,10 +89,6 @@ class AuthorParserSpec extends AsciidogSpec {
     def 'parse authors'() {
         given:
         def context = parserContext(content)
-        def block = new Block()
-        def doc = new Document()
-        block.document = doc
-        context.parents.push(block)
 
         when:
         def authors = authorParser.parse(context)
