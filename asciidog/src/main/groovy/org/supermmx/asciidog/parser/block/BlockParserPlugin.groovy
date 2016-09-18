@@ -22,9 +22,15 @@ abstract class BlockParserPlugin extends ParserPlugin {
     /**
      * Check weather the line is the start of the block,
      * if yes, some necessary information is saved in the header.
+     *
+     * @param line the next line
+     * @param header the new block header to fill
+     * @param expected whether the type of the block of this plugin parses
+     *        is expected by the parent parser, or the parent parser just
+     *        does the wild guess
      */
-    boolean checkStart(String line, BlockHeader header) {
-        return doCheckStart(line, header)
+    boolean checkStart(String line, BlockHeader header, boolean expected) {
+        return doCheckStart(line, header, expected)
     }
 
     /**
@@ -50,7 +56,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
             header = new BlockHeader()
             def line = reader.peekLine()
 
-            isStart = checkStart(line, header)
+            isStart = checkStart(line, header, true)
         } else {
             isStart = (header.type == nodeType)
         }
@@ -114,7 +120,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
         return doToEndParagraph(context, line)
     }
 
-    abstract protected boolean doCheckStart(String line, BlockHeader header)
+    abstract protected boolean doCheckStart(String line, BlockHeader header, boolean expected)
 
     abstract protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header)
 
@@ -191,7 +197,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
             // go through all block parsers to determine what block it is
             for (BlockParserPlugin plugin: PluginRegistry.instance.getBlockParserPlugins()) {
                 log.info('=== plugin Id: {}', plugin)
-                if (plugin.isStart(line, header)) {
+                if (plugin.checkStart(line, header, false)) {
                     break
                 }
             }
@@ -208,14 +214,14 @@ abstract class BlockParserPlugin extends ParserPlugin {
             // no block is found
 
             /*
-            def actionBlocks = header.actionBlocks
-            if (actionBlocks.size() > 0) {
-                // check the action blocks
-                def blank = new Blank()
-                blank.blocks.addAll(actionBlocks)
+              def actionBlocks = header.actionBlocks
+              if (actionBlocks.size() > 0) {
+              // check the action blocks
+              def blank = new Blank()
+              blank.blocks.addAll(actionBlocks)
 
-                context.parent << blank
-            }
+              context.parent << blank
+              }
             */
 
             header = null
@@ -233,23 +239,24 @@ abstract class BlockParserPlugin extends ParserPlugin {
         log.debug('Parsing blocks for parent type: {}...', parent.type)
 
         def blocks = []
-        def header = context.blockHeader
-        if (header == null) {
-            header = parseBlockHeader(context)
-        }
 
-        while (header != null) {
+        def stop = false
+        while (true) {
+            def header = context.blockHeader
+            if (header == null) {
+                header = nextBlockHeader(context)
+            }
+
+            if (header == null) {
+                break
+            }
+
             if (!checkIsValidChild(context, block, header)) {
                 break
             }
 
             def block = header.parserPlugin.parse(context)
             blocks << block
-
-            header = context.blockHeader
-            if (header == null) {
-                header = parseBlockHeader(context)
-            }
         }
 
         log.debug('Parsing blocks for parent type: {}...Done', parent.type)

@@ -14,7 +14,7 @@ class DocumentParserSpec extends AsciidogSpec {
                                                        properties: [(SectionParser.HEADER_PROPERTY_SECTION_LEVEL): 0,
                                                                     (SectionParser.HEADER_PROPERTY_SECTION_TITLE): 'Title'])
         when:
-        def isStart = documentParser.checkStart(line, header)
+        def isStart = documentParser.checkStart(line, header, true)
 
         then:
         isStart

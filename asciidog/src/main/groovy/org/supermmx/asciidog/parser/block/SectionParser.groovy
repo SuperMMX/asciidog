@@ -37,7 +37,7 @@ class SectionParser extends BlockParserPlugin {
     }
 
     @Override
-    protected boolean doCheckStart(String line, BlockHeader header) {
+    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
         def (level, title) = isSection(line)
 
         if (level == -1) {
@@ -46,8 +46,8 @@ class SectionParser extends BlockParserPlugin {
 
         if (header != null) {
             header.type = Node.Type.SECTION
-            header.properties[HEADER_PROPERTY_SECTION_LEVEL] = level
-            header.properties[HEADER_PROPERTY_SECTION_TITLE] = title
+            header.properties[(HEADER_PROPERTY_SECTION_LEVEL)] = level
+            header.properties[(HEADER_PROPERTY_SECTION_TITLE)] = title
         }
 
         return true
@@ -55,8 +55,8 @@ class SectionParser extends BlockParserPlugin {
 
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
-        def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
-        def title = header.properties[HEADER_PROPERTY_SECTION_TITLE]
+        def level = header.properties[(HEADER_PROPERTY_SECTION_LEVEL)]
+        def title = header.properties[(HEADER_PROPERTY_SECTION_TITLE)]
 
         Section section = new Section(parent: parent,
                                       document: parent.document,

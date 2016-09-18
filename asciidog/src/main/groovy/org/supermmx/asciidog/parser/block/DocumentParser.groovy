@@ -25,17 +25,17 @@ class DocumentParser extends BlockParserPlugin {
     }
 
     @Override
-    protected boolean doCheckStart(String line, BlockHeader header) {
+    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
         SectionParser sectionParser =
             PluginRegistry.instance.getPlugin(SectionParser.ID)
 
         // if the first line is level 0 section,
-        def isSection = sectionParser.checkStart(line, header)
-        def level = header.properties[SectionParser.HEADER_PROPERTY_SECTION_LEVEL]
-        def title = header.properties[SectionParser.HEADER_PROPERTY_SECTION_TITLE]
+        def isSection = sectionParser.checkStart(line, header, true)
+        def level = header.properties[(SectionParser.HEADER_PROPERTY_SECTION_LEVEL)]
+        def title = header.properties[(SectionParser.HEADER_PROPERTY_SECTION_TITLE)]
 
         if (isSection && level == 0) {
-            header.properties[HEADER_PROPERTY_DOCUMENT_TITLE] = title
+            header.properties[(HEADER_PROPERTY_DOCUMENT_TITLE)] = title
         }
 
         return true
@@ -43,12 +43,16 @@ class DocumentParser extends BlockParserPlugin {
 
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
+        def reader = context.reader
+
         def title = header.properties[HEADER_PROPERTY_DOCUMENT_TITLE]
         Document doc = new Document()
 
         doc.parent = doc
 
         context.document = doc
+
+        reader.nextLine()
 
         return doc
     }
@@ -84,6 +88,7 @@ class DocumentParser extends BlockParserPlugin {
             // preamble
 
             // sections
+            /*
             SectionParser sectionParser =
                 PluginRegistry.instance.getPlugin(SectionParser.ID)
 
@@ -93,6 +98,7 @@ class DocumentParser extends BlockParserPlugin {
                 // doc type
                 children << section
             }
+            */
 
         } else {
             // simple document that expects blocks including sections

@@ -1,19 +1,18 @@
 package org.supermmx.asciidog.ast
 
-import groovy.transform.Canonical
+import groovy.json.StreamingJsonBuilder
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
+import groovy.transform.TupleConstructor
 
 import groovy.util.logging.Slf4j
 
+import java.lang.reflect.Modifier
 import java.util.concurrent.atomic.AtomicLong
 
 import org.slf4j.Logger
 
-@Canonical(excludes=['parent', 'document', 'seq'])
-@EqualsAndHashCode(excludes=['parent', 'document', 'seq'])
-@ToString(excludes=['parent', 'document', 'seq'], includePackage=false, includeNames=true)
-
+@EqualsAndHashCode(excludes=['parent', 'document', 'seq', 'excludes'])
+@TupleConstructor
 @Slf4j
 class Node {
     // here the node type should be basic ones
@@ -144,5 +143,109 @@ class Node {
         children << node
 
         return this
+    }
+
+    /**
+     * Excluded toString() fields
+     */
+    protected String[] excludes = []
+
+    @Override
+    String toString() {
+        def props = this.metaClass.properties
+        .sort { it.name }
+        .findAll {
+            !['class', 'active', 'document', 'parent', 'seq', 'excludes', 'type'].contains(it.name) &&
+            !Modifier.isStatic(it.modifiers)
+        }.collectEntries {
+            [(it.name): it]
+        }
+
+        def commonProps = props.subMap([ 'id', 'title', 'attributes'])
+        def childrenProp = props.remove('children')
+
+        props = props - commonProps
+
+        StringBuilder sb = new StringBuilder()
+
+        // common properties in order
+        commonProps.each { key, prop ->
+            def value = prop.getProperty(this)
+            sb << "${key} "
+
+            writeObject(sb, value)
+
+            sb << "\n"
+        }
+
+        // other properties sorted
+        props.findAll {
+            !excludes.contains(it.key)
+        }.each { key, prop ->
+            def value = prop.getProperty(this)
+            sb << "${key} "
+
+            writeObject(sb, value)
+
+            sb << "\n"
+        }
+
+        // children
+        sb << "children "
+        writeObject(sb, childrenProp.getProperty(this))
+        sb << "\n"
+
+        def temp = sb.toString()
+
+        sb = new StringBuilder()
+
+        def clsName = this.getClass().getSimpleName()
+        sb << clsName << ' {\n'
+
+        indent(sb, temp)
+
+        sb << '}'
+
+        return sb.toString()
+    }
+
+    /**
+     * Write an object to the buffer
+     */
+    protected void writeObject(StringBuilder sb, Object value) {
+        def cls = value.getClass()
+        if (CharSequence.class.isAssignableFrom(cls)) {
+            sb << "'${value}'"
+        } else if (Map.class.isAssignableFrom(cls)) {
+            sb << "[\n"
+            def mapStr = value.collect { mapKey, mapValue ->
+                "${mapKey}: ${mapValue}"
+            }.join(',\n')
+
+            indent(sb, mapStr)
+
+            sb << "]"
+        } else if (Iterable.class.isAssignableFrom(cls)
+                   || Iterator.class.isAssignableFrom(cls)) {
+            sb << "[\n"
+            def listStr = value.collect { listValue ->
+                "${listValue}"
+            }.join(',\n')
+
+            indent(sb, listStr)
+
+            sb << "]"
+        } else {
+            sb << "${value}"
+        }
+    }
+
+    /**
+     * Indent the content and append to the buffer
+     */
+    protected void indent(StringBuilder sb, String content) {
+        content.eachLine { line ->
+            sb << '  ' << line << '\n'
+        }
     }
 }

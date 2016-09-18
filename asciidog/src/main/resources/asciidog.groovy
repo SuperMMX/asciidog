@@ -14,9 +14,10 @@ asciidog {
 
     // the plugins
     plugins = [
-        //DocumentParser,
-        //SectionParser,
-        ParagraphParser
+        DocumentParser,
+        SectionParser,
+        AuthorParser,
+        //ParagraphParser
     ]
 
     builders = [
