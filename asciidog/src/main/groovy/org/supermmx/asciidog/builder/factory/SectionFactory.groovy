@@ -14,7 +14,7 @@ class SectionFactory extends AbstractBlockFactory {
     @Override
     def newInstance(FactoryBuilderSupport builder, name, value, Map attributes) {
         Section section = new Section(title: value)
-        
+
         return section
     }
 }

@@ -19,7 +19,7 @@ class DocumentFactory extends AbstractBlockFactory {
     def newInstance(FactoryBuilderSupport builder, name, value, Map attributes) {
         Document document = new Document()
         document.document = document
-        
+
         return document
     }
 
