@@ -12,6 +12,8 @@ class AsciidogCoreBuilderPlugin extends BuilderPlugin {
 
         factories << new DocumentFactory()
         factories << new HeaderFactory()
+        factories << new AuthorsFactory()
+        factories << new AuthorFactory()
         factories << new PreambleFactory()
         factories << new AttributeFactory()
         factories << new SectionFactory()

@@ -105,13 +105,13 @@ class AuthorParserSpec extends AsciidogSpec {
         ]
 
         expectedAuthors << [
-            new Authors(children: [ new Author(first: '张三', middle: null, last: null, initials: '张', email: 'zhang.san@email.com') ]),
-            new Authors(children: [ new Author(first: 'Name', middle: null, last: null, initials: 'N', email: null) ]),
-            new Authors(children: [ new Author(first: 'First', middle: null, last: 'Last', initials: 'FL', email: 'abc@def.com') ]),
-            new Authors(children: [
-                            new Author(first: 'First', middle: null, last: 'Last', initials: 'FL', email: 'abc@def.com'),
-                            new Author(first: 'First.', middle: 'Middle-', last: 'Last_', initials: 'FML', email: 'test@email.com')
-                        ])
+            builder.authors { author '张三 <zhang.san@email.com>' },
+            builder.authors { author 'Name' },
+            builder.authors { author 'First Last <abc@def.com>' },
+            builder.authors {
+                author 'First Last <abc@def.com>'
+                author 'First. Middle- Last_ <test@email.com>'
+            }
         ]
     }
 }

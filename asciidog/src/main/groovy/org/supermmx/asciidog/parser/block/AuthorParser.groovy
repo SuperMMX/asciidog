@@ -105,7 +105,7 @@ ${AUTHOR_REGEX}
     /**
      * Create an author from a string
      */
-    protected static Author createAuthor(String authorText) {
+    public static Author createAuthor(String authorText) {
         // should always match from parser
         def m = AUTHOR_PATTERN.matcher(authorText)
         if (!m.matches()) {
