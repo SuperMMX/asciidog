@@ -21,6 +21,8 @@ import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.UnOrderedList
 
+import org.supermmx.asciidog.parser.ParserContext
+
 import org.supermmx.asciidog.plugin.Plugin
 import org.supermmx.asciidog.plugin.PluginRegistry
 
@@ -31,6 +33,65 @@ import org.slf4j.Logger
 @Slf4j
 @Slf4j(value='userLog', category="AsciiDog")
 class Parser {
+    static Node parse(ParserContext context) {
+        Block rootBlock = null
+        def parser = context.parser
+
+        while (parser != null) {
+            def parent = context.parent
+
+            log.debug('Parser = {}, parent = {}',
+                     parser.getClass(), parent?.getClass())
+
+            def block = context.block
+
+            // create the new block
+            if (block == null) {
+                block = parser.parse(context)
+
+                if (block != null) {
+                    block.parent = parent
+                    block.document = context.document
+
+                    if (parent != null) {
+                        parent << block
+                    } else {
+                        rootBlock = block
+                    }
+
+                    context.block = block
+                }
+            }
+
+            // get next child parser
+            def childParser = null
+            if (block != null) {
+                childParser = parser.getNextChildParser(context)
+
+                if (childParser != null) {
+                    context.push()
+
+                    context.parser = childParser
+                    context.parent = block
+                }
+            }
+
+            // back to root and there are no more child parers
+            if (parent == null && childParser == null) {
+                break
+            }
+
+            // fail to create the block or there are no more child parsers
+            if (block == null || childParser == null) {
+                context.pop()
+            }
+
+            parser = context.parser
+        }
+
+        return rootBlock
+    }
+
     static final def AUTHOR_NAME_REGEX = '(?U)\\w[\\w\\-\'\\.]*'
     static final def AUTHOR_NAME_PATTERN = ~AUTHOR_NAME_REGEX
     static final def AUTHOR_REGEX = """(?x)
@@ -328,6 +389,8 @@ _
     // block header used to parse the next block, including section
     BlockHeader blockHeader
 
+    ParserContext context = new ParserContext()
+
     Document parseString(String content) {
         reader = Reader.createFromString(content)
 
@@ -347,6 +410,9 @@ _
 
         Document doc = new Document()
         doc.document = doc
+
+        context.reader = reader
+        context.document = doc
 
         Header header = parseHeader()
 

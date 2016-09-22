@@ -72,10 +72,28 @@ ${AUTHOR_REGEX}
 
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
-        def authors = new Authors(parent: parent,
-                                  document: parent?.document)
+        def authors = new Authors()
 
         return authors
+    }
+
+    protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block) {
+        // create child nodes
+        def reader = context.reader
+
+        def line = reader.nextLine()
+
+        line.split(';').each {
+            def author = createAuthor(it)
+            author.parent = block
+            author.document = block.document
+
+            block << author
+        }
+
+        // no child parsers
+
+        return null
     }
 
     @Override
@@ -91,7 +109,7 @@ ${AUTHOR_REGEX}
 
         def line = reader.nextLine()
 
-        line.split(";").each {
+        line.split(';').each {
             def author = createAuthor(it)
             author.parent = parent
             author.document = parent?.document

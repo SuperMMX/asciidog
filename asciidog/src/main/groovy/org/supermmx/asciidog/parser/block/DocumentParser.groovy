@@ -1,8 +1,10 @@
 package org.supermmx.asciidog.parser.block
 
 import org.supermmx.asciidog.Reader
+import org.supermmx.asciidog.ast.Authors
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
+import org.supermmx.asciidog.ast.Header
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.parser.ParserContext
@@ -48,13 +50,36 @@ class DocumentParser extends BlockParserPlugin {
         def title = header.properties[HEADER_PROPERTY_DOCUMENT_TITLE]
         Document doc = new Document()
 
-        doc.parent = doc
+        /*
+        doc.parent = null
+        doc.document = doc
 
         context.document = doc
-
+        */
         reader.nextLine()
 
+        // make ready for child parsers
+        context.lastParser = null
+
         return doc
+    }
+
+    protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block) {
+        def childParser = null
+
+        def lastParser = context.lastParser
+
+        if (lastParser == null) {
+            childParser = PluginRegistry.instance.getPlugin(AuthorParser.ID)
+            /*
+        } else if (lastParser in AuthorParser) {
+            childParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
+        } else if (lastParser in SectionParser) {
+            childParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
+            */
+        }
+
+        context.lastParser = childParser
     }
 
     @Override
@@ -73,6 +98,9 @@ class DocumentParser extends BlockParserPlugin {
 
         def doc = parent
 
+        def docHeader = new Header(parent: parent, document: parent?.document)
+        children << docHeader
+
         def isFullDoc = true
 
         if (isFullDoc) {
@@ -80,25 +108,31 @@ class DocumentParser extends BlockParserPlugin {
             // then sections
 
             // authors
+            AuthorParser authorParser =
+                PluginRegistry.instance.getPlugin(AuthorParser.ID)
+            Authors authors = authorParser.parse(context)
+            if (authors) {
+                docHeader << authors
+            }
 
-            // revision
+            //TODO: revision
 
             // attributes
 
             // preamble
 
             // sections
-            /*
             SectionParser sectionParser =
                 PluginRegistry.instance.getPlugin(SectionParser.ID)
 
             def section = null
 
+            // FIXME: depending on the doc type
+            context.expectedSectionLevel = 1
+
             while ((section = sectionParser.parse(context)) != null) {
-                // doc type
                 children << section
             }
-            */
 
         } else {
             // simple document that expects blocks including sections

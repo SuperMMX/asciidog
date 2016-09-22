@@ -39,9 +39,9 @@ abstract class BlockParserPlugin extends ParserPlugin {
     Block parse(ParserContext context) {
         // checking
         def header = context.blockHeader
-        def parent = context.parent
         def reader = context.reader
 
+        def parent = context.parent
         log.trace('Trying parse block type {} with header {}',
                   nodeType, header)
 
@@ -70,27 +70,41 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
         // create the block
         Block block = createBlock(context, parent, header)
-        if (parent != null) {
-            block.parent = parent
-            block.document = parent?.document
+        if (block ==  null) {
+            return null
         }
+
+        /*
+        block.parent = parent
+        block.document = parent?.document
 
         context.blockHeader = null
 
-        context.parents.push(block)
-        context.parentParsers.push(this)
+        context.parent = block
+        context.parser = this
+
+        context.push()
 
         // parsing the child
         def children = parseChildren(context, block)
-        block.children.addAll(children)
 
-        context.parents.pop()
-        context.parentParsers.pop()
+        context.pop()
+
+        block.children.addAll(children)
+        */
 
         log.debug('Parsing block {}, parent type {}, parent seq {}...Done',
                   nodeType, parent?.type, parent?.seq)
 
         return block
+    }
+
+    BlockParserPlugin getNextChildParser(ParserContext context) {
+        return doGetNextChildParser(context, context.block)
+    }
+
+    protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block) {
+        return null
     }
 
     /**
@@ -198,6 +212,8 @@ abstract class BlockParserPlugin extends ParserPlugin {
             for (BlockParserPlugin plugin: PluginRegistry.instance.getBlockParserPlugins()) {
                 log.info('=== plugin Id: {}', plugin)
                 if (plugin.checkStart(line, header, false)) {
+                    header.parserPlugin = plugin
+
                     break
                 }
             }
@@ -227,7 +243,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
             header = null
         }
 
-        context.blockHeader = header
+       context.blockHeader = header
 
         return header
     }
@@ -256,6 +272,10 @@ abstract class BlockParserPlugin extends ParserPlugin {
             }
 
             def block = header.parserPlugin.parse(context)
+            if (block == null) {
+                break
+            }
+
             blocks << block
         }
 
