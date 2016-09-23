@@ -1,6 +1,7 @@
 package org.supermmx.asciidog.parser.block
 
 import org.supermmx.asciidog.AsciidogSpec
+import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Authors
 import org.supermmx.asciidog.ast.Block
@@ -73,7 +74,19 @@ class AuthorParserSpec extends AsciidogSpec {
         !isStart
     }
 
-    def 'checkStart: single author'() {
+    def 'checkStart: expected invalid'() {
+        given:
+        def line = 'Stuart Rackham'
+        def header = new BlockParserPlugin.BlockHeader()
+
+        when:
+        def isStart = authorParser.checkStart(line, header, false)
+
+        then:
+        !isStart
+    }
+
+    def 'checkStart: expected single author line'() {
         given:
         def line = 'Stuart Rackham <founder@asciidoc.org>'
         def header = new BlockParserPlugin.BlockHeader()
@@ -86,12 +99,13 @@ class AuthorParserSpec extends AsciidogSpec {
         header.properties[(AuthorParser.HEADER_PROPERTY_AUTHOR_LINE)] == line
     }
 
-    def 'parse authors'() {
+    def 'standalone: parse authors'() {
         given:
         def context = parserContext(content)
+        context.parser = authorParser
 
         when:
-        def authors = authorParser.parse(context)
+        def authors = Parser.parse(context)
 
         then:
         authors == expectedAuthors
@@ -113,5 +127,28 @@ class AuthorParserSpec extends AsciidogSpec {
                 author 'First. Middle- Last_ <test@email.com>'
             }
         ]
+    }
+
+    def 'document: parse authors'() {
+        given:
+        def content = '''= Document Title
+Stuart Rackham <founder@asciidoc.org>; Dan Allen <dan.j.allen@gmail.com>'''
+        def expectedDoc = builder.document(title: 'Document Title') {
+            header {
+                authors {
+                    author 'Stuart Rackham <founder@asciidoc.org>'
+                    author 'Dan Allen <dan.j.allen@gmail.com>'
+                }
+            }
+        }
+
+        def context = parserContext(content)
+        context.parser = new DocumentParser()
+
+        when:
+        def doc = Parser.parse(context)
+
+        then:
+        doc == expectedDoc
     }
 }
