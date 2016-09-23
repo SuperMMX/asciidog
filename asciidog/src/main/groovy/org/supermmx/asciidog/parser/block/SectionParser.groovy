@@ -58,9 +58,19 @@ class SectionParser extends BlockParserPlugin {
         def level = header.properties[(HEADER_PROPERTY_SECTION_LEVEL)]
         def title = header.properties[(HEADER_PROPERTY_SECTION_TITLE)]
 
-        Section section = new Section(parent: parent,
-                                      document: parent.document,
-                                      level: level)
+        // check the parsed level and the expected level
+        def expectedLevel = context.expectedSectionLevel
+        if (level != expectedLevel) {
+            log.error('{}: Wrong section level {}, expected level is {}',
+                      reader.cursor, level, expectedLevel)
+
+            userLog.error('{}: Wrong section level {}, expected level is {}',
+                          reader.cursor, level, expectedLevel)
+
+            return null
+        }
+
+        Section section = new Section(level: level)
         fillBlockFromHeader(section, header)
 
         section.title = title
@@ -68,14 +78,29 @@ class SectionParser extends BlockParserPlugin {
         return section
     }
 
-    @Override
-    protected List<Node> doParseChildren(ParserContext context, Block parent) {
-        return null
-    }
+    protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block) {
+        Section section = block
 
-    @Override
-    protected boolean doIsValidChild(ParserContext context, Block parent, BlockHeader header) {
-        return true
+        BlockHeader header = context.blockHeader
+        if (header == null) {
+            header = nextBlockHeader(context)
+        }
+
+        BlockParserPlugin childParser = header.parserPlugin
+        if (header.type == Node.Type.SECTION) {
+            // check level
+            def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
+            if (level <= section.level) {
+                childParser = null
+            } else if (level > section.level + 1) {
+                // TODO: print errors
+                childParser = null
+            } else {
+                context.expectedSectionLevel = section.level + 1
+            }
+        }
+
+        return childParser
     }
 
     /**

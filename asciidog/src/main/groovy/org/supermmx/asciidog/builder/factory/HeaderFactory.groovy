@@ -17,7 +17,7 @@ class HeaderFactory extends AbstractBlockFactory {
 
     @Override
     def newInstance(FactoryBuilderSupport builder, name, value, Map attributes) {
-        Header header = new Header(title: value)
+        Header header = new Header()
 
         return header
     }

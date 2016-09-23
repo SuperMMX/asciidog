@@ -17,21 +17,10 @@ import org.slf4j.Logger
 @Slf4j
 @Slf4j(value='userLog', category="AsciiDog")
 abstract class BlockParserPlugin extends ParserPlugin {
-    protected boolean isSkippingBlankLines = true
-
     /**
-     * Check weather the line is the start of the block,
-     * if yes, some necessary information is saved in the header.
-     *
-     * @param line the next line
-     * @param header the new block header to fill
-     * @param expected whether the type of the block of this plugin parses
-     *        is expected by the parent parser, or the parent parser just
-     *        does the wild guess
+     * Whether to skip blank lines before the block
      */
-    boolean checkStart(String line, BlockHeader header, boolean expected) {
-        return doCheckStart(line, header, expected)
-    }
+    protected boolean isSkippingBlankLines = true
 
     /**
      * Parse the block based on current context
@@ -74,38 +63,33 @@ abstract class BlockParserPlugin extends ParserPlugin {
             return null
         }
 
-        /*
-        block.parent = parent
-        block.document = parent?.document
-
-        context.blockHeader = null
-
-        context.parent = block
-        context.parser = this
-
-        context.push()
-
-        // parsing the child
-        def children = parseChildren(context, block)
-
-        context.pop()
-
-        block.children.addAll(children)
-        */
-
         log.debug('Parsing block {}, parent type {}, parent seq {}...Done',
                   nodeType, parent?.type, parent?.seq)
 
         return block
     }
 
+    /**
+     * Check weather the line is the start of the block,
+     * if yes, some necessary information is saved in the header.
+     *
+     * @param line the next line
+     * @param header the new block header to fill
+     * @param expected whether the type of the block of this plugin parses
+     *        is expected by the parent parser, or the parent parser just
+     *        does the wild guess
+     */
+    boolean checkStart(String line, BlockHeader header, boolean expected) {
+        return doCheckStart(line, header, expected)
+    }
+
+    abstract protected boolean doCheckStart(String line, BlockHeader header, boolean expected)
+
     BlockParserPlugin getNextChildParser(ParserContext context) {
         return doGetNextChildParser(context, context.block)
     }
 
-    protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block) {
-        return null
-    }
+    abstract protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block)
 
     /**
      * Create the block from current context, especially from current block header
@@ -114,17 +98,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
         return doCreateBlock(context, parent, header)
     }
 
-    protected List<Node> parseChildren(ParserContext context, Block parent) {
-        return doParseChildren(context, parent);
-    }
-
-    /**
-     * Check whether the expected block from the block header is valid
-     * for current block
-     */
-    protected boolean isValidChild(ParserContext context, Block parent, BlockHeader header) {
-        return doIsValidChild(context, parent, header);
-    }
+    abstract protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header)
 
     /**
      * This block parser should determine whether to end the current child
@@ -132,16 +106,6 @@ abstract class BlockParserPlugin extends ParserPlugin {
      */
     protected boolean toEndParagraph(ParserContext context, String line) {
         return doToEndParagraph(context, line)
-    }
-
-    abstract protected boolean doCheckStart(String line, BlockHeader header, boolean expected)
-
-    abstract protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header)
-
-    abstract protected List<Node> doParseChildren(ParserContext context, Block parent)
-
-    protected boolean doIsValidChild(ParserContext context, Block parent, BlockHeader header) {
-        return true
     }
 
     protected boolean doToEndParagraph(ParserContext context, String line) {
@@ -246,42 +210,6 @@ abstract class BlockParserPlugin extends ParserPlugin {
        context.blockHeader = header
 
         return header
-    }
-
-    /**
-     * Utility to get a list of blocks
-     */
-    protected List<Block> parseBlocks(ParserContext context, Block parent) {
-        log.debug('Parsing blocks for parent type: {}...', parent?.type)
-
-        def blocks = []
-
-        def stop = false
-        while (true) {
-            def header = context.blockHeader
-            if (header == null) {
-                header = nextBlockHeader(context)
-            }
-
-            if (header == null) {
-                break
-            }
-
-            if (!checkIsValidChild(context, block, header)) {
-                break
-            }
-
-            def block = header.parserPlugin.parse(context)
-            if (block == null) {
-                break
-            }
-
-            blocks << block
-        }
-
-        log.debug('Parsing blocks for parent type: {}...Done', parent?.type)
-
-        return blocks
     }
 
     /**

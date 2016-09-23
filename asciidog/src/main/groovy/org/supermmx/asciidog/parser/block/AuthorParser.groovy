@@ -91,33 +91,11 @@ ${AUTHOR_REGEX}
             block << author
         }
 
+        reader.nextLine()
+
         // no child parsers
 
         return null
-    }
-
-    @Override
-    protected boolean doIsValidChild(ParserContext context, Block block, BlockHeader header) {
-        return false
-    }
-
-    @Override
-    protected List<Node> doParseChildren(ParserContext context, Block parent) {
-        def reader = context.reader
-
-        def children = []
-
-        def line = reader.nextLine()
-
-        line.split(';').each {
-            def author = createAuthor(it)
-            author.parent = parent
-            author.document = parent?.document
-
-            children << author
-        }
-
-        return children
     }
 
     /**

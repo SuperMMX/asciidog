@@ -37,17 +37,21 @@ class Parser {
         Block rootBlock = null
         def parser = context.parser
 
-        while (parser != null) {
+        while (true) {
             def parent = context.parent
 
-            log.debug('Parser = {}, parent = {}',
-                     parser.getClass(), parent?.getClass())
+            log.trace('Parser = {}, parent = {}',
+                      parser?.getClass(), parent?.getClass())
 
             def block = context.block
+            log.trace('Block class = {}, title = {}',
+                      block?.getClass(), block?.title)
 
             // create the new block
             if (block == null) {
                 block = parser.parse(context)
+                log.trace('New block class = {}, title = {}',
+                          block?.getClass(), block?.title)
 
                 if (block != null) {
                     block.parent = parent
@@ -69,6 +73,7 @@ class Parser {
                 childParser = parser.getNextChildParser(context)
 
                 if (childParser != null) {
+                    log.trace('Push current context')
                     context.push()
 
                     context.parser = childParser
@@ -76,13 +81,17 @@ class Parser {
                 }
             }
 
+            log.trace('Next child parser = {}', childParser?.getClass())
+
             // back to root and there are no more child parers
             if (parent == null && childParser == null) {
+                log.trace('No more parsing...')
                 break
             }
 
             // fail to create the block or there are no more child parsers
             if (block == null || childParser == null) {
+                log.trace('Pop next context stack')
                 context.pop()
             }
 

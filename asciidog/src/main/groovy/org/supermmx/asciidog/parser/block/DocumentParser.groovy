@@ -48,14 +48,8 @@ class DocumentParser extends BlockParserPlugin {
         def reader = context.reader
 
         def title = header.properties[HEADER_PROPERTY_DOCUMENT_TITLE]
-        Document doc = new Document()
+        Document doc = new Document(title: title)
 
-        /*
-        doc.parent = null
-        doc.document = doc
-
-        context.document = doc
-        */
         reader.nextLine()
 
         // make ready for child parsers
@@ -69,77 +63,19 @@ class DocumentParser extends BlockParserPlugin {
 
         def lastParser = context.lastParser
 
+        log.debug('Last child paser = {}', lastParser?.getClass())
         if (lastParser == null) {
-            childParser = PluginRegistry.instance.getPlugin(AuthorParser.ID)
-            /*
-        } else if (lastParser in AuthorParser) {
-            childParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
-        } else if (lastParser in SectionParser) {
-            childParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
-            */
+            childParser = PluginRegistry.instance.getPlugin(HeaderParser.ID)
+        } else if (lastParser in HeaderParser || lastParser in SectionParser) {
+            def header = nextBlockHeader(context)
+            if (header?.type == Node.Type.SECTION) {
+                childParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
+            }
         }
 
         context.lastParser = childParser
-    }
 
-    @Override
-    protected boolean doIsValidChild(ParserContext context, Block block, BlockHeader header) {
-        def doc = block
-
-        // article doctype
-        def valid = (header.type == NodeType.SECTION)
-
-        return valid
-    }
-
-    @Override
-    protected List<Node> doParseChildren(ParserContext context, Block parent) {
-        def children = []
-
-        def doc = parent
-
-        def docHeader = new Header(parent: parent, document: parent?.document)
-        children << docHeader
-
-        def isFullDoc = true
-
-        if (isFullDoc) {
-            // full document that expects document headers,
-            // then sections
-
-            // authors
-            AuthorParser authorParser =
-                PluginRegistry.instance.getPlugin(AuthorParser.ID)
-            Authors authors = authorParser.parse(context)
-            if (authors) {
-                docHeader << authors
-            }
-
-            //TODO: revision
-
-            // attributes
-
-            // preamble
-
-            // sections
-            SectionParser sectionParser =
-                PluginRegistry.instance.getPlugin(SectionParser.ID)
-
-            def section = null
-
-            // FIXME: depending on the doc type
-            context.expectedSectionLevel = 1
-
-            while ((section = sectionParser.parse(context)) != null) {
-                children << section
-            }
-
-        } else {
-            // simple document that expects blocks including sections
-
-            // any block
-        }
-
-        return children
+        log.info('Child parser = {}', childParser?.getClass())
+        return childParser
     }
 }
