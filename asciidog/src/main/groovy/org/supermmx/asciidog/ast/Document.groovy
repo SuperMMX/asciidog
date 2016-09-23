@@ -45,6 +45,9 @@ class Document extends Block {
 
     Document() {
         type = Node.Type.DOCUMENT
+
+        // excluded fields in toString
+        excludes = ['header', 'preamble', 'references']
     }
 
     Header getHeader() {
