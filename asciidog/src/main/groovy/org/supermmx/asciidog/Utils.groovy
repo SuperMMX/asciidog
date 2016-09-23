@@ -3,6 +3,12 @@ package org.supermmx.asciidog
 import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.Node
 
+import groovy.util.logging.Slf4j
+
+import org.slf4j.Logger
+
+@Slf4j
+@Slf4j(value='userLog', category="AsciiDog")
 class Utils {
     /**
      * Gerneate id for the node
@@ -18,6 +24,10 @@ class Utils {
     }
 
     public static String normalizeId(String id) {
+        if (id == null) {
+            return null
+        }
+
         StringBuilder sb = new StringBuilder()
 
         def first = true

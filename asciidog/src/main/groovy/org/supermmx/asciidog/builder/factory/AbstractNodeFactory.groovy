@@ -41,7 +41,7 @@ abstract class AbstractNodeFactory extends AbstractFactory {
     @Override
     void setParent(FactoryBuilderSupport builder, parent, child) {
         child.parent = parent
-        child.document = parent.document
+        child.document = parent?.document
 
         // update references when the id is not null
         if (child.id != null) {
@@ -53,14 +53,6 @@ abstract class AbstractNodeFactory extends AbstractFactory {
 
     @Override
     boolean onHandleNodeAttributes(FactoryBuilderSupport builder, Object node, Map attributes) {
-        // generate default ids
-        if (node in Section) {
-            if (attributes['id'] == null) {
-                // Update ID
-                Utils.generateId(node)
-            }
-        }
-
         return true
     }
 

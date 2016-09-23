@@ -1,9 +1,12 @@
 package org.supermmx.asciidog.parser.block
 
 import org.supermmx.asciidog.AsciidogSpec
+import org.supermmx.asciidog.Parser
 
 class SectionParserSpec extends AsciidogSpec {
-    def 'is section'() {
+    def sectionParser = new SectionParser()
+
+    def 'static: is section'() {
         expect:
         [ level, title ] == SectionParser.isSection(line)
 
@@ -22,4 +25,19 @@ class SectionParserSpec extends AsciidogSpec {
         5     | 'Level 5'  | '====== Level 5'
     }
 
+    def 'standalone: simple section'() {
+        given:
+        def content = '== Section Title'
+        def expectedSection = builder.section(level: 1, title: 'Section Title')
+
+        def context = parserContext(content)
+        context.parser = sectionParser
+        context.expectedSectionLevel = 1
+
+        when:
+        def section = Parser.parse(context)
+
+        then:
+        section == expectedSection
+    }
 }

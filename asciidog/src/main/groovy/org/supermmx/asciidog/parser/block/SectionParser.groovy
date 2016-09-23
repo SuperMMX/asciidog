@@ -1,6 +1,7 @@
 package org.supermmx.asciidog.parser.block
 
 import org.supermmx.asciidog.Reader
+import org.supermmx.asciidog.Utils
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
@@ -74,6 +75,7 @@ class SectionParser extends BlockParserPlugin {
         fillBlockFromHeader(section, header)
 
         section.title = title
+        Utils.generateId(section)
 
         return section
     }
@@ -92,10 +94,7 @@ class SectionParser extends BlockParserPlugin {
             def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
             if (level <= section.level) {
                 childParser = null
-            } else if (level > section.level + 1) {
-                // TODO: print errors
-                childParser = null
-            } else {
+            } else if (level >= section.level + 1) {
                 context.expectedSectionLevel = section.level + 1
             }
         }
