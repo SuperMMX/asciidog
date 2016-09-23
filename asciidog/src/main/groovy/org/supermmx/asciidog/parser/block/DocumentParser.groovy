@@ -75,7 +75,7 @@ class DocumentParser extends BlockParserPlugin {
 
         context.lastParser = childParser
 
-        log.info('Child parser = {}', childParser?.getClass())
+        log.debug('Child parser = {}', childParser?.getClass())
         return childParser
     }
 }

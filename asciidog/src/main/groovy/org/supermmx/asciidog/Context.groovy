@@ -43,7 +43,7 @@ trait Context {
     /**
      * Pop the previous context to replace current one
      */
-    void boolean pop() {
+    boolean pop() {
         def pop = (stack.size() > 0)
         if (pop) {
             properties = stack.pop()
