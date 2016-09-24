@@ -19,22 +19,24 @@ class Node {
     static class Type {
         static final NODE = new Type(name: 'node', isAbstract: true)
 
-        static final BLOCK = new Type(parent: NODE, name: 'block', isAbstract: true)
-        static final INLINE = new Type(parent: NODE, name: 'inline', isAbstract: true)
+        static final ABSTRACT_BLOCK = new Type(parent: NODE, name: 'abstract_block', isAbstract: true)
+        static final STRUCTURE_BLOCK = new Type(parent: ABSTRACT_BLOCK, name: 'structure_block', isAbstract: true)
+        static final BLOCK = new Type(parent: ABSTRACT_BLOCK, name: 'block', isAbstract: true)
         static final ACTION = new Type(parent: BLOCK, name: 'action', isAbstract: true, isAction: true)
         static final LIST = new Type(parent: BLOCK, name: 'list', isAbstract: true)
+        static final INLINE = new Type(parent: NODE, name: 'inline', isAbstract: true)
 
         static final AUTHORS = new Type(parent: BLOCK, name: 'authors')
         static final BLANK = new Type(parent: BLOCK, name: 'blank')
         static final COMMENT_LINE = new Type(parent: BLOCK, name: 'comment_line')
-        static final DOCUMENT = new Type(parent: BLOCK, name: 'document')
-        static final HEADER = new Type(parent: BLOCK, name: 'header')
+        static final DOCUMENT = new Type(parent: STRUCTURE_BLOCK, name: 'document')
+        static final HEADER = new Type(parent: STRUCTURE_BLOCK, name: 'header')
         static final LIST_ITEM = new Type(parent: BLOCK, name: 'list_item')
         static final MACRO = new Type(parent: BLOCK, name: 'macro')
         static final PARAGRAPH = new Type(parent: BLOCK, name: 'paragraph')
-        static final PREAMBLE = new Type(parent: BLOCK, name: 'preamble')
-        static final REVISION = new Type(parent: BLOCK, name: 'revision')
-        static final SECTION = new Type(parent: BLOCK, name: 'section')
+        static final PREAMBLE = new Type(parent: STRUCTURE_BLOCK, name: 'preamble')
+        static final REVISION = new Type(parent: STRUCTURE_BLOCK, name: 'revision')
+        static final SECTION = new Type(parent: STRUCTURE_BLOCK, name: 'section')
         static final TABLE = new Type(parent: BLOCK, name: 'table')
 
         static final ATTRIBUTE_REFERENCE = new Type(parent: INLINE, name: 'attribute_reference')
@@ -70,8 +72,20 @@ class Node {
          */
         String name
 
-        static boolean isCase(Type caseValue, Type switchValue) {
-            return (caseValue.name == switchValue.name)
+        static boolean isCase(Type switchType, Type caseType) {
+            def type = switchType
+            while (type != null) {
+                if (type == caseType) {
+                    break
+                }
+
+                type = type.parent
+            }
+            return (type != null)
+        }
+
+        boolean isBlock() {
+            reutrn isCase(this, BLOCK)
         }
 
         boolean isInline() {

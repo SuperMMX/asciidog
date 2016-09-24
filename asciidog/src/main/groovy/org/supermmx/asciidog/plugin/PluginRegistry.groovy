@@ -65,9 +65,11 @@ class PluginRegistry {
 
         def configs = PluginRegistry.class.getClassLoader().getResources('asciidog.groovy')
         configs.each { URL url ->
+            userLog.info('[PLUGIN] Loading AsciiDog Plugin from', url)
             def config = configSlurper.parse(url)
+            log.debug('Plugin config = {}', config)
 
-            userLog.info("[PLUGIN] Loading plugins from plugin \"{}\"...", config.asciidog.name)
+            userLog.info('[PLUGIN] Loading plugins from plugin \"{}\"...', config.asciidog.name)
 
             // suite first
             def suiteCls = config.asciidog.suite
@@ -134,15 +136,27 @@ class PluginRegistry {
         return plugins.findAll(condition)
     }
 
-    List<InlineParserPlugin> getInlineParserPlugins() {
+    List<InlineParserPlugin> getInlineParsers() {
         return plugins.findAll { plugin ->
             plugin.nodeType?.isInline() && plugin.type == Plugin.Type.PARSER
         }
     }
 
-    List<BlockParserPlugin> getBlockParserPlugins() {
+    List<BlockParserPlugin> getAllBlockParsers() {
         return plugins.findAll { plugin ->
             !plugin.nodeType?.isInline() && plugin.type == Plugin.Type.PARSER
+        }
+    }
+
+    /**
+     * Return all the normal blocks (non-document, non-structure blocks), except paragraph
+     */
+    List<BlockParserPlugin> getBlockParsers() {
+        return plugins.findAll { plugin ->
+            !plugin.nodeType?.isInline() &&
+            plugin.type == Plugin.Type.PARSER &&
+            plugin.nodeType.isBlock() &&
+            plugin.nodeType != Node.Type.PARAGRAPH
         }
     }
 }
