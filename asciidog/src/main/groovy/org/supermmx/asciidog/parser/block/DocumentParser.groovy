@@ -67,7 +67,7 @@ class DocumentParser extends BlockParserPlugin {
         if (lastParser == null) {
             childParser = PluginRegistry.instance.getPlugin(HeaderParser.ID)
         } else if (lastParser in HeaderParser || lastParser in SectionParser) {
-            def header = nextBlockHeader(context)
+            def header = nextBlockHeader(context, true)
             if (header?.type == Node.Type.SECTION) {
                 childParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
             }

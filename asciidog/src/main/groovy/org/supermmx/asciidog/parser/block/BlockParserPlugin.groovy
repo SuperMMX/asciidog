@@ -63,6 +63,8 @@ abstract class BlockParserPlugin extends ParserPlugin {
             return null
         }
 
+        context.blockHeader = null
+
         log.debug('Parsing block {}, parent type {}, parent seq {}...Done',
                   nodeType, parent?.type, parent?.seq)
 
@@ -156,8 +158,13 @@ abstract class BlockParserPlugin extends ParserPlugin {
      * Utility to get next block header that is used to parse content further.
      * The id, attribute, title are read, but not the block start line.
      * These will determine what type the next block is.
+     *
+     * @param context the parser context
+     * @param withSection whether to try to parse sections
+     *
+     * @return the block header and save into the context
      */
-    protected BlockHeader nextBlockHeader(ParserContext context) {
+    protected BlockHeader nextBlockHeader(ParserContext context, boolean withSection) {
         def reader = context.reader
 
         log.debug('Start parsing block header...')
@@ -172,6 +179,16 @@ abstract class BlockParserPlugin extends ParserPlugin {
                 break
             }
 
+            log.debug('line = {}', line)
+            if (withSection) {
+                SectionParser sectionParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
+                if (sectionParser.checkStart(line, header, false)) {
+                    header.parserPlugin = sectionParser
+
+                    break
+                }
+            }
+
             // go through all block parsers to determine what block it is
             for (BlockParserPlugin plugin: PluginRegistry.instance.getBlockParserPlugins()) {
                 log.info('=== plugin Id: {}', plugin)
@@ -181,6 +198,8 @@ abstract class BlockParserPlugin extends ParserPlugin {
                     break
                 }
             }
+
+            // TODO: try paragraph
 
             if (header.stop) {
                 break
