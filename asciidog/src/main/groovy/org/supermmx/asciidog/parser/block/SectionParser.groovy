@@ -59,6 +59,8 @@ class SectionParser extends BlockParserPlugin {
         def level = header.properties[(HEADER_PROPERTY_SECTION_LEVEL)]
         def title = header.properties[(HEADER_PROPERTY_SECTION_TITLE)]
 
+        def reader = context.reader
+
         // check the parsed level and the expected level
         def expectedLevel = context.expectedSectionLevel
         if (level != expectedLevel) {
@@ -77,6 +79,8 @@ class SectionParser extends BlockParserPlugin {
         section.title = title
         Utils.generateId(section)
 
+        reader.nextLine()
+
         return section
     }
 
@@ -85,17 +89,22 @@ class SectionParser extends BlockParserPlugin {
 
         BlockHeader header = context.blockHeader
         if (header == null) {
-            header = nextBlockHeader(context)
+            header = nextBlockHeader(context, true)
         }
 
-        BlockParserPlugin childParser = header.parserPlugin
-        if (header.type == Node.Type.SECTION) {
-            // check level
-            def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
-            if (level <= section.level) {
-                childParser = null
-            } else if (level >= section.level + 1) {
-                context.expectedSectionLevel = section.level + 1
+        BlockParserPlugin childParser = null
+
+        if (header != null && header.type != null) {
+            childParser = header.parserPlugin
+
+            if (header.type == Node.Type.SECTION) {
+                // check level
+                def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
+                if (level <= section.level) {
+                    childParser = null
+                } else if (level >= section.level + 1) {
+                    context.childParserProps.expectedSectionLevel = section.level + 1
+                }
             }
         }
 

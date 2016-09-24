@@ -27,7 +27,6 @@ class SectionFactory extends AbstractBlockFactory {
 
     @Override
     boolean onHandleNodeAttributes(FactoryBuilderSupport builder, Object node, Map attributes) {
-        log.info('section handle node attributes')
         def id = attributes['id']
         def title = attributes['title']
         if (id == null) {

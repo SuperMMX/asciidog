@@ -40,4 +40,48 @@ class SectionParserSpec extends AsciidogSpec {
         then:
         section == expectedSection
     }
+
+    def 'standalone: section with wrong level'() {
+        given:
+        def content = '== Section Title'
+
+        def context = parserContext(content)
+        context.parser = sectionParser
+        context.expectedSectionLevel = level
+
+        when:
+        def section = Parser.parse(context)
+
+        then:
+        section == null
+
+        where:
+        level | value
+        0     | null
+        2     | null
+    }
+
+    def 'standalone: section with sub sections'() {
+        given:
+        def content = '''== Section Title
+
+=== Sub Section
+
+=== Another Sub Section
+'''
+        def expectedSection = builder.section(level: 1, title: 'Section Title') {
+            section(level: 2, title: 'Sub Section')
+            section(level: 2, title: 'Another Sub Section')
+        }
+
+        def context = parserContext(content)
+        context.parser = sectionParser
+        context.expectedSectionLevel = 1
+
+        when:
+        def section = Parser.parse(context)
+
+        then:
+        section == expectedSection
+    }
 }
