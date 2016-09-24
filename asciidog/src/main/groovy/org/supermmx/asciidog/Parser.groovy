@@ -70,6 +70,8 @@ class Parser {
             // get next child parser
             def childParser = null
             if (block != null) {
+                context.childParserProps.clear()
+
                 childParser = parser.getNextChildParser(context)
 
                 if (childParser != null) {
@@ -78,6 +80,8 @@ class Parser {
 
                     context.parser = childParser
                     context.parent = block
+                    context.properties.putAll(context.childParserProps)
+                    context.childParserProps.clear()
                 }
             }
 

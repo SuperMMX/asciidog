@@ -16,8 +16,16 @@ class ParserContext implements Context {
 
     Document document
 
-    Node currentNode
+    /**
+     * The block header for current parser
+     */
     BlockHeader blockHeader
+
+    /**
+     * The properties set by getNextChildParser and will be copied
+     * to the context properties when the child parser is parsing
+     */
+    def childParserProps = [:]
 
     // parent
     // block
