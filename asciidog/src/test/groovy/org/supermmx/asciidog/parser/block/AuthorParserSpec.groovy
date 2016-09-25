@@ -102,7 +102,7 @@ class AuthorParserSpec extends AsciidogSpec {
     def 'standalone: parse authors'() {
         given:
         def context = parserContext(content)
-        context.parser = authorParser
+        context.parserId = AuthorParser.ID
 
         when:
         def authors = Parser.parse(context)
@@ -143,7 +143,7 @@ Stuart Rackham <founder@asciidoc.org>; Dan Allen <dan.j.allen@gmail.com>'''
         }
 
         def context = parserContext(content)
-        context.parser = new DocumentParser()
+        context.parserId = DocumentParser.ID
 
         when:
         def doc = Parser.parse(context)

@@ -34,16 +34,16 @@ class HeaderParser extends BlockParserPlugin {
     }
 
     @Override
-    protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block) {
+    protected String doGetNextChildParser(ParserContext context, Block block) {
         def childParser = null
 
-        def lastParser = context.lastParser
+        def lastParser = context.lastParserId
 
         if (lastParser == null) {
-            childParser = PluginRegistry.instance.getPlugin(AuthorParser.ID)
+            childParser = AuthorParser.ID
         }
 
-        context.lastParser = childParser
+        context.lastParserId = childParser
 
         return childParser
     }

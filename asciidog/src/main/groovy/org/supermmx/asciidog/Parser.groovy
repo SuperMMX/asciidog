@@ -35,13 +35,15 @@ import org.slf4j.Logger
 class Parser {
     static Node parse(ParserContext context) {
         Block rootBlock = null
-        def parser = context.parser
+        def parserId = context.parserId
 
-        while (true) {
+        while (parserId != null) {
             def parent = context.parent
 
             log.trace('Parser = {}, parent = {}',
-                      parser?.getClass(), parent?.getClass())
+                      parserId, parent?.getClass())
+
+            def parser = PluginRegistry.instance.getPlugin(parserId)
 
             def block = context.block
             log.trace('Block class = {}, title = {}',
@@ -68,38 +70,38 @@ class Parser {
             }
 
             // get next child parser
-            def childParser = null
+            def childParserId = null
             if (block != null) {
                 context.childParserProps.clear()
 
-                childParser = parser.getNextChildParser(context)
+                childParserId = parser.getNextChildParser(context)
 
-                if (childParser != null) {
+                if (childParserId != null) {
                     log.trace('Push current context')
                     context.push()
 
-                    context.parser = childParser
+                    context.parserId = childParserId
                     context.parent = block
                     context.properties.putAll(context.childParserProps)
                     context.childParserProps.clear()
                 }
             }
 
-            log.trace('Next child parser = {}', childParser?.getClass())
+            log.trace('Next child parser = {}', childParserId)
 
             // back to root and there are no more child parers
-            if (parent == null && childParser == null) {
+            if (parent == null && childParserId == null) {
                 log.trace('No more parsing...')
                 break
             }
 
             // fail to create the block or there are no more child parsers
-            if (block == null || childParser == null) {
+            if (block == null || childParserId == null) {
                 log.trace('Pop next context stack')
                 context.pop()
             }
 
-            parser = context.parser
+            parserId = context.parserId
         }
 
         return rootBlock

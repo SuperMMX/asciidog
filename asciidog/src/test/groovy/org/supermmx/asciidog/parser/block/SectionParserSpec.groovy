@@ -31,7 +31,7 @@ class SectionParserSpec extends AsciidogSpec {
         def expectedSection = builder.section(level: 1, title: 'Section Title')
 
         def context = parserContext(content)
-        context.parser = sectionParser
+        context.parserId = SectionParser.ID
         context.expectedSectionLevel = 1
 
         when:
@@ -46,7 +46,7 @@ class SectionParserSpec extends AsciidogSpec {
         def content = '== Section Title'
 
         def context = parserContext(content)
-        context.parser = sectionParser
+        context.parserId = SectionParser.ID
         context.expectedSectionLevel = level
 
         when:
@@ -75,7 +75,7 @@ class SectionParserSpec extends AsciidogSpec {
         }
 
         def context = parserContext(content)
-        context.parser = sectionParser
+        context.parserId = SectionParser.ID
         context.expectedSectionLevel = 1
 
         when:

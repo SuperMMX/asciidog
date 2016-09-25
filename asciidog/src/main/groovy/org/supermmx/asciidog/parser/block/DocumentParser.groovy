@@ -8,6 +8,9 @@ import org.supermmx.asciidog.ast.Header
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.block.HeaderParser
+import org.supermmx.asciidog.parser.block.PreambleParser
+import org.supermmx.asciidog.parser.block.SectionParser
 import org.supermmx.asciidog.plugin.PluginRegistry
 
 import groovy.util.logging.Slf4j
@@ -20,6 +23,10 @@ class DocumentParser extends BlockParserPlugin {
     static final String HEADER_PROPERTY_DOCUMENT_TITLE = 'docTitle'
 
     static final String ID = 'plugin:parser:block:document'
+
+    private HeaderParser headerParser
+    private PreambleParser preambleParser
+    private SectionParser sectionParser
 
     DocumentParser() {
         nodeType = Node.Type.DOCUMENT
@@ -52,30 +59,34 @@ class DocumentParser extends BlockParserPlugin {
 
         reader.nextLine()
 
-        // make ready for child parsers
-        context.lastParser = null
+        PluginRegistry pluginRegistry = PluginRegistry.instance
+        headerParser = pluginRegistry.getPlugin(HeaderParser.ID)
+        preambleParser = pluginRegistry.getPlugin(PreambleParser.ID)
+        sectionParser = pluginRegistry.getPlugin(SectionParser.ID)
 
         return doc
     }
 
-    protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block) {
+    @Override
+    protected String doGetNextChildParser(ParserContext context, Block block) {
         def childParser = null
 
-        def lastParser = context.lastParser
+        def lastParser = context.lastParserId
 
-        log.debug('Last child paser = {}', lastParser?.getClass())
+        log.debug('Last child paser = {}', lastParser)
         if (lastParser == null) {
-            childParser = PluginRegistry.instance.getPlugin(HeaderParser.ID)
-        } else if (lastParser in HeaderParser || lastParser in SectionParser) {
+            childParser = HeaderParser.ID
+        } else if (lastParser == HeaderParser.ID
+                   || lastParser == SectionParser.ID) {
             def header = nextBlockHeader(context, true)
             if (header?.type == Node.Type.SECTION) {
-                childParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
+                childParser = SectionParser.ID
             }
         }
 
-        context.lastParser = childParser
+        context.lastParserId = childParser
 
-        log.debug('Child parser = {}', childParser?.getClass())
+        log.debug('Child parser = {}', childParser)
         return childParser
     }
 }

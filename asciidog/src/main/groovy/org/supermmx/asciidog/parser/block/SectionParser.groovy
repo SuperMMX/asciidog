@@ -84,7 +84,7 @@ class SectionParser extends BlockParserPlugin {
         return section
     }
 
-    protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block) {
+    protected String doGetNextChildParser(ParserContext context, Block block) {
         Section section = block
 
         BlockHeader header = context.blockHeader
@@ -92,10 +92,10 @@ class SectionParser extends BlockParserPlugin {
             header = nextBlockHeader(context, true)
         }
 
-        BlockParserPlugin childParser = null
+        String childParser = null
 
         if (header != null && header.type != null) {
-            childParser = header.parserPlugin
+            childParser = header.parserId
 
             if (header.type == Node.Type.SECTION) {
                 // check level

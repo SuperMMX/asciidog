@@ -87,12 +87,6 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
     abstract protected boolean doCheckStart(String line, BlockHeader header, boolean expected)
 
-    BlockParserPlugin getNextChildParser(ParserContext context) {
-        return doGetNextChildParser(context, context.block)
-    }
-
-    abstract protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block)
-
     /**
      * Create the block from current context, especially from current block header
      */
@@ -101,6 +95,15 @@ abstract class BlockParserPlugin extends ParserPlugin {
     }
 
     abstract protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header)
+
+    /**
+     * Get the next child parser
+     */
+    String getNextChildParser(ParserContext context) {
+        return doGetNextChildParser(context, context.block)
+    }
+
+    abstract protected String doGetNextChildParser(ParserContext context, Block block)
 
     /**
      * This block parser should determine whether to end the current child
@@ -126,7 +129,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
         static final String COMMENT_LINE_COMMENT = 'comment'
 
         Node.Type type
-        BlockParserPlugin parserPlugin
+        String parserId
 
         def id
         def title
@@ -183,7 +186,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
             if (withSection) {
                 SectionParser sectionParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
                 if (sectionParser.checkStart(line, header, false)) {
-                    header.parserPlugin = sectionParser
+                    header.parserId = sectionParser.id
 
                     break
                 }
@@ -193,7 +196,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
             for (BlockParserPlugin plugin: PluginRegistry.instance.getBlockParserPlugins()) {
                 log.info('=== plugin Id: {}', plugin)
                 if (plugin.checkStart(line, header, false)) {
-                    header.parserPlugin = plugin
+                    header.parserId = plugin.id
 
                     break
                 }

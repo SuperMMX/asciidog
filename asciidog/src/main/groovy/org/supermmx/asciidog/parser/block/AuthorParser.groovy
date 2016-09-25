@@ -77,7 +77,7 @@ ${AUTHOR_REGEX}
         return authors
     }
 
-    protected BlockParserPlugin doGetNextChildParser(ParserContext context, Block block) {
+    protected String doGetNextChildParser(ParserContext context, Block block) {
         // create child nodes
         def reader = context.reader
 
