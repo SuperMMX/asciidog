@@ -27,8 +27,32 @@ class ParserContext implements Context {
      */
     def childParserProps = [:]
 
+    /**
+     * The parent block
+     */
     // parent
+
+    /**
+     * The current block
+     */
     // block
-    // parser
+
+    /**
+     * The child parser ID
+     */
+    // parserId
+
+    /**
+     * Whether to pass the header to child after creating the block
+     */
+    // keepHeader
+
+    /**
+     * Whether this parser is spected by the parent parser, normally
+     * this property is set into context.childParserProps in parent's
+     * getNextChildParser()
+     */
+    //expected
+
     // other custom properties
 }
