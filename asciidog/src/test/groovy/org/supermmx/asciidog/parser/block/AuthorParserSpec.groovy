@@ -103,6 +103,7 @@ class AuthorParserSpec extends AsciidogSpec {
         given:
         def context = parserContext(content)
         context.parserId = AuthorParser.ID
+        context.expected = true
 
         when:
         def authors = Parser.parse(context)

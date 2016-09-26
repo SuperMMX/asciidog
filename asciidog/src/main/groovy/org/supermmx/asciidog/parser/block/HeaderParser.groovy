@@ -40,6 +40,7 @@ class HeaderParser extends BlockParserPlugin {
         def lastParser = context.lastParserId
 
         if (lastParser == null) {
+            context.childParserProps.expected = true
             childParser = AuthorParser.ID
         }
 

@@ -73,14 +73,19 @@ class DocumentParser extends BlockParserPlugin {
 
         def lastParser = context.lastParserId
 
-        log.debug('Last child paser = {}', lastParser)
+        log.debug('Last child parser = {}', lastParser)
         if (lastParser == null) {
             childParser = HeaderParser.ID
-        } else if (lastParser == HeaderParser.ID
-                   || lastParser == SectionParser.ID) {
-            def header = nextBlockHeader(context, true)
+            context.childParserProps.expected = true
+        } else {
+            def header = nextBlockHeader(context)
+
             if (header?.type == Node.Type.SECTION) {
+                // FIXME: expectedSectionLevel
                 childParser = SectionParser.ID
+            } else if (header?.type != null){
+                context.childParserProps.expected = true
+                childParser = PreambleParser.ID
             }
         }
 

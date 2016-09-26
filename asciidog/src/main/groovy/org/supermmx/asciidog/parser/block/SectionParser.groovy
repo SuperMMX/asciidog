@@ -89,7 +89,7 @@ class SectionParser extends BlockParserPlugin {
 
         BlockHeader header = context.blockHeader
         if (header == null) {
-            header = nextBlockHeader(context, true)
+            header = nextBlockHeader(context)
         }
 
         String childParser = null
