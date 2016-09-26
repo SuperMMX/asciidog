@@ -85,7 +85,7 @@ class Node {
         }
 
         boolean isBlock() {
-            reutrn isCase(this, BLOCK)
+            return isCase(this, BLOCK)
         }
 
         boolean isInline() {
