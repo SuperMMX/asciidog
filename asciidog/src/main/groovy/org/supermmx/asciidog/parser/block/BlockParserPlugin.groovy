@@ -44,7 +44,9 @@ abstract class BlockParserPlugin extends ParserPlugin {
         }
 
         def line = reader.peekLine()
+        log.debug('line = {}', line)
         def isStart = checkStart(line, header, context.expected ?: false)
+        log.debug('check start = {}', isStart)
 
         if (!isStart) {
             return null
@@ -59,6 +61,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
             return null
         }
 
+        log.debug('keepHeader = {}', context.keepHeader)
         if (!context.keepHeader) {
             context.blockHeader = null
         }
@@ -148,6 +151,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
         String toString() {
             return """Block Header:
+  Parser ID: ${parserId}
   Type: ${type}, ID: ${id}, Title: ${title}
   Attributes: ${attributes}
   Properties: ${properties}
@@ -206,11 +210,10 @@ abstract class BlockParserPlugin extends ParserPlugin {
                 }
             }
 
-            // TODO: try paragraph
-
-            if (header.stop) {
-                break
-            }
+            // paragraph as the final result if non matches above
+            header.type = Node.Type.PARAGRAPH
+            header.parserId = ParagraphParser.ID
+            break
         }
 
         log.debug('{}', header)
@@ -233,7 +236,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
             header = null
         }
 
-       context.blockHeader = header
+        context.blockHeader = header
 
         return header
     }

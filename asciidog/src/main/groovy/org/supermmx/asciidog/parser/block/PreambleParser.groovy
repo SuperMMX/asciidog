@@ -49,7 +49,7 @@ class PreambleParser extends BlockParserPlugin {
     protected String doGetNextChildParser(ParserContext context, Block block) {
         def childParser = null
 
-        def header = nextBlockHeader(context, true)
+        def header = nextBlockHeader(context)
 
         if (header?.type != Node.Type.SECTION) {
             childParser = header?.parserId

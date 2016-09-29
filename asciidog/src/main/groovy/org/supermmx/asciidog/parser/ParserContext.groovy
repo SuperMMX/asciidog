@@ -27,6 +27,8 @@ class ParserContext implements Context {
      */
     def childParserProps = [:]
 
+    def paragraphEndingCheckers = []
+
     /**
      * The parent block
      */
