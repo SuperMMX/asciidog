@@ -70,6 +70,8 @@ class SectionParser extends BlockParserPlugin {
             userLog.error('{}: Wrong section level {}, expected level is {}',
                           reader.cursor, level, expectedLevel)
 
+            context.stop = true
+
             return null
         }
 
