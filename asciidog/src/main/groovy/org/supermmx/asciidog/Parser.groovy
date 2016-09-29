@@ -22,6 +22,7 @@ import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.UnOrderedList
 
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.block.DocumentParser
 
 import org.supermmx.asciidog.plugin.Plugin
 import org.supermmx.asciidog.plugin.PluginRegistry
@@ -36,6 +37,10 @@ class Parser {
     static Node parse(ParserContext context) {
         Block rootBlock = null
         def parserId = context.parserId
+        if (parserId == null) {
+            parserId = DocumentParser.ID
+            context.parserId = parserId
+        }
 
         while (parserId != null) {
             def parent = context.parent
@@ -89,6 +94,10 @@ class Parser {
 
             log.trace('Next child parser = {}', childParserId)
 
+            if (context.stop) {
+                log.debug('Stop parsing...')
+                break
+            }
             // back to root and there are no more child parers
             if (parent == null && childParserId == null) {
                 log.trace('No more parsing...')

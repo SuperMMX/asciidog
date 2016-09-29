@@ -8,6 +8,7 @@ import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.parser.block.BlockParserPlugin
 import org.supermmx.asciidog.parser.block.BlockParserPlugin.BlockHeader
+import org.supermmx.asciidog.parser.block.DocumentParser
 
 class ParserContext implements Context {
     Reader reader
@@ -27,7 +28,20 @@ class ParserContext implements Context {
      */
     def childParserProps = [:]
 
+    /**
+     * The parent parsers that will check whether a line indicates
+     * the end of the current paragraph
+     */
     def paragraphEndingCheckers = []
+
+    /**
+     * Whether to stop the parsing immediately
+     */
+    def stop = false
+
+    ParserContext() {
+        properties['parserId'] = DocumentParser.ID
+    }
 
     /**
      * The parent block
