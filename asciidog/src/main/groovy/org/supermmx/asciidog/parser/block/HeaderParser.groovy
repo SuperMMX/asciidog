@@ -19,6 +19,7 @@ class HeaderParser extends BlockParserPlugin {
     HeaderParser() {
         nodeType = Node.Type.HEADER
         id = ID
+        isSkippingBlankLines = false
     }
 
     @Override

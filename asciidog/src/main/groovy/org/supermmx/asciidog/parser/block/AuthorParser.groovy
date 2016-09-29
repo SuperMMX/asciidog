@@ -55,6 +55,7 @@ ${AUTHOR_REGEX}
     AuthorParser() {
         nodeType = Node.Type.AUTHORS
         id = ID
+        isSkippingBlankLines = false
     }
 
     @Override
