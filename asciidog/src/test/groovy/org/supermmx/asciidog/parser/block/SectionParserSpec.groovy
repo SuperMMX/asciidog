@@ -84,4 +84,28 @@ class SectionParserSpec extends AsciidogSpec {
         then:
         section == expectedSection
     }
+
+    def 'document: with sections'() {
+        given:
+        def content = '''= Document Title
+
+== Section Title
+
+== Another Section
+'''
+        def eDoc = builder.document(title: 'Document Title') {
+            header {
+            }
+
+            section(level: 1, title: 'Section Title')
+            section(level: 1, title: 'Another Section')
+        }
+        def context = parserContext(content)
+
+        when:
+        def doc = Parser.parse(context)
+
+        then:
+        doc == eDoc
+    }
 }

@@ -79,4 +79,33 @@ line5
         }
     }
 
+    def 'document: with only preamble'() {
+        given:
+        def content = '''= Document Title
+
+line1
+line2
+
+line3
+line4
+line5
+
+'''
+        def context = parserContext(content)
+        context.parserId = DocumentParser.ID
+
+        when:
+        def doc = Parser.parse(context)
+
+        then:
+        doc == builder.document(title: 'Document Title') {
+            header {
+            }
+
+            preamble {
+                para(lines: [ 'line1', 'line2'])
+                para(lines: [ 'line3', 'line4', 'line5'])
+            }
+        }
+    }
 }

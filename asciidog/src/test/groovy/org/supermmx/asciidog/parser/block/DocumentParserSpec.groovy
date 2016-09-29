@@ -4,17 +4,16 @@ import org.supermmx.asciidog.AsciidogSpec
 import org.supermmx.asciidog.ast.Node
 
 class DocumentParserSpec extends AsciidogSpec {
-    def documentParser = new DocumentParser()
+    def parser = new DocumentParser()
 
-    def 'good start'() {
+    def 'checkStart: good'() {
         given:
 
         def line = '= Title'
-        def header = new BlockParserPlugin.BlockHeader(type: Node.Type.SECTION,
-                                                       properties: [(SectionParser.HEADER_PROPERTY_SECTION_LEVEL): 0,
-                                                                    (SectionParser.HEADER_PROPERTY_SECTION_TITLE): 'Title'])
+        def header = new BlockParserPlugin.BlockHeader()
+
         when:
-        def isStart = documentParser.checkStart(line, header, true)
+        def isStart = parser.checkStart(line, header, true)
 
         then:
         isStart
