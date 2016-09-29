@@ -33,7 +33,7 @@ class DocumentFactory extends AbstractBlockFactory {
             }
         } else if (child in Preamble) {
             if (parent.children.size() == 1) {
-                if (!(parent.blocks[0] in Header)) {
+                if (!(parent.children[0] in Header)) {
                     callSuper = false
                     throw new Exception('"preamble" should be after "header" and before "section"')
                 }
