@@ -5,6 +5,7 @@ import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.plugin.PluginRegistry
 
 import groovy.util.logging.Slf4j
 
@@ -21,39 +22,25 @@ class ParagraphParser extends BlockParserPlugin {
     }
 
     @Override
-    boolean isStart(String line, BlockHeader header) {
+    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
         return (line != null) && (line.trim().length() > 0)
     }
 
     @Override
-    Block parse(ParserContext context) {
+    protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
         def reader = context.reader
-        def parent = context.parent
-        def parentParser = context.parentParser
-        def blockHeader = context.blockHeader
-
-        log.debug('Start parsing paragraph, parent type: {}', parent.type)
-
-        reader.skipBlankLines()
 
         Paragraph para = null
-        context.currentNode = para
 
         def lines = []
 
         def line = reader.peekLine()
 
-        log.debug 'paragraph line = {}', line
+        log.debug('paragraph line = {}', line)
 
         while (line != null && line.length() > 0) {
             if (para == null) {
                 para = new Paragraph()
-                para.parent = parent
-                para.document = parent.document
-
-                fillBlockFromHeader(para, context.blockHeader)
-
-                context.currentNode = para
             }
 
             lines << line
@@ -63,7 +50,12 @@ class ParagraphParser extends BlockParserPlugin {
             line = reader.peekLine()
             log.debug('paragraph line = {}', line)
 
-            if (parentParser.toEndParagraph(context, line)) {
+            def isEnd = false
+            context.paragraphEndingCheckers.reverseEach { parser ->
+                isEnd = parser.toEndParagraph(context, line)
+            }
+
+            if (isEnd) {
                 break
             }
         }
@@ -76,10 +68,11 @@ class ParagraphParser extends BlockParserPlugin {
 
         log.debug('End parsing paragraph, parent type: {}', parent.type)
 
-        if (line == null || line.length() == 0) {
-            blockHeader = null
-        }
-
         return para
+    }
+
+    @Override
+    protected String doGetNextChildParser(ParserContext context, Block block) {
+        return null
     }
 }

@@ -4,27 +4,17 @@ import org.supermmx.asciidog.AsciidogSpec
 import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.plugin.PluginRegistry
 
-class ParagraphParserPluginSpec extends AsciidogSpec{
-    def parser
-    def context
+class ParagraphParserSpec extends AsciidogSpec {
+    def parser = new ParagraphParser()
 
-    def setup() {
-        parser = new ParagraphParser()
-        context = new ParserContext()
+    def 'checkStart: check start of a paragraph'() {
+        given:
 
-        def parent = new Block()
-        def parentParser = Mock(BlockParserPlugin)
-
-        context.blockHeader = new BlockParserPlugin.BlockHeader()
-        context.parents.push(parent)
-        context.parentParsers.push(parentParser)
-
-    }
-
-    def 'is start of a paragraph'() {
         expect:
-        parser.isStart(line, context.blockHeader) == value
+        parser.checkStart(line, null, true) == value
+        parser.checkStart(line, null, false) == value
 
         where:
         line      | value
@@ -35,13 +25,12 @@ class ParagraphParserPluginSpec extends AsciidogSpec{
         null      | false
     }
 
-    def 'normal paragraph'() {
+    def 'standalone: normal paragraph'() {
         given:
         def content = '''first line
 second line'''
-        context.reader = Reader.createFromString(content)
-
-        context.parentParser.toEndParagraph(_, _) >> false
+        def context = parserContext(content)
+        context.parserId = parser.id
 
         when:
         def para = parser.parse(context)
@@ -50,16 +39,27 @@ second line'''
         para.lines == [ 'first line', 'second line' ]
     }
 
-    def 'end paragraph parsing'() {
+    def 'standalone: end paragraph parsing'() {
         given:
         def content = '''first line
 second line
 --
 fourth line'''
-        context.reader = Reader.createFromString(content)
+        def context = parserContext(content)
+        context.parserId = parser.id
 
-        context.parentParser.toEndParagraph(_, '--') >> true
-        context.parentParser.toEndParagraph(_, _) >> false
+        def parentParser = Spy(BlockParserPlugin)
+
+        parentParser.id >> 'parent'
+        parentParser.toEndParagraph(_, '--') >> true
+        parentParser.toEndParagraph(_, _) >> false
+
+        PluginRegistry.instance.register(parentParser)
+        context.parentParserId = 'parent'
+        context.paragraphEndingCheckers << parentParser
+
+        expect:
+        parentParser.id == 'parent'
 
         when:
         def para = parser.parse(context)
@@ -68,7 +68,7 @@ fourth line'''
         para.lines == [ 'first line', 'second line' ]
     }
 
-    def 'blank lines before and after'() {
+    def 'standalone: blank lines before and after'() {
         given:
         def content = '''
 
@@ -77,9 +77,8 @@ second line
 third line
 
 '''
-        context.reader = Reader.createFromString(content)
-
-        context.parentParser.toEndParagraph(_, _) >> false
+        def context = parserContext(content)
+        context.parserId = parser.id
 
         when:
         def para = parser.parse(context)
