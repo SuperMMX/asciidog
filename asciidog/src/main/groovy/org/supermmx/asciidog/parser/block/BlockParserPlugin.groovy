@@ -31,8 +31,8 @@ abstract class BlockParserPlugin extends ParserPlugin {
         def reader = context.reader
 
         def parent = context.parent
-        log.trace('Trying parse block type {} with header {}',
-                  nodeType, header)
+        log.trace('Parser: {}, Trying parse block type {} with header {}',
+                  id, nodeType, header)
 
         if (header == null) {
             header = new BlockHeader()
@@ -44,16 +44,16 @@ abstract class BlockParserPlugin extends ParserPlugin {
         }
 
         def line = reader.peekLine()
-        log.debug('line = {}', line)
+        log.debug('Parser: {}, line = {}', id, line)
         def isStart = checkStart(line, header, context.expected ?: false)
-        log.debug('check start = {}', isStart)
+        log.debug('Parser: {}, check start = {}', id, isStart)
 
         if (!isStart) {
             return null
         }
 
-        log.debug('Parsing block type {}, parent type {}, parent seq {}',
-                  nodeType, parent?.type, parent?.seq)
+        log.debug('Parser: {}, Parsing block type {}, parent type {}, parent seq {}',
+                  id, nodeType, parent?.type, parent?.seq)
 
         // create the block
         Block block = createBlock(context, parent, header)
@@ -61,13 +61,13 @@ abstract class BlockParserPlugin extends ParserPlugin {
             return null
         }
 
-        log.debug('keepHeader = {}', context.keepHeader)
+        log.debug('Parser: {}, keepHeader = {}', id, context.keepHeader)
         if (!context.keepHeader) {
             context.blockHeader = null
         }
 
-        log.debug('Parsing block {}, parent type {}, parent seq {}...Done',
-                  nodeType, parent?.type, parent?.seq)
+        log.debug('Parser: {}, Parsing block {}, parent type {}, parent seq {}...Done',
+                  id, nodeType, parent?.type, parent?.seq)
 
         return block
     }
@@ -179,7 +179,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
         def reader = context.reader
 
-        log.debug('Start parsing block header...')
+        log.debug('Parser: {}, Start parsing block header...', id)
 
         reader.skipBlankLines()
 
@@ -191,7 +191,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
                 break
             }
 
-            log.debug('line = {}', line)
+            log.debug('Parser: {}, line = {}', id, line)
 
             SectionParser sectionParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
             if (sectionParser.checkStart(line, header, false)) {
@@ -202,8 +202,9 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
             // go through all block parsers to determine what block it is
             for (BlockParserPlugin plugin: PluginRegistry.instance.getBlockParsers()) {
-                log.info('=== plugin Id: {}', plugin)
+                log.debug('Parser: {}, Try parser wth id: {}', id, plugin.id)
                 if (plugin.checkStart(line, header, false)) {
+                    log.debug('Parser: {}, Parser {} matches', id, plugin.id)
                     header.parserId = plugin.id
 
                     break
@@ -217,7 +218,7 @@ abstract class BlockParserPlugin extends ParserPlugin {
         }
 
         log.debug('{}', header)
-        log.debug('End parsing block header')
+        log.debug('Parser: {}, End parsing block header', id)
 
         if (header.type == null) {
             // no block is found
