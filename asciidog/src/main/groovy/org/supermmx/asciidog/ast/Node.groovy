@@ -231,24 +231,29 @@ class Node {
         if (CharSequence.class.isAssignableFrom(cls)) {
             sb << "'${value}'"
         } else if (Map.class.isAssignableFrom(cls)) {
-            sb << "[\n"
             def mapStr = value.collect { mapKey, mapValue ->
                 "${mapKey}: ${mapValue}"
             }.join(',\n')
 
-            indent(sb, mapStr)
-
-            sb << "]"
+            sb << '['
+            if (mapStr) {
+                sb << '\n'
+                indent(sb, mapStr)
+            }
+            sb << ']'
         } else if (Iterable.class.isAssignableFrom(cls)
                    || Iterator.class.isAssignableFrom(cls)) {
-            sb << "[\n"
+
             def listStr = value.collect { listValue ->
                 "${listValue}"
             }.join(',\n')
 
-            indent(sb, listStr)
-
-            sb << "]"
+            sb << '['
+            if (listStr) {
+                sb << '\n'
+                indent(sb, listStr)
+            }
+            sb << ']'
         } else {
             sb << "${value}"
         }
