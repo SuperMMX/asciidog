@@ -9,7 +9,7 @@ import org.slf4j.Logger
 trait Context {
     protected boolean copyLast = false
 
-    private def stack = []
+    def stack = []
 
     def properties = [:]
 
