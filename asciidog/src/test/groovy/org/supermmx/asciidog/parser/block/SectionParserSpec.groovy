@@ -85,27 +85,59 @@ class SectionParserSpec extends AsciidogSpec {
         section == expectedSection
     }
 
-    def 'document: with sections'() {
+    def 'standalone: section stops at sibling section'() {
         given:
-        def content = '''= Document Title
+        def content = '''== Section Title
 
-== Section Title
+paragraph line
+and the second line
 
-== Another Section
+== Another Sub Section
 '''
-        def eDoc = builder.document(title: 'Document Title') {
-            header {
-            }
-
-            section(level: 1, title: 'Section Title')
-            section(level: 1, title: 'Another Section')
+        def expectedSection = builder.section(level: 1, title: 'Section Title') {
+            para(lines: [ 'paragraph line', 'and the second line'])
         }
+
         def context = parserContext(content)
+        context.parserId = SectionParser.ID
+        context.expectedSectionLevel = 1
 
         when:
-        def doc = Parser.parse(context)
+        def section = Parser.parse(context)
 
         then:
-        doc == eDoc
+        section == expectedSection
     }
+
+    def 'standalone: section with paragraphs'() {
+        given:
+        def content = '''== Section Title
+
+this is the paragraph
+and the second line
+
+=== Subsection
+
+subsection paragraph
+and the second line
+
+'''
+        def expectedSection = builder.section(level: 1, title: 'Section Title') {
+            para(lines: [ 'this is the paragraph', 'and the second line'])
+            section(level: 2, title: 'Subsection') {
+                para(lines: [ 'subsection paragraph', 'and the second line'])
+            }
+        }
+
+        def context = parserContext(content)
+        context.parserId = SectionParser.ID
+        context.expectedSectionLevel = 1
+
+        when:
+        def section = Parser.parse(context)
+
+        then:
+        section == expectedSection
+    }
+
 }
