@@ -51,8 +51,14 @@ class ParagraphParser extends BlockParserPlugin {
             log.debug('paragraph line = {}', line)
 
             def isEnd = false
-            context.paragraphEndingCheckers.reverseEach { parser ->
+            def checkers = context.paragraphEndingCheckers
+            for (def i = checkers.size() - 1; i >= 0; i--) {
+                def parser = checkers[i]
+
                 isEnd = parser.toEndParagraph(context, line)
+                if (isEnd) {
+                    break
+                }
             }
 
             if (isEnd) {
