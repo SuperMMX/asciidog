@@ -17,9 +17,12 @@ asciidog {
         AuthorParser,
         DocumentParser,
         HeaderParser,
+        ListItemParser,
+        OrderedListParser,
         ParagraphParser,
         PreambleParser,
         SectionParser,
+        UnOrderedListParser,
     ]
 
     builders = [
