@@ -89,12 +89,9 @@ class SectionParser extends BlockParserPlugin {
     protected String doGetNextChildParser(ParserContext context, Block block) {
         Section section = block
 
-        BlockHeader header = context.blockHeader
-        if (header == null) {
-            header = nextBlockHeader(context)
-        }
+        def header = nextBlockHeader(context)
 
-        String childParser = null
+        def childParser = null
 
         if (header != null && header.type != null) {
             childParser = header.parserId
