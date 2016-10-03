@@ -98,6 +98,10 @@ class ListItemParser extends BlockParserPlugin {
      * Whether the marker and marker level represent a new list
      * or an item of one of the ancestor lists, by checking the
      * marker and the marker level
+     *
+     * @return true if the list represented by the marker and markerLevel
+     *         is a list item of one of the parent list, which should
+     *         have the same marker and markerLevel
      */
     protected boolean isListItem(Block parent, String lead, String marker, int markerLevel) {
         boolean result = false
