@@ -65,13 +65,133 @@ class ListItemParserSpec extends AsciidogSpec {
 
     def 'nextChildParser: first child'() {
         given:
-        def content = 'abc'
         def item = new ListItem()
-        def context = parserContext(content)
+        def context = parserContext('')
         context.block = item
 
         expect:
         parser.getNextChildParser(context) == ParagraphParser.ID
+    }
+
+    def 'nextChildParser: section'() {
+        given:
+        def context = parserContext('')
+        def item = new ListItem()
+        def header = new BlockParserPlugin.BlockHeader(parserId: SectionParser.ID,
+                                                       type: Node.Type.SECTION)
+
+        context.block = item
+        context.lastParserId = ParagraphParser.ID
+        context.blockHeader = header
+
+        expect:
+        !parser.getNextChildParser(context)
+    }
+
+    def 'nextChildParser: child list'() {
+        given:
+        def context = parserContext('')
+        def item = new ListItem()
+        def list = new UnOrderedList(lead: '', level: 1,
+                                     marker: '*', markerLevel: 1)
+        list << item
+        item.parent = list
+
+        def header = new BlockParserPlugin.BlockHeader()
+        header.with {
+           parserId = OrderedListParser.ID
+           type = Node.Type.ORDERED_LIST
+           properties[LIST_LEAD] = ''
+           properties[LIST_MARKER] = '.'
+           properties[LIST_MARKER_LEVEL] = 1
+        }
+
+        context.block = item
+        context.lastParserId = ParagraphParser.ID
+        context.blockHeader = header
+
+        expect:
+        parser.getNextChildParser(context) == OrderedListParser.ID
+    }
+
+    def 'nextChildParser: non-child list'() {
+        given:
+        def context = parserContext('')
+        def item = new ListItem()
+        def list = new UnOrderedList(lead: '', level: 1,
+                                     marker: '*', markerLevel: 1)
+        list << item
+        item.parent = list
+
+        def header = new BlockParserPlugin.BlockHeader()
+        header.with {
+           parserId = OrderedListParser.ID
+           type = Node.Type.ORDERED_LIST
+           properties[LIST_LEAD] = ''
+           properties[LIST_MARKER] = '*'
+           properties[LIST_MARKER_LEVEL] = 1
+        }
+
+        context.block = item
+        context.lastParserId = ParagraphParser.ID
+        context.blockHeader = header
+
+        expect:
+        parser.getNextChildParser(context) == null
+    }
+
+    def 'nextChildParser: non-list'() {
+        given:
+        def context = parserContext('')
+        def item = new ListItem()
+        def list = new UnOrderedList(lead: '', level: 1,
+                                     marker: '*', markerLevel: 1)
+        list << item
+        item.parent = list
+
+        def header = new BlockParserPlugin.BlockHeader(parserId: ParagraphParser.ID,
+                                                       type: Node.Type.PARAGRAPH)
+
+        context.block = item
+        context.lastParserId = ParagraphParser.ID
+        context.blockHeader = header
+
+        expect:
+        parser.getNextChildParser(context) == ParagraphParser.ID
+    }
+
+    def 'nextChildParser: blank header'() {
+        given:
+        def context = parserContext('')
+        def item = new ListItem()
+        def list = new UnOrderedList(lead: '', level: 1,
+                                     marker: '*', markerLevel: 1)
+        list << item
+        item.parent = list
+
+        context.block = item
+        context.lastParserId = ParagraphParser.ID
+        context.blockHeader = new BlockParserPlugin.BlockHeader()
+
+        expect:
+        parser.getNextChildParser(context) == null
+    }
+
+    def 'nextChildParser: null header'() {
+        given:
+        def context = parserContext('')
+        def item = new ListItem()
+        def list = new UnOrderedList(lead: '', level: 1,
+                                     marker: '*', markerLevel: 1)
+        list << item
+        item.parent = list
+
+        context.block = item
+        context.lastParserId = ParagraphParser.ID
+        context.blockHeader = null
+
+        expect:
+        parser.getNextChildParser(context) == null
     }
 
     def 'standalone: simple paragraph'() {
