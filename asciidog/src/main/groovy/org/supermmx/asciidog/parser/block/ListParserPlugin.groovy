@@ -48,21 +48,25 @@ $
             return false
         }
 
+        if (header?.type == nodeType) {
+            return true
+        }
+
         // check list
         def (listType, listLead, listMarker, markerLevel, listContentStart) = isListLine(line)
-        if (listType == null) {
+        if (listType == null || listType != nodeType) {
             return false
         }
 
         header?.with {
-            type = listType
             properties[LIST_LEAD] = listLead
             properties[LIST_MARKER] = listMarker
             properties[LIST_MARKER_LEVEL] = markerLevel
             properties[LIST_CONTENT_START] = listContentStart
         }
+        header?.type = listType
 
-        return (listType == nodeType)
+        return true
     }
 
     abstract protected AdocList createList()
