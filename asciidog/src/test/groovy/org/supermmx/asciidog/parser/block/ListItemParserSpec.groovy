@@ -38,32 +38,40 @@ class ListItemParserSpec extends AsciidogSpec {
 
     def 'isListItem: multiple level'() {
         given:
-        def item1 = new ListItem()
-        def list1 = new OrderedList(lead: '', level: 3,
+        def item3 = new ListItem()
+        def list3 = new OrderedList(lead: '', level: 3,
                                     marker: '.', markerLevel: 2)
         def item2 = new ListItem()
         def list2 = new OrderedList(lead: '', level: 2,
                                     marker: '.', markerLevel: 1)
 
-        def item3 = new ListItem()
-        def list3 = new UnOrderedList(lead: '', level: 1,
+        def item1 = new ListItem()
+        def list1 = new UnOrderedList(lead: '', level: 1,
                                       marker: '*', markerLevel: 1)
 
-        item1.parent = list1
-        list1.parent = item2
-        item2.parent = list2
-        list2.parent = item3
         item3.parent = list3
+        list3.parent = item2
+        item2.parent = list2
+        list2.parent = item1
+        item1.parent = list1
 
         expect:
-        parser.isListItem(item1, '', '.', 2)
-        parser.isListItem(item1, '', '.', 1)
-        parser.isListItem(item1, '', '*', 1)
-        !parser.isListItem(item1, '', '.', 3)
-        !parser.isListItem(item1, '', '*', 2)
+        parser.isListItem(item3, '', '.', 2)
+        parser.isListItem(item3, '', '.', 1)
+        parser.isListItem(item3, '', '*', 1)
+        !parser.isListItem(item3, '', '.', 3)
+        !parser.isListItem(item3, '', '*', 2)
     }
 
     def 'nextChildParser: first child'() {
+        given:
+        def content = 'abc'
+        def item = new ListItem()
+        def context = parserContext(content)
+        context.block = item
+
+        expect:
+        parser.getNextChildParser(context) == ParagraphParser.ID
     }
 
     def 'standalone: simple paragraph'() {
