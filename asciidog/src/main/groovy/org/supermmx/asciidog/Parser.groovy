@@ -42,11 +42,20 @@ class Parser {
             context.parserId = parserId
         }
 
+        def lastParserId = null
+        def lastCursor = null
+
         while (parserId != null) {
             def parent = context.parent
 
             log.trace('Parser = {}, parent = {}',
                       parserId, parent?.getClass())
+
+            if (parserId == lastParserId
+                && context.reader.cursor == lastCursor) {
+                log.error('Infinite loop detected, current parser: {}, cursor: {}',
+                          parserId, context.reader.cursor)
+            }
 
             def parser = PluginRegistry.instance.getPlugin(parserId)
 
@@ -73,6 +82,9 @@ class Parser {
                     context.block = block
                 }
             }
+
+            lastParserId = parserId
+            lastCursor = context.reader.cursor.clone()
 
             // get next child parser
             def childParserId = null
