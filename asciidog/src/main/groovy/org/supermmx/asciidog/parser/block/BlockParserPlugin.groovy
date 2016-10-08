@@ -7,6 +7,7 @@ import org.supermmx.asciidog.parser.ParserContext
 import org.supermmx.asciidog.plugin.ParserPlugin
 import org.supermmx.asciidog.plugin.PluginRegistry
 
+import groovy.transform.Canonical
 import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger
@@ -121,12 +122,8 @@ abstract class BlockParserPlugin extends ParserPlugin {
     /**
      * internal class
      */
+    @Canonical
     protected static class BlockHeader {
-        static final String LIST_LEAD = 'listLead'
-        static final String LIST_MARKER = 'listMarker'
-        static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
-        static final String LIST_CONTENT_START = 'listContentStart'
-
         static final String COMMENT_LINE_COMMENT = 'comment'
 
         Node.Type type
