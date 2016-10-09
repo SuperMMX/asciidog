@@ -1,5 +1,7 @@
 package org.supermmx.asciidog.parser.block
 
+import static org.supermmx.asciidog.parser.block.ListParserPlugin.*
+
 import org.supermmx.asciidog.AsciidogSpec
 import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.ListItem
