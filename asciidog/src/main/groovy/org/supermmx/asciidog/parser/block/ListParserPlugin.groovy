@@ -91,11 +91,8 @@ $
 
         fillBlockFromHeader(list, header)
 
-        def newHeader = new BlockHeader()
-        newHeader.with {
-            type = header.type
-            properties = header.properties
-        }
+        def newHeader = new BlockHeader(type: header.type,
+                                        properties: header.properties)
         header = newHeader
         context.blockHeader = header
 
