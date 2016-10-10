@@ -126,4 +126,67 @@ class ListParserPluginSpec extends AsciidogSpec {
         context.paragraphEndingCheckers[0].id == parser.id
 
     }
+
+    def 'nextChildParser: null header'() {
+        given:
+        def context = parserContext('')
+        context.blockHeader = null
+        context.paragraphEndingCheckers << parser
+
+        expect:
+        parser.getNextChildParser(context) == null
+        context.paragraphEndingCheckers.size() == 0
+    }
+
+    def 'nextChildParser: blank header'() {
+        given:
+        def context = parserContext('')
+        context.blockHeader = new BlockHeader()
+        context.paragraphEndingCheckers << parser
+
+        expect:
+        parser.getNextChildParser(context) == null
+        context.paragraphEndingCheckers.size() == 0
+    }
+
+    def 'nextChildParser: non-list'() {
+        given:
+        def context = parserContext('')
+        context.blockHeader = new BlockHeader(type: Node.Type.PARAGRAPH)
+        context.paragraphEndingCheckers << parser
+
+        expect:
+        parser.getNextChildParser(context) == null
+        context.paragraphEndingCheckers.size() == 0
+    }
+
+    def 'nextChildParser: ordered list'() {
+        given:
+        def context = parserContext('')
+        context.blockHeader = new BlockHeader(type: Node.Type.ORDERED_LIST)
+        context.paragraphEndingCheckers << parser
+
+        when:
+        def childParser = parser.getNextChildParser(context)
+
+        then:
+        context.expected == true
+        childParser == ListItemParser.ID
+        context.paragraphEndingCheckers.size() == 1
+    }
+
+    def 'nextChildParser: unordered list'() {
+        given:
+        def context = parserContext('')
+        context.blockHeader = new BlockHeader(type: Node.Type.UNORDERED_LIST)
+        context.paragraphEndingCheckers << parser
+
+        when:
+        def childParser = parser.getNextChildParser(context)
+
+        then:
+        context.expected == true
+        childParser == ListItemParser.ID
+        context.paragraphEndingCheckers.size() == 1
+    }
 }
