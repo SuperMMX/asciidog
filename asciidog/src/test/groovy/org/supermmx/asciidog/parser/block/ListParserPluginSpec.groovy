@@ -4,6 +4,7 @@ import static org.supermmx.asciidog.parser.block.ListParserPlugin.*
 
 import org.supermmx.asciidog.AsciidogSpec
 import org.supermmx.asciidog.Parser
+import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.ListItem
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.OrderedList
@@ -53,4 +54,76 @@ class ListParserPluginSpec extends AsciidogSpec {
                                   ])
     }
 
+    def 'createBlock: level 1'() {
+        given:
+        def context = parserContext('')
+        def header = new BlockHeader(type: Node.Type.ORDERED_LIST,
+                                     properties: [
+                                         (LIST_LEAD): '  ',
+                                         (LIST_MARKER): '.',
+                                         (LIST_MARKER_LEVEL): 2,
+                                         (LIST_CONTENT_START): 6,
+                                     ],
+                                     id: 'list_id', title: 'List Title',
+                                     attributes:[ 'attr1': 'value1', 'attr2': 2])
+
+        def parent = new Block()
+
+        when:
+        def list = parser.createBlock(context, parent, header)
+
+        then:
+        list == builder.ol(lead: '  ', level: 1, marker: '.', markerLevel: 2,
+                           id: 'list_id', title: 'List Title',
+                           attributes: [ 'attr1': 'value1', 'attr2': 2])
+        context.blockHeader == new BlockHeader(type: Node.Type.ORDERED_LIST,
+                                               properties: [
+                                                   (LIST_LEAD): '  ',
+                                                   (LIST_MARKER): '.',
+                                                   (LIST_MARKER_LEVEL): 2,
+                                                   (LIST_CONTENT_START): 6,
+                                               ])
+        context.keepHeader == true
+        context.paragraphEndingCheckers.size() == 1
+        context.paragraphEndingCheckers[0].id == parser.id
+
+    }
+
+    def 'createBlock: level 3'() {
+        given:
+        def context = parserContext('')
+        def header = new BlockHeader(type: Node.Type.ORDERED_LIST,
+                                     properties: [
+                                         (LIST_LEAD): '  ',
+                                         (LIST_MARKER): '.',
+                                         (LIST_MARKER_LEVEL): 2,
+                                         (LIST_CONTENT_START): 6,
+                                     ],
+                                     id: 'list_id', title: 'List Title',
+                                     attributes:[ 'attr1': 'value1', 'attr2': 2])
+
+        def item2 = new ListItem()
+        def list2 = new UnOrderedList(lead: '', level: 2,
+                                      marker: '*', markerLevel: 1)
+        item2.parent = list2
+
+        when:
+        def list = parser.createBlock(context, item2, header)
+
+        then:
+        list == builder.ol(lead: '  ', level: 3, marker: '.', markerLevel: 2,
+                           id: 'list_id', title: 'List Title',
+                           attributes: [ 'attr1': 'value1', 'attr2': 2])
+        context.blockHeader == new BlockHeader(type: Node.Type.ORDERED_LIST,
+                                               properties: [
+                                                   (LIST_LEAD): '  ',
+                                                   (LIST_MARKER): '.',
+                                                   (LIST_MARKER_LEVEL): 2,
+                                                   (LIST_CONTENT_START): 6,
+                                               ])
+        context.keepHeader == true
+        context.paragraphEndingCheckers.size() == 1
+        context.paragraphEndingCheckers[0].id == parser.id
+
+    }
 }
