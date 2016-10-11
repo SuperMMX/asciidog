@@ -130,11 +130,20 @@ $
 
         // is list continuation
         if (isListContinuation(line) != null) {
+            /**
+             * first list paragraph
+             * +
+             * next list paragraph
+             */
             end = true
         } else {
             // check block header for every line
-            header = nextBlockHeader(context)
+            def header = nextBlockHeader(context)
 
+            /**
+             * . first list paragraph
+             * * next list paragraph
+             */
             // or is next list item
             if (header?.type?.isList()) {
                 end = true

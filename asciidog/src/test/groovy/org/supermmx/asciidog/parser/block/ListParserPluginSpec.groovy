@@ -189,4 +189,40 @@ class ListParserPluginSpec extends AsciidogSpec {
         childParser == ListItemParser.ID
         context.paragraphEndingCheckers.size() == 1
     }
+
+    def 'toEndParagraph: list continuation' () {
+        expect:
+        parser.toEndParagraph(null, '+')
+        parser.toEndParagraph(null, '  +')
+    }
+
+    def 'toEndParagraph: unordered list' () {
+        given:
+        def context = parserContext('')
+
+        context.blockHeader = new BlockHeader(type: Node.Type.UNORDERED_LIST)
+
+        expect:
+        parser.toEndParagraph(context, '')
+    }
+
+    def 'toEndParagraph: ordered list' () {
+        given:
+        def context = parserContext('')
+
+        context.blockHeader = new BlockHeader(type: Node.Type.ORDERED_LIST)
+
+        expect:
+        parser.toEndParagraph(context, '')
+    }
+
+    def 'toEndParagraph: paragraph' () {
+        given:
+        def context = parserContext('')
+
+        context.blockHeader = new BlockHeader(type: Node.Type.PARAGRAPH)
+
+        expect:
+        !parser.toEndParagraph(context, '')
+    }
 }
