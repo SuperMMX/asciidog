@@ -253,14 +253,13 @@ class InlineSpec extends AsciidogSpec {
         def content = 'a few strong words'
         def text = "\\*$content*"
         def nodes = [
-            builder.strong {
+            builder.strong(escaped: true) {
                 builder.text(content)
             }
         ]
 
-        // FIXME
-        //expect:
-        //Parser.parseInlineNodes(new Paragraph(), text) == nodes
+        expect:
+        Parser.parseInlineNodes(new Paragraph(), text) == nodes
     }
 
     def 'multi-line constrained strong string'() {
@@ -348,16 +347,15 @@ class InlineSpec extends AsciidogSpec {
         def text = '<<xref *node>> in *strong words*'
         def nodes = [
             builder.xref('xref *node'),
+            builder.text(' in '),
             builder.strong {
                 builder.text('strong words')
             }
         ]
 
         // FIXME: need to re-think the inline parsing
-        /*
         expect:
         Parser.parseInlineNodes(new Paragraph(), text) == nodes
-        */
     }
 
     def 'simple nodes'() {

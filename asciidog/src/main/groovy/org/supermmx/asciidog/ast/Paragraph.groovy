@@ -14,20 +14,7 @@ import org.slf4j.Logger
 @TupleConstructor
 @Slf4j
 class Paragraph extends Block implements InlineContainer  {
-    List<Inline> inlineNodes = []
-
     Paragraph() {
         type = Node.Type.PARAGRAPH
-    }
-
-    Paragraph leftShift(Node node) {
-        // only allow action block in a paragraph
-        if (node in Action) {
-            blocks << node
-        } else if (node in Inline) {
-            inlineNodes << node
-        }
-
-        return this
     }
 }

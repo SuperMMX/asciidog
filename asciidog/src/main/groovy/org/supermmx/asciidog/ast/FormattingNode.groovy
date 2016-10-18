@@ -1,22 +1,17 @@
 package org.supermmx.asciidog.ast
 
-import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
+import groovy.transform.TupleConstructor
 
-@Canonical
-@EqualsAndHashCode(callSuper=true)
-@ToString(includeSuper=true, includePackage=false, includeNames=true)
 /**
  * An inline node with formatted text
  */
-class FormattingNode extends InlineContainerNode {
+@EqualsAndHashCode(callSuper=true)
+@TupleConstructor
+class FormattingNode extends Inline implements InlineContainer {
     static enum FormattingType {
         STRONG,
         EMPHASIS,
-        MONOSPACED,
-        SUPERSCRIPT,
-        SUBSCRIPT
     }
 
     FormattingType formattingType

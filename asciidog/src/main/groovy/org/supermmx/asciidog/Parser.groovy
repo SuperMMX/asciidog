@@ -1101,7 +1101,7 @@ _
         def sortingPlugins = new TreeMap<Integer, String>()
 
         // go through all inline plugins
-        PluginRegistry.instance.getInlineParserPlugins().each { plugin ->
+        PluginRegistry.instance.getInlineParsers().each { plugin ->
             log.debug 'Parse inline with plugin: {}', plugin.id
             def m = plugin.pattern.matcher(text)
             if (m.find()) {
@@ -1112,11 +1112,11 @@ _
 
         // find the parent info for an inline info starting container info
         def findParentInfo
-        findParentInfo = { containerInfo, inlineInfo ->
+        findParentInfo = { containerInfo, int start, int end ->
             log.debug("container start = ${containerInfo.start}, end = ${containerInfo.end}")
 
-            if (inlineInfo.start < containerInfo.contentStart
-                || inlineInfo.end > containerInfo.contentEnd) {
+            if (start < containerInfo.contentStart
+                || end > containerInfo.contentEnd) {
                 return null
             }
 
@@ -1124,7 +1124,7 @@ _
 
             for (def childInfo : containerInfo.children) {
                 if (childInfo.inlineNode instanceof InlineContainer) {
-                    result = findParentInfo(childInfo, inlineInfo)
+                    result = findParentInfo(childInfo, start, end)
                 }
                 if (result != null) {
                     break
@@ -1198,18 +1198,44 @@ _
         }
 
         while (sortingPlugins.size() > 0) {
+            log.debug 'Sorted Plugins: {}', sortingPlugins
+
             def entry = sortingPlugins.find { true }
             def startIndex = entry.key
             def pluginId = entry.value
 
             def m = matchers[(pluginId)]
+            def endIndex = m.end(0)
 
             if (log.debugEnabled) {
                 log.debug "==== START ===="
-                log.debug "Index: ${startIndex}, From plugin: ${pluginId}, group = ${m.group()}"
+                log.debug "Index: ${startIndex}, endIndex: ${endIndex}, From plugin: ${pluginId}, group = ${m.group()}"
             }
 
             def plugin = PluginRegistry.instance.getPlugin(pluginId)
+
+            // check whether the matching region intersect with other inlines
+            def nextFind = false
+            def parentInfo = findParentInfo(topInfo, startIndex, endIndex)
+            log.debug('Found parent info: {}', parentInfo)
+            for (def childInfo : parentInfo.children) {
+                if (childInfo.overlaps(startIndex, endIndex)) {
+                    nextFind = true
+                    break
+                }
+            }
+
+            log.debug('Need to find next: {}', nextFind)
+            if (nextFind) {
+                sortingPlugins.remove(startIndex)
+                log.debug('end index = {}, text length = {}', endIndex, text.length())
+                if (startIndex < text.length() && m.find(startIndex + 1)) {
+                    log.debug('New search for plugin {} from index {}', plugin.id, m.start())
+                    sortingPlugins[(m.start())] = plugin.id
+                }
+
+                continue
+            }
 
             def groupList = []
             (0..m.groupCount()).each { index ->
@@ -1218,8 +1244,12 @@ _
 
             def infoList = plugin.parse(m, groupList)
 
+            log.debug('Parsed info list: {}', infoList)
             for (def info: infoList) {
-                def parentInfo = findParentInfo(topInfo, info)
+                // assume the inlines are in order and desn't exceed the parent's boundary
+
+                //def parentInfo = findParentInfo(topInfo, info)
+
                 if (parentInfo != null) {
                     def parentNode = parentInfo.inlineNode
                     def childNode = info.inlineNode
@@ -1265,7 +1295,7 @@ _
             sortingPlugins.remove(startIndex)
             if (m.find()) {
                 if (log.debugEnabled) {
-                log.debug "Next match: start = ${m.start()}"
+                    log.debug "Next match: start = ${m.start()}"
                 }
                 sortingPlugins[(m.start())] = plugin.id
             }
