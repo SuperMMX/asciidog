@@ -1,15 +1,13 @@
 package org.supermmx.asciidog.ast
 
-import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
+import groovy.transform.TupleConstructor
 
-@Canonical
-@EqualsAndHashCode(callSuper=true)
-@ToString(includeSuper=true, includePackage=false, includeNames=true)
 /**
  * A inline node with simple text.
  */
+@EqualsAndHashCode(callSuper=true)
+@TupleConstructor
 class CrossReferenceNode extends Inline {
     String xrefId
     // id, text (title or caption), number, page

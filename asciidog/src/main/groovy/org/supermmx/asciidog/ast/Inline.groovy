@@ -12,8 +12,4 @@ import groovy.transform.TupleConstructor
 @TupleConstructor
 abstract class Inline extends Node {
     boolean escaped
-
-    Inline() {
-        type = Node.Type.INLINE
-    }
 }
