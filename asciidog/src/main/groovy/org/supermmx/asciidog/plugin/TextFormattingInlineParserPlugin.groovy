@@ -8,18 +8,10 @@ import org.supermmx.asciidog.ast.Node
 
 import java.util.regex.Matcher
 
-class TextFormattingInlineParserPlugin extends InlineParserPlugin {
-    FormattingNode.FormattingType formattingType
-
-    TextFormattingInlineParserPlugin() {
-        nodeType = Node.Type.FORMATTING
-    }
-
+abstract class TextFormattingInlineParserPlugin extends InlineParserPlugin {
     @Override
     protected List<Inline> createNodes(Matcher m, List<String> groups) {
-        FormattingNode inline = new FormattingNode()
-
-        inline.formattingType = formattingType
+        FormattingNode inline = createFormattingNode()
 
         return [ inline ]
     }
@@ -43,6 +35,7 @@ class TextFormattingInlineParserPlugin extends InlineParserPlugin {
 
         return true
     }
-    
+
+    abstract FormattingNode createFormattingNode()
 }
 

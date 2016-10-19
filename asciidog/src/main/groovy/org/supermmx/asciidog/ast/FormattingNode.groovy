@@ -6,17 +6,12 @@ import groovy.transform.TupleConstructor
 /**
  * An inline node with formatted text
  */
-@EqualsAndHashCode(callSuper=true)
+@EqualsAndHashCode(callSuper=true, excludes=[ 'constrained' ])
 @TupleConstructor
-class FormattingNode extends Inline implements InlineContainer {
-    static enum FormattingType {
-        STRONG,
-        EMPHASIS,
-    }
-
-    FormattingType formattingType
+abstract class FormattingNode extends Inline implements InlineContainer {
+    boolean constrained = false
 
     FormattingNode() {
-        type = Node.Type.FORMATTING
+        excludes = ['constrained']
     }
 }
