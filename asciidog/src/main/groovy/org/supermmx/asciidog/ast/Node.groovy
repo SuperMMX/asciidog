@@ -166,7 +166,7 @@ class Node {
     /**
      * Excluded toString() fields
      */
-    protected String[] excludes = []
+    protected List<String> excludes = []
 
     @Override
     String toString() {
