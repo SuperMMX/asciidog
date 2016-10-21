@@ -20,6 +20,11 @@ class HeaderParser extends BlockParserPlugin {
         nodeType = Node.Type.HEADER
         id = ID
         isSkippingBlankLines = false
+
+        childParsers = [
+            new ChildParserInfo(AuthorParser.ID, true, false),
+            // TODO: revision
+        ]
     }
 
     @Override
@@ -36,16 +41,12 @@ class HeaderParser extends BlockParserPlugin {
 
     @Override
     protected String doGetNextChildParser(ParserContext context, Block block) {
-        def childParser = null
+        // author
 
-        def lastParser = context.lastParserId
+        // revision
 
-        if (lastParser == null) {
-            context.childParserProps.expected = true
-            childParser = AuthorParser.ID
-        }
-
-        context.lastParserId = childParser
+        // attributes
+        String childParser = null
 
         return childParser
     }

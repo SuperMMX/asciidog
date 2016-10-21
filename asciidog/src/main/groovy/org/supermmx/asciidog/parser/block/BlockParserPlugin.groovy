@@ -19,9 +19,22 @@ import org.slf4j.Logger
 @Slf4j(value='userLog', category="AsciiDog")
 abstract class BlockParserPlugin extends ParserPlugin {
     /**
+     * Child parser information for the current parser
+     */
+    @Canonical
+    static class ChildParserInfo {
+        String parserId
+        boolean expected = true
+        boolean findHeader = false
+    }
+    /**
      * Whether to skip blank lines before the block
      */
     protected boolean isSkippingBlankLines = true
+    /**
+     * Explicit child parser
+     */
+    protected List<ChildParserInfo> childParsers = []
 
     /**
      * Parse the block based on current context
@@ -61,6 +74,9 @@ abstract class BlockParserPlugin extends ParserPlugin {
         if (block ==  null) {
             return null
         }
+
+        // copy expected child parsers
+        context.childParsers = childParsers.collect()
 
         log.debug('Parser: {}, keepHeader = {}', id, context.keepHeader)
         if (!context.keepHeader) {
@@ -102,7 +118,25 @@ abstract class BlockParserPlugin extends ParserPlugin {
      * Get the next child parser
      */
     String getNextChildParser(ParserContext context) {
-        return doGetNextChildParser(context, context.block)
+        String childParser = null
+
+        if (context.childParsers) {
+            // Check the explicit child parsers first
+            def childParserInfo = context.childParsers.remove(0)
+
+            context.childParserProps.expected = childParserInfo.expected
+
+            if (childParserInfo.findHeader) {
+                nextBlockHeader(context)
+            }
+
+            childParser = childParserInfo.parserId
+        } else {
+            // get dynamic child parser from code
+            childParser = doGetNextChildParser(context, context.block)
+        }
+
+        return childParser
     }
 
     abstract protected String doGetNextChildParser(ParserContext context, Block block)
