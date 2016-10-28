@@ -31,11 +31,6 @@ class DocumentParser extends BlockParserPlugin {
     DocumentParser() {
         nodeType = Node.Type.DOCUMENT
         id = ID
-
-        childParsers = [
-            new ChildParserInfo(HeaderParser.ID, true, false),
-            new ChildParserInfo(PreambleParser.ID, true, true),
-        ]
     }
 
     @Override
@@ -73,22 +68,16 @@ class DocumentParser extends BlockParserPlugin {
     }
 
     @Override
-    protected String doGetNextChildParser(ParserContext context, Block block) {
-        // header
+    protected List<ChildParserInfo> doGetChildParserInfos(ParserContext context) {
+        return [
+            ChildParserInfo.zeroOrOne(HeaderParser.ID),
+            ChildParserInfo.zeroOrOne(PreambleParser.ID).findHeader(),
+            ChildParserInfo.zeroOrMore(SectionParser.ID).findHeader().doBeforeParsing { latestContext, document ->
+                // FIXME: correct expectedSectionLevel according to the document type
+                latestContext.childParserProps.expectedSectionLevel = 1
 
-        // preamble
-
-        // section
-        def childParser = null
-
-        def header = nextBlockHeader(context)
-
-        if (header?.type == Node.Type.SECTION) {
-            // FIXME: correct expectedSectionLevel according to the document type
-            context.childParserProps.expectedSectionLevel = 1
-            childParser = SectionParser.ID
-        }
-
-        return childParser
+                return true
+            }
+        ]
     }
 }

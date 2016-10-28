@@ -86,28 +86,32 @@ class SectionParser extends BlockParserPlugin {
         return section
     }
 
-    protected String doGetNextChildParser(ParserContext context, Block block) {
-        Section section = block
+    @Override
+    protected List<ChildParserInfo> doGetChildParserInfos(ParserContext context) {
+        return [
+            // find blocks except sibling and higher level sections
+            ChildParserInfo.find().doBeforeParsing { newContext, block ->
+                def result = true
 
-        def header = nextBlockHeader(context)
-
-        def childParser = null
-
-        if (header != null && header.type != null) {
-            childParser = header.parserId
-
-            if (header.type == Node.Type.SECTION) {
-                // check level
-                def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
-                if (level <= section.level) {
-                    childParser = null
-                } else if (level >= section.level + 1) {
-                    context.childParserProps.expectedSectionLevel = section.level + 1
+                def section = block
+                def header = newContext.blockHeader
+                if (header != null && header.type != null) {
+                    if (header.type == Node.Type.SECTION) {
+                        // check level
+                        def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
+                        if (level <= section.level) {
+                            result = false
+                        } else if (level >= section.level + 1) {
+                            newContext.childParserProps.expectedSectionLevel = section.level + 1
+                        }
+                    }
+                } else {
+                    result = false
                 }
-            }
-        }
 
-        return childParser
+                return result
+            }
+        ]
     }
 
     /**

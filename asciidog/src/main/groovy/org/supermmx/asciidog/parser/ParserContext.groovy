@@ -59,6 +59,16 @@ class ParserContext implements Context {
     // parserId
 
     /**
+     * How many time this parser is called
+     */
+    // parserCallingCount
+
+    /**
+     * The starting index of expected parsing blocks
+     */
+    // parserStartIndex
+
+    /**
      * Whether to pass the header to child after creating the block
      */
     // keepHeader

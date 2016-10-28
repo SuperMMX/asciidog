@@ -19,22 +19,9 @@ import org.slf4j.Logger
 @Slf4j(value='userLog', category="AsciiDog")
 abstract class BlockParserPlugin extends ParserPlugin {
     /**
-     * Child parser information for the current parser
-     */
-    @Canonical
-    static class ChildParserInfo {
-        String parserId
-        boolean expected = true
-        boolean findHeader = false
-    }
-    /**
      * Whether to skip blank lines before the block
      */
     protected boolean isSkippingBlankLines = true
-    /**
-     * Explicit child parser
-     */
-    protected List<ChildParserInfo> childParsers = []
 
     /**
      * Parse the block based on current context
@@ -75,9 +62,6 @@ abstract class BlockParserPlugin extends ParserPlugin {
             return null
         }
 
-        // copy expected child parsers
-        context.childParsers = childParsers.collect()
-
         log.debug('Parser: {}, keepHeader = {}', id, context.keepHeader)
         if (!context.keepHeader) {
             context.blockHeader = null
@@ -114,32 +98,118 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
     abstract protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header)
 
+    protected List<ChildParserInfo> getChildParserInfos(ParserContext context) {
+        return doGetChildParserInfos(context)
+    }
+
+    protected List<ChildParserInfo> doGetChildParserInfos(ParserContext context) {
+        return []
+    }
+
     /**
      * Get the next child parser
      */
     String getNextChildParser(ParserContext context) {
+        // copy expected child parsers
+        if (context.childParsers == null) {
+            context.childParsers = getChildParserInfos().collect { it }
+        }
+
         String childParser = null
 
-        if (context.childParsers) {
-            // Check the explicit child parsers first
-            def childParserInfo = context.childParsers.remove(0)
+        def parent = context.block
 
-            context.childParserProps.expected = childParserInfo.expected
+        // check known parsers first
+        boolean found = false
+        boolean remove = false
 
-            if (childParserInfo.findHeader) {
-                nextBlockHeader(context)
+        while (context.childParsers.size() > 0 && !found) {
+            def childParserInfo = context.childParsers.head()
+
+            log.debug('Trying pre-configured child parser {}', childParserInfo)
+
+            switch (childParserInfo.type) {
+            case ParserInfoType.ONE:
+            case ParserInfoType.ZERO_OR_ONE:
+                found = true
+                remove = true
+                break
+            case ParserInfoType.ZERO_OR_MORE:
+            case ParserInfoType.ONE_OR_MORE:
+            case ParserInfoType.FIND:
+                if (context.parserCallingCount == null) {
+                    // first to use this parser
+                    found = true
+
+                    context.parserCallingCount = 1
+                    context.parserStartIndex = parent.children.size()
+                } else if (context.parserStartIndex + context.parserCallingCount == parent.children.size()) {
+                    // a block is parsed last time, keep trying with this parser
+                    found = true
+                    context.parserCallingCount ++
+                } else {
+                    // no block is parsed last time, try next parser
+
+                    // TODO: check error
+                    remove = true
+                }
+                break
             }
 
-            childParser = childParserInfo.parserId
-        } else {
-            // get dynamic child parser from code
+            log.debug('Child parser: found: {}, remove: {}', found, remove)
+
+            if (found) {
+                if (childParserInfo.findHeader) {
+                    nextBlockHeader(context)
+                    log.debug('Block header found: {}', context.blockHeader)
+                }
+
+                context.childParserProps.expected = childParserInfo.expected
+
+                childParser = childParserInfo.parserId
+                if (childParserInfo.type == ParserInfoType.FIND) {
+                    childParser = context.blockHeader?.parserId
+                }
+
+                // do any actions or checkings before parsing with the parser
+                if (childParserInfo.action) {
+                    log.debug('Execute parser action...')
+                    def result = childParserInfo.action.call(context, parent)
+                    log.debug('Parser action result = {}', result)
+
+                    if (!result) {
+                        // to end the parser here
+                        childParser = null
+                        remove = true
+                    }
+                }
+            }
+
+            if (remove) {
+                log.debug('Parser remove from configured parser list: {}', childParserInfo)
+                context.childParsers.remove(0)
+
+                context.parserCallingCount = null
+                context.parserStartIndex = null
+            }
+        }
+
+        log.debug('Configured child parser: {}', childParser)
+
+        // get dynamic child parser from code
+        if (childParser == null) {
+            log.debug('Running custom code to get next child parser...')
             childParser = doGetNextChildParser(context, context.block)
         }
+
+        log.debug('Next child parser is {}', childParser)
 
         return childParser
     }
 
-    abstract protected String doGetNextChildParser(ParserContext context, Block block)
+    protected String doGetNextChildParser(ParserContext context, Block block) {
+        return null
+    }
 
     /**
      * This block parser should determine whether to end the current child
@@ -291,4 +361,78 @@ abstract class BlockParserPlugin extends ParserPlugin {
         }
     }
 
+    static enum ParserInfoType {
+        ONE,
+        ZERO_OR_ONE,
+        ZERO_OR_MORE,
+        ONE_OR_MORE,
+        // to find next parser by looking at the header
+        FIND,
+    }
+    /**
+     * Child parser information for the current parser
+     */
+    @Canonical
+    static class ChildParserInfo {
+        ParserInfoType type = ParserInfoType.ONE
+        String parserId
+        boolean expected = true
+        boolean findHeader = false
+        Closure action
+
+        ChildParserInfo expected() {
+            expect = true
+
+            return this
+        }
+
+        ChildParserInfo notExpected() {
+            expect = false
+
+            return this
+        }
+
+        ChildParserInfo findHeader() {
+            findHeader = true
+
+            return this
+        }
+
+        ChildParserInfo notFindHeader() {
+            findHeader = false
+
+            return this
+        }
+
+        ChildParserInfo doBeforeParsing(Closure action) {
+            this.action = action
+
+            return this
+        }
+        static ChildParserInfo one(String parserId) {
+            return new ChildParserInfo(type: ParserInfoType.ONE,
+                                       parserId: parserId)
+        }
+
+        static ChildParserInfo zeroOrOne(String parserId) {
+            return new ChildParserInfo(type: ParserInfoType.ZERO_OR_ONE,
+                                       parserId: parserId)
+        }
+
+        static ChildParserInfo zeroOrMore(String parserId) {
+            return new ChildParserInfo(type: ParserInfoType.ZERO_OR_MORE,
+                                       parserId: parserId)
+        }
+
+        static ChildParserInfo oneOrMore(String parserId) {
+            return new ChildParserInfo(type: ParserInfoType.ONE_OR_MORE,
+                                       parserId: parserId)
+        }
+
+        static ChildParserInfo find() {
+            return new ChildParserInfo(type: ParserInfoType.FIND,
+                                       parserId: null,
+                                       expected: false, findHeader: true)
+        }
+    }
 }
