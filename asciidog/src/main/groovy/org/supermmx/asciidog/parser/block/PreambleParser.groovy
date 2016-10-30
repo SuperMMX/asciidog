@@ -46,15 +46,19 @@ class PreambleParser extends BlockParserPlugin {
     }
 
     @Override
-    protected String doGetNextChildParser(ParserContext context, Block block) {
-        def childParser = null
+    protected List<ChildParserInfo> doGetChildParserInfos(ParserContext context) {
+        return [
+            ChildParserInfo.find().doBeforeParsing { newContext, parent ->
+                def result = false
+                def header = newContext.blockHeader
 
-        def header = nextBlockHeader(context)
+                if (header?.type != Node.Type.SECTION) {
+                    // other blocks than a section
+                    result = true
+                }
 
-        if (header?.type != Node.Type.SECTION) {
-            childParser = header?.parserId
-        }
-
-        return childParser
+                return result
+            }
+        ]
     }
 }
