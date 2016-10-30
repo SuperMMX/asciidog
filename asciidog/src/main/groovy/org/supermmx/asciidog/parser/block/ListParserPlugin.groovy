@@ -105,23 +105,23 @@ $
     }
 
     @Override
-    protected String doGetNextChildParser(ParserContext context, Block block) {
-        def childParser = null
+    protected List<ChildParserInfo> doGetChildParserInfos(ParserContext context) {
+        return [
+            ChildParserInfo.zeroOrMore(ListItemParser.ID).findHeader().doBeforeParsing { latestContext, parent ->
+                def result = false
 
-        def header = nextBlockHeader(context)
+                def header = latestContext.blockHeader
+                if (header?.type?.isList()) {
+                    result = true
+                }
 
-        // the list item is detected as list
-        if (header?.type?.isList()) {
-            context.expected = true
-            childParser = ListItemParser.ID
-        }
+                if (!result) {
+                    latestContext.paragraphEndingCheckers.pop()
+                }
 
-        // remove the paragraph ending checker
-        if (childParser == null) {
-            context.paragraphEndingCheckers.pop()
-        }
-
-        return childParser
+                return result
+            }
+        ]
     }
 
     @Override

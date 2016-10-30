@@ -170,7 +170,7 @@ class ListParserPluginSpec extends AsciidogSpec {
         def childParser = parser.getNextChildParser(context)
 
         then:
-        context.expected == true
+        context.childParserProps.expected == true
         childParser == ListItemParser.ID
         context.paragraphEndingCheckers.size() == 1
     }
@@ -185,7 +185,7 @@ class ListParserPluginSpec extends AsciidogSpec {
         def childParser = parser.getNextChildParser(context)
 
         then:
-        context.expected == true
+        context.childParserProps.expected == true
         childParser == ListItemParser.ID
         context.paragraphEndingCheckers.size() == 1
     }

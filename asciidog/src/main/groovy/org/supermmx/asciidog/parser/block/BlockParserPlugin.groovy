@@ -128,6 +128,8 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
             log.debug('Trying pre-configured child parser {}', childParserInfo)
 
+            def childCount = parent?.children?.size() ?: 0
+
             switch (childParserInfo.type) {
             case ParserInfoType.ONE:
             case ParserInfoType.ZERO_OR_ONE:
@@ -142,8 +144,8 @@ abstract class BlockParserPlugin extends ParserPlugin {
                     found = true
 
                     context.parserCallingCount = 1
-                    context.parserStartIndex = parent.children.size()
-                } else if (context.parserStartIndex + context.parserCallingCount == parent.children.size()) {
+                    context.parserStartIndex = childCount
+                } else if (context.parserStartIndex + context.parserCallingCount == childCount) {
                     // a block is parsed last time, keep trying with this parser
                     found = true
                     context.parserCallingCount ++
