@@ -56,42 +56,29 @@ class ListItemParser extends BlockParserPlugin {
     }
 
     @Override
-    protected String doGetNextChildParser(ParserContext context, Block block) {
-        def childParser = null
+    protected List<ChildParserInfo> doGetChildParserInfos(ParserContext context) {
+        return [
+            ChildParserInfo.one(ParagraphParser.ID),
+            ChildParserInfo.find().doBeforeParsing { newContext, parent ->
+                def result = false
+                def header = newContext.blockHeader
 
-        def lastParser = context.lastParserId
-        log.debug('Last parser = {}', lastParser)
-        if (lastParser == null) {
-            // first one is considered as a simple paragraph
-            childParser = ParagraphParser.ID
-        } else {
-            def header = nextBlockHeader(context)
-            log.debug('Next header = {}', header)
+                if (header?.type?.isList()) {
+                    // whether the list is a child list or a list item of the same level
+                    def lead = header.properties[LIST_LEAD]
+                    def marker = header.properties[LIST_MARKER]
+                    def markerLevel = header.properties[LIST_MARKER_LEVEL]
 
-            if (header?.type == Node.Type.SECTION) {
-                // definitely need to stop
-            } else if (header?.type?.isList()) {
-                // whether the list is a child list or a list item of the same level
-                def lead = header.properties[LIST_LEAD]
-                def marker = header.properties[LIST_MARKER]
-                def markerLevel = header.properties[LIST_MARKER_LEVEL]
-
-                if (isListItem(block, lead, marker, markerLevel)) {
-                    // the list belongs to one of the parent list
-                } else {
-                    // a new list as child
-                    childParser = header?.parserId
+                    if (!isListItem(parent, lead, marker, markerLevel)) {
+                        // the list doesn't belong to one of the parent list
+                        result = true
+                    }
+                } else if (header?.type != Node.Type.SECTION) {
+                    // other blocks than a section
+                    result = true
                 }
-            } else {
-                childParser = header?.parserId
             }
-        }
-
-        log.debug('Child parser = {}', childParser)
-
-        context.lastParserId = childParser
-
-        return childParser
+        ]
     }
 
     /**
@@ -110,18 +97,18 @@ class ListItemParser extends BlockParserPlugin {
         while (!found && parent != null) {
             switch (parent.type) {
             case Node.Type.LIST_ITEM:
-                break
+            break
             case Node.Type.ORDERED_LIST:
             case Node.Type.UNORDERED_LIST:
-                if (parent.marker == marker
-                    && parent.markerLevel == markerLevel) {
-                    found = true
-                    result = true
-                }
-                break
-            default:
+            if (parent.marker == marker
+                && parent.markerLevel == markerLevel) {
                 found = true
-                break
+                result = true
+            }
+            break
+            default:
+            found = true
+            break
             }
 
             parent = parent.parent

@@ -83,11 +83,11 @@ class ListItemParserSpec extends AsciidogSpec {
                                                        type: Node.Type.SECTION)
 
         context.block = item
-        context.lastParserId = ParagraphParser.ID
         context.blockHeader = header
 
         expect:
-        !parser.getNextChildParser(context)
+        parser.getNextChildParser(context) == ParagraphParser.ID
+        parser.getNextChildParser(context) == null
     }
 
     def 'nextChildParser: child list'() {
@@ -109,10 +109,10 @@ class ListItemParserSpec extends AsciidogSpec {
         }
 
         context.block = item
-        context.lastParserId = ParagraphParser.ID
         context.blockHeader = header
 
         expect:
+        parser.getNextChildParser(context) == ParagraphParser.ID
         parser.getNextChildParser(context) == OrderedListParser.ID
     }
 
@@ -135,10 +135,10 @@ class ListItemParserSpec extends AsciidogSpec {
         }
 
         context.block = item
-        context.lastParserId = ParagraphParser.ID
         context.blockHeader = header
 
         expect:
+        parser.getNextChildParser(context) == ParagraphParser.ID
         parser.getNextChildParser(context) == null
     }
 
@@ -155,7 +155,6 @@ class ListItemParserSpec extends AsciidogSpec {
                                                        type: Node.Type.PARAGRAPH)
 
         context.block = item
-        context.lastParserId = ParagraphParser.ID
         context.blockHeader = header
 
         expect:
@@ -172,10 +171,10 @@ class ListItemParserSpec extends AsciidogSpec {
         item.parent = list
 
         context.block = item
-        context.lastParserId = ParagraphParser.ID
         context.blockHeader = new BlockParserPlugin.BlockHeader()
 
         expect:
+        parser.getNextChildParser(context) == ParagraphParser.ID
         parser.getNextChildParser(context) == null
     }
 
@@ -189,10 +188,10 @@ class ListItemParserSpec extends AsciidogSpec {
         item.parent = list
 
         context.block = item
-        context.lastParserId = ParagraphParser.ID
         context.blockHeader = null
 
         expect:
+        parser.getNextChildParser(context) == ParagraphParser.ID
         parser.getNextChildParser(context) == null
     }
 
