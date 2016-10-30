@@ -77,6 +77,8 @@ class ListItemParser extends BlockParserPlugin {
                     // other blocks than a section
                     result = true
                 }
+
+                return result
             }
         ]
     }
