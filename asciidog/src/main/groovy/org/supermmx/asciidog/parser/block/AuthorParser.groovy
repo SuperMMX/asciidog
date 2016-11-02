@@ -92,8 +92,6 @@ ${AUTHOR_REGEX}
             block << author
         }
 
-        reader.nextLine()
-
         // no child parsers
 
         return null

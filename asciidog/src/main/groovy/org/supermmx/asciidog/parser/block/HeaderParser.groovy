@@ -37,9 +37,11 @@ class HeaderParser extends BlockParserPlugin {
     @Override
     protected List<ChildParserInfo> doGetChildParserInfos(ParserContext context) {
         return [
+            // authors
             ChildParserInfo.zeroOrOne(AuthorParser.ID),
             // TODO: revision
-            // TODO: attributes
+            // attributes
+            ChildParserInfo.zeroOrMore(AttributeEntryParser.ID),
         ]
     }
 }

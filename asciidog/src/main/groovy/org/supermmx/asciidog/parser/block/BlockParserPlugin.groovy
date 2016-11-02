@@ -133,12 +133,14 @@ abstract class BlockParserPlugin extends ParserPlugin {
             switch (childParserInfo.type) {
             case ParserInfoType.ONE:
             case ParserInfoType.ZERO_OR_ONE:
+                // try only once
                 found = true
                 remove = true
                 break
             case ParserInfoType.ZERO_OR_MORE:
             case ParserInfoType.ONE_OR_MORE:
             case ParserInfoType.FIND:
+                // try at least once
                 if (context.parserCallingCount == null) {
                     // first to use this parser
                     found = true

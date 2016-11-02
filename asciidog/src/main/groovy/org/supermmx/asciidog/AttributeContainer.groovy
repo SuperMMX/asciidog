@@ -2,6 +2,7 @@ package org.supermmx.asciidog
 
 import static org.supermmx.asciidog.Attribute.ValueType
 
+import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.AttributeReferenceNode
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Inline
@@ -32,6 +33,12 @@ class AttributeContainer {
     Map<String, Attribute> systemAttributes = [:]
     // Document attributes
     Map<String, Attribute> attributes = [:]
+
+    AttributeContainer leftShift(AttributeEntry entry) {
+        setAttribute(entry.name, entry.value)
+
+        return this
+    }
 
     Attribute setSystemAttribute(String name, String value) {
         setAttribute(name, null, value, true)

@@ -15,6 +15,7 @@ asciidog {
     // the plugins
     plugins = [
         // block parser
+        AttributeEntryParser,
         AuthorParser,
         DocumentParser,
         HeaderParser,
