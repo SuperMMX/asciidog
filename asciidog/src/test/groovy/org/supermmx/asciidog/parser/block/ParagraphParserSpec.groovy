@@ -63,6 +63,7 @@ fourth line'''
 
         when:
         def para = parser.parse(context)
+        PluginRegistry.instance.unregister('parent')
 
         then:
         para.lines == [ 'first line', 'second line' ]

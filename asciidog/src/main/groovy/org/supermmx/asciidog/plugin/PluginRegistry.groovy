@@ -122,6 +122,10 @@ class PluginRegistry {
         }
     }
 
+    void unregister(String id) {
+        plugins.removeAll { it.id == id }
+    }
+
     Plugin getPlugin(String id) {
         return plugins.find { it.id == id }
     }
