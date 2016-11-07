@@ -21,6 +21,40 @@ class DocumentParserSpec extends AsciidogSpec {
         header.properties[(DocumentParser.HEADER_PROPERTY_DOCUMENT_TITLE)] == 'Title'
     }
 
+    def 'document: with header and preamble'() {
+        given:
+        def content = '''= Document Title
+First Last <first.last@email.com>
+:name: value
+
+this is the preamble paragraph
+
+== Section Title
+'''
+        def eDoc = builder.document(title: 'Document Title') {
+            header {
+                authors {
+                    author 'First Last <first.last@email.com>'
+                }
+                attribute 'name', 'value'
+            }
+
+            preamble {
+                para(lines: [ 'this is the preamble paragraph'])
+            }
+
+            section(level: 1, title: 'Section Title')
+        }
+
+        def context = parserContext(content)
+
+        when:
+        def doc = Parser.parse(context)
+
+        then:
+        doc == eDoc
+    }
+
     def 'document: with sections'() {
         given:
         def content = '''= Document Title
