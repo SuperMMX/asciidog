@@ -68,6 +68,50 @@ paragraph
         header == expectedHeader
     }
 
+    def 'standalone: with one attribute'() {
+        given:
+        def content = ''':name: value
+
+paragraph
+'''
+        def expectedHeader = builder.header {
+            attribute 'name', 'value'
+        }
+        def context = parserContext(content)
+        context.parserId = HeaderParser.ID
+        context.expected = true
+
+        when:
+        def header = Parser.parse(context)
+
+        then:
+        header == expectedHeader
+    }
+
+    def 'standalone: with more attributes'() {
+        given:
+        def content = ''':name: value
+:name2: value2
+:name3: value3
+
+paragraph
+'''
+        def expectedHeader = builder.header {
+            attribute 'name', 'value'
+            attribute 'name2', 'value2'
+            attribute 'name3', 'value3'
+        }
+        def context = parserContext(content)
+        context.parserId = HeaderParser.ID
+        context.expected = true
+
+        when:
+        def header = Parser.parse(context)
+
+        then:
+        header == expectedHeader
+    }
+
     def 'standalone: with author and one attribute'() {
         given:
         def content = '''John Doe <john.doe@email.com>
@@ -80,6 +124,34 @@ paragraph
                 author 'John Doe <john.doe@email.com>'
             }
             attribute 'name', 'value'
+        }
+        def context = parserContext(content)
+        context.parserId = HeaderParser.ID
+        context.expected = true
+
+        when:
+        def header = Parser.parse(context)
+
+        then:
+        header == expectedHeader
+    }
+
+    def 'standalone: with author and more attributes'() {
+        given:
+        def content = '''John Doe <john.doe@email.com>
+:name: value
+:name2: value2
+:name3: value3
+
+paragraph
+'''
+        def expectedHeader = builder.header {
+            authors {
+                author 'John Doe <john.doe@email.com>'
+            }
+            attribute 'name', 'value'
+            attribute 'name2', 'value2'
+            attribute 'name3', 'value3'
         }
         def context = parserContext(content)
         context.parserId = HeaderParser.ID
