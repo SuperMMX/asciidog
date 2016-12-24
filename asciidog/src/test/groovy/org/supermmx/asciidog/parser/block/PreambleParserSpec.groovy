@@ -73,9 +73,15 @@ line5
 
         then:
         preamble == builder.preamble {
-            para(lines: [ 'line1', 'line2' ])
-
-            para(lines: [ 'line3', 'line4', 'line5' ])
+            para {
+                text '''line1
+line2'''
+            }
+            para {
+                text '''line3
+line4
+line5'''
+            }
         }
     }
 
@@ -103,8 +109,15 @@ line5
             }
 
             preamble {
-                para(lines: [ 'line1', 'line2'])
-                para(lines: [ 'line3', 'line4', 'line5'])
+                para {
+                    text '''line1
+line2'''
+                }
+                para {
+                    text '''line3
+line4
+line5'''
+                }
             }
         }
     }

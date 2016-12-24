@@ -95,7 +95,10 @@ and the second line
 == Another Sub Section
 '''
         def expectedSection = builder.section(level: 1, title: 'Section Title') {
-            para(lines: [ 'paragraph line', 'and the second line'])
+            para {
+                text '''paragraph line
+and the second line'''
+            }
         }
 
         def context = parserContext(content)
@@ -123,9 +126,16 @@ and the second line
 
 '''
         def expectedSection = builder.section(level: 1, title: 'Section Title') {
-            para(lines: [ 'this is the paragraph', 'and the second line'])
+            para {
+                text '''this is the paragraph
+and the second line'''
+            }
+
             section(level: 2, title: 'Subsection') {
-                para(lines: [ 'subsection paragraph', 'and the second line'])
+                para {
+                    text '''subsection paragraph
+and the second line'''
+                }
             }
         }
 

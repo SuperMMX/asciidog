@@ -200,7 +200,9 @@ class ListItemParserSpec extends AsciidogSpec {
         def content = '''. abc
 '''
         def expListItem = builder.item {
-            para(lines: ['abc'])
+            para {
+                text 'abc'
+            }
         }
         def context = parserContext(content)
         context.with {

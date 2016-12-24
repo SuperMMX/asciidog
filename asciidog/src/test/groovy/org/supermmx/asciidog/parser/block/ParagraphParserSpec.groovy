@@ -32,11 +32,15 @@ second line'''
         def context = parserContext(content)
         context.parserId = parser.id
 
+        def ePara = builder.para {
+            text content
+        }
+
         when:
         def para = parser.parse(context)
 
         then:
-        para.lines == [ 'first line', 'second line' ]
+        para == ePara
     }
 
     def 'standalone: end paragraph parsing'() {
@@ -58,6 +62,11 @@ fourth line'''
         context.parentParserId = 'parent'
         context.paragraphEndingCheckers << parentParser
 
+        def ePara = builder.para {
+            text '''first line
+second line'''
+        }
+
         expect:
         parentParser.id == 'parent'
 
@@ -66,7 +75,7 @@ fourth line'''
         PluginRegistry.instance.unregister('parent')
 
         then:
-        para.lines == [ 'first line', 'second line' ]
+        para == ePara
     }
 
     def 'standalone: blank lines before and after'() {
@@ -81,10 +90,16 @@ third line
         def context = parserContext(content)
         context.parserId = parser.id
 
+        def ePara = builder.para {
+            text '''first line
+second line
+third line'''
+        }
+
         when:
         def para = parser.parse(context)
 
         then:
-        para.lines == [ 'first line', 'second line', 'third line' ]
+        para == ePara
     }
 }

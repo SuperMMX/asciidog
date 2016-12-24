@@ -40,7 +40,9 @@ this is the preamble paragraph
             }
 
             preamble {
-                para(lines: [ 'this is the preamble paragraph'])
+                para {
+                    text 'this is the preamble paragraph'
+                }
             }
 
             section(level: 1, title: 'Section Title')
