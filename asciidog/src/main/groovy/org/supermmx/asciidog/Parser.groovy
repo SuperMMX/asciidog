@@ -1113,7 +1113,7 @@ _
         // find the parent info for an inline info starting container info
         def findParentInfo
         findParentInfo = { containerInfo, int start, int end ->
-            log.debug("container start = ${containerInfo.start}, end = ${containerInfo.end}")
+            log.debug("findParentInfo: container start = ${containerInfo.start}, end = ${containerInfo.end}")
 
             if (start < containerInfo.contentStart
                 || end > containerInfo.contentEnd) {
@@ -1151,7 +1151,7 @@ _
                 }
             }
 
-            log.debug "container info = ${containerInfo}"
+            log.debug 'fillGap: container info = {}', containerInfo
             if (!containerInfo.fillGap) {
                 return
             }
@@ -1170,7 +1170,7 @@ _
                 thisEnd = inlineInfo.start
             }
 
-            log.debug "last end = ${lastEnd}, this end = ${thisEnd}"
+            log.debug "fillGap: last end = ${lastEnd}, this end = ${thisEnd}"
             if (lastEnd < thisEnd) {
                 def node = new TextNode(parent: containerInfo.inlineNode,
                                         document: containerInfo.inlineNode.document,
@@ -1305,6 +1305,7 @@ _
             }
         }
 
+        log.info 'Filling all gaps...'
         fillGap(topInfo, null)
 
         return resultInlines

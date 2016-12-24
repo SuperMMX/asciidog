@@ -1,6 +1,7 @@
 package org.supermmx.asciidog.parser.block
 
 import org.supermmx.asciidog.Reader
+import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
@@ -68,17 +69,12 @@ class ParagraphParser extends BlockParserPlugin {
 
         if (para != null) {
             // parse the inline nodes
-            //parseInlineNodes(para, lines.join('\n'))
-            para.lines = lines
+            // the children has been added in the paragraph when parsing
+            Parser.parseInlineNodes(para, lines.join('\n'))
         }
 
-        log.debug('End parsing paragraph, parent type: {}', parent.type)
+        log.debug('End parsing paragraph, parent type: {}', parent?.type)
 
         return para
-    }
-
-    @Override
-    protected String doGetNextChildParser(ParserContext context, Block block) {
-        return null
     }
 }
