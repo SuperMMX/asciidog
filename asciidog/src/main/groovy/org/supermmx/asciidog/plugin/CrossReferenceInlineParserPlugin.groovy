@@ -2,10 +2,9 @@ package org.supermmx.asciidog.plugin
 
 import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.CrossReferenceNode
-import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.Inline
-import org.supermmx.asciidog.ast.InlineInfo
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.parser.inline.InlineParserPlugin
 
 import java.util.regex.Matcher
 

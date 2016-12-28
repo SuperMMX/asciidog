@@ -3,9 +3,8 @@ package org.supermmx.asciidog.parser.inline
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.StrongFormattingNode
-import org.supermmx.asciidog.plugin.TextFormattingInlineParserPlugin
 
-class ConstrainedStrongFormattingParser extends TextFormattingInlineParserPlugin {
+class ConstrainedStrongFormattingParser extends TextFormattingParser {
     static final def STRONG_CONSTRAINED_PATTERN = ~'''(?Usxm)
 (?<=
   ^ | [^\\w;:}]

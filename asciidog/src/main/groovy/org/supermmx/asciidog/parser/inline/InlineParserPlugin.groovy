@@ -1,9 +1,10 @@
-package org.supermmx.asciidog.plugin
+package org.supermmx.asciidog.parser.inline
 
 import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.InlineInfo
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.TextNode
+import org.supermmx.asciidog.plugin.ParserPlugin
 
 import java.util.regex.Pattern
 import java.util.regex.Matcher

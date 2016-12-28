@@ -4,7 +4,7 @@ import org.supermmx.asciidog.critic.CriticNode
 
 import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.InlineInfo
-import org.supermmx.asciidog.plugin.InlineParserPlugin
+import org.supermmx.asciidog.parser.inline.InlineParserPlugin
 
 import java.util.regex.Matcher
 

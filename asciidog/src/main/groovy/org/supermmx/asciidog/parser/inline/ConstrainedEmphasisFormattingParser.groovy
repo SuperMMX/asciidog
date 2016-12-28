@@ -3,9 +3,8 @@ package org.supermmx.asciidog.parser.inline
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.EmphasisFormattingNode
-import org.supermmx.asciidog.plugin.TextFormattingInlineParserPlugin
 
-class ConstrainedEmphasisFormattingParser extends TextFormattingInlineParserPlugin {
+class ConstrainedEmphasisFormattingParser extends TextFormattingParser {
     static final def EMPHASIS_CONSTRAINED_PATTERN = ~'''(?Usxm)
 (?<=
   ^ | [^\\w;:}]

@@ -1,14 +1,11 @@
 package org.supermmx.asciidog.plugin
 
-import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.backend.Backend
 import org.supermmx.asciidog.ast.Node
-import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.parser.block.BlockParserPlugin
 
 import groovy.util.logging.Slf4j
-
-import org.slf4j.Logger
+import org.supermmx.asciidog.parser.inline.InlineParserPlugin
 
 import java.util.ServiceLoader
 

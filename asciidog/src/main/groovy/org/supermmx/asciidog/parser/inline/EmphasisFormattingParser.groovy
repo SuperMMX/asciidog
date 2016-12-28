@@ -3,9 +3,8 @@ package org.supermmx.asciidog.parser.inline
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.EmphasisFormattingNode
-import org.supermmx.asciidog.plugin.TextFormattingInlineParserPlugin
 
-class EmphasisFormattingParser extends TextFormattingInlineParserPlugin {
+class EmphasisFormattingParser extends TextFormattingParser {
     static final def EMPHASIS_PATTERN = ~'''(?Usxm)
 (\\\\?)             # 1, escaped
 (?:

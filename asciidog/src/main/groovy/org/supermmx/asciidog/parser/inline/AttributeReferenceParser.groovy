@@ -1,10 +1,12 @@
-package org.supermmx.asciidog.plugin
+package org.supermmx.asciidog.parser.inline
 
 import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.InlineInfo
 import org.supermmx.asciidog.ast.AttributeReferenceNode
+import org.supermmx.asciidog.parser.inline.InlineParserPlugin
+
 /*
 import org.supermmx.asciidog.ast.AttributeSettingNode
 import org.supermmx.asciidog.ast.CounterSettingNode
@@ -15,8 +17,8 @@ import java.util.regex.Matcher
 /**
  * Attribute Refrence parser plugin
  */
-class AttributeReferenceInlineParserPlugin extends InlineParserPlugin {
-    AttributeReferenceInlineParserPlugin() {
+class AttributeReferenceParser extends InlineParserPlugin {
+    AttributeReferenceParser() {
         id = 'inline_parser_attribute_reference'
         nodeType = Node.Type.ATTRIBUTE_REFERENCE
 
