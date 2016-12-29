@@ -2,6 +2,7 @@ package org.supermmx.asciidog.plugin
 
 import org.supermmx.asciidog.builder.AsciidogCoreBuilderPlugin
 import org.supermmx.asciidog.parser.inline.AttributeReferenceParser
+import org.supermmx.asciidog.parser.inline.CrossReferenceParser
 
 class AsciidogCorePluginSuite extends PluginSuite {
     AsciidogCorePluginSuite() {
@@ -22,7 +23,7 @@ class AsciidogCorePluginSuite extends PluginSuite {
         // inline parsers
 
         // Cross Reference Inline Parser Plugin
-        plugins << new CrossReferenceInlineParserPlugin()
+        plugins << new CrossReferenceParser()
 
         // Attribute Reference
         plugins << new AttributeReferenceParser()

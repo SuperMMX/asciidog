@@ -27,11 +27,12 @@ asciidog {
         UnOrderedListParser,
 
         // inline parsers
+        AttributeReferenceParser,
+        CrossReferenceParser,
         ConstrainedEmphasisFormattingParser,
         ConstrainedStrongFormattingParser,
         EmphasisFormattingParser,
         StrongFormattingParser,
-        AttributeReferenceParser,
     ]
 
     builders = [
