@@ -1336,7 +1336,7 @@ _
             }
         }
 
-        log.info 'Filling all gaps...'
+        log.debug 'Filling all gaps...'
         fillGap(topInfo, null)
 
         return resultInlines

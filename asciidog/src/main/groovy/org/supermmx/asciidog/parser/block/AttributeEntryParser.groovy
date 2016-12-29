@@ -36,7 +36,7 @@ class AttributeEntryParser extends BlockParserPlugin {
 
     @Override
     protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
-        log.info('doCheckStart: line = {}', line)
+        log.debug('doCheckStart: line = {}', line)
         def (name, value) = isAttribute(line)
 
         if (name == null) {
