@@ -68,8 +68,8 @@ class DocumentWalker {
             traverseInlineContainer(context, block)
         } else {
             // normal blocks
-            block.blocks.each { childBlock ->
-                traverseBlock(context, childBlock)
+            block.children.each { childBlock ->
+                traverseBlock(context, (Block)childBlock)
             }
         }
 
@@ -79,7 +79,7 @@ class DocumentWalker {
     }
 
     protected void traverseInlineContainer(DocumentContext context, InlineContainer container) {
-        container.inlineNodes.each { inline ->
+        container.children.each { inline ->
             traverseInline(context, inline)
         }
     }

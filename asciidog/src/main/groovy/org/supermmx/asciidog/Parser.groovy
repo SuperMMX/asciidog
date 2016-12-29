@@ -34,6 +34,26 @@ import org.slf4j.Logger
 @Slf4j
 @Slf4j(value='userLog', category="AsciiDog")
 class Parser {
+    Document parseString(String content) {
+        ParserContext context = new ParserContext()
+
+        context.reader = Reader.createFromString(content)
+
+        return parseDocument(context)
+    }
+
+    Document parseFile(String filename) {
+        ParserContext context = new ParserContext()
+
+        context.reader = Reader.createFromFile(filename)
+
+        return parseDocument(context)
+    }
+
+    Document parseDocument(ParserContext context) {
+        return (Document)parse(context)
+    }
+
     static Node parse(ParserContext context) {
         Block rootBlock = null
         def parserId = context.parserId
@@ -427,6 +447,7 @@ _
 
     ParserContext context = new ParserContext()
 
+    /*
     Document parseString(String content) {
         reader = Reader.createFromString(content)
 
@@ -440,6 +461,7 @@ _
 
         return doc
     }
+    */
 
     protected Document parseDocument() {
         log.debug('Start parsing document...')
