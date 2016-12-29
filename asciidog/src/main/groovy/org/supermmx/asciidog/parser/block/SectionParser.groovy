@@ -81,6 +81,8 @@ class SectionParser extends BlockParserPlugin {
         section.title = title
         Utils.generateId(section)
 
+        context.document.references[section.id] = section
+
         reader.nextLine()
 
         return section

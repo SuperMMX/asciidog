@@ -57,14 +57,23 @@ class Parser {
     static Node parse(ParserContext context) {
         Block rootBlock = null
         def parserId = context.parserId
+
+        // set the default parser
         if (parserId == null) {
             parserId = DocumentParser.ID
             context.parserId = parserId
         }
 
+        // create document if the root parse is not document parser
+        if (parserId != DocumentParser.ID
+            && context.document == null) {
+            context.document = new Document()
+        }
+
         def lastParserId = null
         def lastCursor = null
 
+        // continous parsing
         while (parserId != null) {
             def parent = context.parent
 

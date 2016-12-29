@@ -64,6 +64,9 @@ class DocumentParser extends BlockParserPlugin {
         preambleParser = pluginRegistry.getPlugin(PreambleParser.ID)
         sectionParser = pluginRegistry.getPlugin(SectionParser.ID)
 
+        // set the document for the context
+        context.document = doc
+
         return doc
     }
 
