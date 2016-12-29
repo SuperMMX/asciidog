@@ -9,4 +9,7 @@ import groovy.transform.TupleConstructor
 @EqualsAndHashCode(callSuper=true)
 @TupleConstructor
 class StrongFormattingNode extends FormattingNode {
+    StrongFormattingNode() {
+        type = Node.Type.STRONG
+    }
 }

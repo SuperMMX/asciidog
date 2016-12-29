@@ -9,4 +9,7 @@ import groovy.transform.TupleConstructor
 @EqualsAndHashCode(callSuper=true)
 @TupleConstructor
 class EmphasisFormattingNode extends FormattingNode {
+    EmphasisFormattingNode() {
+        type = Node.Type.EMPHASIS
+    }
 }
