@@ -76,8 +76,16 @@ class DocumentParser extends BlockParserPlugin {
             ChildParserInfo.zeroOrOne(HeaderParser.ID),
             ChildParserInfo.zeroOrOne(PreambleParser.ID).findHeader(),
             ChildParserInfo.zeroOrMore(SectionParser.ID).findHeader().doBeforeParsing { latestContext, document ->
-                // FIXME: correct expectedSectionLevel according to the document type
-                latestContext.childParserProps.expectedSectionLevel = 1
+                // correct expectedSectionLevel according to the document type
+                def docTypeAttr = latestContext.attributes.getAttribute(Document.DOCTYPE)
+                def docType = Document.DocType.valueOf(docTypeAttr.value)
+
+                def expectedLevel = 1
+                if (docType == Document.DocType.book) {
+                    expectedLevel = 0
+                }
+
+                latestContext.childParserProps.expectedSectionLevel = expectedLevel
 
                 return true
             }
