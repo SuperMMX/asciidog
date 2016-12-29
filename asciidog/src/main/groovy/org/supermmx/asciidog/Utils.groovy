@@ -14,9 +14,14 @@ class Utils {
      * Gerneate id for the node
      */
     public static void generateId(Node node) {
+        def id = node.id
+        if (id == null) {
+            id = node.title
+        }
+
         switch (node.type) {
         case Node.Type.SECTION:
-            node.id = Utils.normalizeId(node.title)
+            node.id = Utils.normalizeId(id)
             break
         default:
             break

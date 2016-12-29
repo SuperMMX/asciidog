@@ -18,6 +18,31 @@ import org.slf4j.Logger
 @Slf4j
 @Slf4j(value='userLog', category="AsciiDog")
 abstract class BlockParserPlugin extends ParserPlugin {
+    static final def BLOCK_ANCHOR_PATTERN = ~'''(?x)
+\\[\\[          # [[ to start
+
+(               # 1, idname
+[\\p{Alpha}:_]
+[\\w:.-]*
+)
+
+(?:
+  ,
+  \\p{Blank}*
+  (\\S.*)       # 2, reference text
+)?
+
+\\]\\]          # ]] to end
+'''
+    static final def BLOCK_TITLE_PATTERN = ~'''(?x)
+^
+\\.             # start with .
+(
+  [^\\s.].*     # 1, title
+)
+$
+'''
+
     /**
      * Whether to skip blank lines before the block
      */
@@ -298,6 +323,26 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
             log.debug('Parser: {}, line = {}', id, line)
 
+            // check id
+            def (anchorId, anchorRef) = isBlockAnchor(line)
+            if (anchorId != null) {
+                header.id = anchorId
+
+                reader.nextLine()
+
+                continue
+            }
+
+            // check title
+            def title = isBlockTitle(line)
+            if (title != null) {
+                header.title = title
+
+                reader.nextLine()
+
+                continue
+            }
+
             SectionParser sectionParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
             if (sectionParser.checkStart(line, header, false)) {
                 header.parserId = sectionParser.id
@@ -363,6 +408,53 @@ abstract class BlockParserPlugin extends ParserPlugin {
 
             //blocks.addAll(0, header.actionBlocks)
         }
+    }
+
+    /**
+     * Whether a line represents a block anchor, like
+     *
+     * [[block id]]
+     *
+     * @param line the line to check
+     *
+     * @return the anchor id, null if not a block anchor
+     *         the reference text, null if not a block anchor
+     *         or not specified
+     */
+    protected static List<String> isBlockAnchor(String line) {
+        if (line == null) {
+            return [ null, null ]
+        }
+
+        def m = BLOCK_ANCHOR_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return [ null, null ]
+        }
+
+        String id = m[0][1]
+        String ref = m[0][2]
+
+        return [ id, ref ]
+    }
+
+    /**
+     * Whether a line represents a block title, like
+     *
+     * .BlockTitle
+     */
+    protected static String isBlockTitle(String line) {
+        if (line == null) {
+            return null
+        }
+
+        def m = BLOCK_TITLE_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return null
+        }
+
+        String title = m[0][1]
+
+        return title
     }
 
     static enum ParserInfoType {
