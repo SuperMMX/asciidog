@@ -31,6 +31,7 @@ asciidog {
         ConstrainedStrongFormattingParser,
         EmphasisFormattingParser,
         StrongFormattingParser,
+        AttributeReferenceParser,
     ]
 
     builders = [

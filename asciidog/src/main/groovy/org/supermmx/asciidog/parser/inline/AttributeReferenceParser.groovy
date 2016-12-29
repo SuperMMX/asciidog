@@ -18,8 +18,9 @@ import java.util.regex.Matcher
  * Attribute Refrence parser plugin
  */
 class AttributeReferenceParser extends InlineParserPlugin {
+    static final String ID = 'plugin:parser:inline:attribute_reference'
     AttributeReferenceParser() {
-        id = 'inline_parser_attribute_reference'
+        id = ID
         nodeType = Node.Type.ATTRIBUTE_REFERENCE
 
         pattern = Parser.ATTRIBUTE_REFERENCE_PATTERN
