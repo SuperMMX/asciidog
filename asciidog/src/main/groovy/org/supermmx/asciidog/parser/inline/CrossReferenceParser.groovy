@@ -1,4 +1,4 @@
-package org.supermmx.asciidog.plugin
+package org.supermmx.asciidog.parser.inline
 
 import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.CrossReferenceNode
@@ -11,10 +11,13 @@ import java.util.regex.Matcher
 /**
  * Plugin for Cross Reference
  */
-class CrossReferenceInlineParserPlugin extends InlineParserPlugin {
-    CrossReferenceInlineParserPlugin() {
+class CrossReferenceParser extends InlineParserPlugin {
+    static final String ID = 'plugin:parser:inline:cross_reference'
+
+    CrossReferenceParser() {
+        id = ID
         nodeType = Node.Type.CROSS_REFERENCE
-        id = 'inline_parser_xref'
+
         pattern = Parser.CROSS_REFERENCE_PATTERN
     }
 
@@ -47,4 +50,3 @@ class CrossReferenceInlineParserPlugin extends InlineParserPlugin {
         return true
     }
 }
-
