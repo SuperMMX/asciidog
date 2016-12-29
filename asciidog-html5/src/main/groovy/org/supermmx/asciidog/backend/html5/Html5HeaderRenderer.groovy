@@ -19,12 +19,9 @@ class Html5HeaderRenderer extends AbstractNodeRenderer {
         Header header = (Header) node
 
         context.writer.with {
-            writeStartElement('h1')
-            writeCharacters(header.title)
         }
     }
 
     void doPost(DocumentContext context, Node node) {
-        context.writer.writeEndElement()
     }
 }
