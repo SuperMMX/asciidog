@@ -78,8 +78,8 @@ class ParagraphParser extends BlockParserPlugin {
             if (isEnd) {
                 break
             } else {
-                if (header?.lines) {
-                    lines.addAll(header?.lines)
+                if (context.blockHeader?.lines) {
+                    lines.addAll(context.blockHeader?.lines)
                 }
                 context.blockHeader = null
             }
