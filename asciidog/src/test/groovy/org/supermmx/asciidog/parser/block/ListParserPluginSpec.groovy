@@ -192,8 +192,8 @@ class ListParserPluginSpec extends AsciidogSpec {
 
     def 'toEndParagraph: list continuation' () {
         expect:
-        parser.toEndParagraph(null, '+')
-        parser.toEndParagraph(null, '  +')
+        parser.toEndParagraph(parserContext('+'), '+')
+        parser.toEndParagraph(parserContext('  +'), '  +')
     }
 
     def 'toEndParagraph: unordered list' () {
