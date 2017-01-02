@@ -128,7 +128,8 @@ $
     boolean toEndParagraph(ParserContext context, String line) {
         def end = false
 
-        if (isListContinuation(line) != null) {
+        def lead = isListContinuation(line)
+        if (lead != null) {
             // is list continuation
             /**
              * first list paragraph
@@ -140,7 +141,7 @@ $
             if (context.parentParserProps == null) {
                 context.parentParserProps = [:]
             }
-            context.parentParserProps.listContinuation = true
+            context.parentParserProps.listContinuationLead = lead
 
             context.reader.nextLine()
         } else {
