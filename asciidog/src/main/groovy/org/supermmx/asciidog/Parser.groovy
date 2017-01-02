@@ -148,7 +148,14 @@ class Parser {
             // fail to create the block or there are no more child parsers
             if (block == null || childParserId == null) {
                 log.trace('Pop next context stack')
+
+                def parentParserProps = context.parentParserProps
+
                 context.pop()
+
+                if (parentParserProps != null) {
+                    context.properties.putAll((Map)parentParserProps)
+                }
             }
 
             parserId = context.parserId

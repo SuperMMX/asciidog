@@ -80,5 +80,10 @@ class ParserContext implements Context {
      */
     //expected
 
+    /**
+     * To pass some properties from child parser to the parent parser
+     */
+    // parentParserProps
+
     // other custom properties
 }

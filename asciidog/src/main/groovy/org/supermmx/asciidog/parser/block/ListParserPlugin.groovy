@@ -128,14 +128,21 @@ $
     boolean toEndParagraph(ParserContext context, String line) {
         def end = false
 
-        // is list continuation
         if (isListContinuation(line) != null) {
+            // is list continuation
             /**
              * first list paragraph
              * +
              * next list paragraph
              */
             end = true
+
+            if (context.parentParserProps == null) {
+                context.parentParserProps = [:]
+            }
+            context.parentParserProps.listContinuation = true
+
+            context.reader.nextLine()
         } else {
             // check block header for every line
             def header = nextBlockHeader(context)

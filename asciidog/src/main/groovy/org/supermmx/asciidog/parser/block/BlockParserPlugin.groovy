@@ -282,6 +282,8 @@ $
 
         def actionBlocks = []
 
+        // saved lines in case the block header is not needed
+        def lines = []
         /**
          * Set by a block parse to determine whether to stop trying
          * even a block start has been found.  The default value is true,
@@ -337,6 +339,7 @@ $
             def (anchorId, anchorRef) = isBlockAnchor(line)
             if (anchorId != null) {
                 header.id = anchorId
+                header.lines << line
 
                 reader.nextLine()
 
@@ -347,6 +350,7 @@ $
             def title = isBlockTitle(line)
             if (title != null) {
                 header.title = title
+                header.lines << line
 
                 reader.nextLine()
 
@@ -357,6 +361,7 @@ $
             def attrs = isBlockAttributes(line)
             if (attrs != null) {
                 header.attributes.putAll(attrs)
+                header.lines << line
 
                 reader.nextLine()
 
@@ -382,8 +387,11 @@ $
             }
 
             // paragraph as the final result if non matches above
-            header.type = Node.Type.PARAGRAPH
-            header.parserId = ParagraphParser.ID
+            if (header.parserId == null) {
+                header.type = Node.Type.PARAGRAPH
+                header.parserId = ParagraphParser.ID
+            }
+
             break
         }
 
@@ -667,6 +675,7 @@ $
 
             return this
         }
+
         static ChildParserInfo one(String parserId) {
             return new ChildParserInfo(type: ParserInfoType.ONE,
                                        parserId: parserId)

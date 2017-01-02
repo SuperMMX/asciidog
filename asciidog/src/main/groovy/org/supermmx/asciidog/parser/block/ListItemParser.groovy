@@ -75,8 +75,12 @@ class ListItemParser extends BlockParserPlugin {
                     }
                 } else if (header?.type != Node.Type.SECTION) {
                     // other blocks than a section
-                    result = true
+                    if (newContext.listContinuation) {
+                        result = true
+                    }
                 }
+
+                newContext.listContinuation = null
 
                 return result
             }

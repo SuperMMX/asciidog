@@ -42,6 +42,10 @@ class ParagraphParser extends BlockParserPlugin {
         while (line != null && line.length() > 0) {
             if (para == null) {
                 para = new Paragraph()
+                fillBlockFromHeader(para, header)
+
+                context.blockHeader = null
+                context.keepHeader = true
             }
 
             lines << line
@@ -51,12 +55,21 @@ class ParagraphParser extends BlockParserPlugin {
             line = reader.peekLine()
             log.debug('paragraph line = {}', line)
 
+            if (line == null || line.length() == 0) {
+                reader.nextLine()
+
+                context.blockHeader = null
+                break
+            }
+
             def isEnd = false
             def checkers = context.paragraphEndingCheckers
             for (def i = checkers.size() - 1; i >= 0; i--) {
                 def parser = checkers[i]
 
                 isEnd = parser.toEndParagraph(context, line)
+
+                // just stop here no matter what ??
                 if (isEnd) {
                     break
                 }
@@ -64,6 +77,11 @@ class ParagraphParser extends BlockParserPlugin {
 
             if (isEnd) {
                 break
+            } else {
+                if (header?.lines) {
+                    lines.addAll(header?.lines)
+                }
+                context.blockHeader = null
             }
         }
 
