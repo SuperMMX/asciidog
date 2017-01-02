@@ -13,6 +13,8 @@ trait Context {
 
     def properties = [:]
 
+    def permProperties = [:]
+
     def propertyMissing(String name, value) {
         if (value == null) {
             properties.remove(name)
