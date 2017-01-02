@@ -138,10 +138,7 @@ $
              */
             end = true
 
-            if (context.parentParserProps == null) {
-                context.parentParserProps = [:]
-            }
-            context.parentParserProps.listContinuationLead = lead
+            context.permProperties.listContinuationLead = lead
 
             context.reader.nextLine()
         } else {

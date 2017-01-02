@@ -75,20 +75,11 @@ class ListItemParser extends BlockParserPlugin {
                     }
                 } else if (header?.type != Node.Type.SECTION) {
                     // other blocks than a section
-                    if (newContext.listContinuationLead == null) {
+                    def continuationLead = newContext.permProperties.listContinuationLead
+                    if (continuationLead != null
+                        && continuationLead == parent.parent.lead) {
                         result = true
-                    } else {
-                        if (newContext.listContinuationLead == parent.parent.lead) {
-                            result = true
-
-                        } else {
-                            if (newContext.parentParserProps == null) {
-                                newContext.parentParserProps = [:]
-                            }
-                            newContext.parentParserProps.listContinuationLead = newContext.listContinuationLead
-                        }
-
-                        newContext.listContinuationLead = null
+                        newContext.permProperties.listContinuationLead = null
                     }
                 }
 
