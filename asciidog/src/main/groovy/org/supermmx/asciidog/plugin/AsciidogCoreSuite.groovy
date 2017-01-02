@@ -21,12 +21,6 @@ class AsciidogCorePluginSuite extends PluginSuite {
 
     private void addParserPlugins() {
         // inline parsers
-
-        // Cross Reference Inline Parser Plugin
-        plugins << new CrossReferenceParser()
-
-        // Attribute Reference
-        plugins << new AttributeReferenceParser()
     }
 
     private void addBuilderPlugins() {
