@@ -225,4 +225,72 @@ class ListParserPluginSpec extends AsciidogSpec {
         expect:
         !parser.toEndParagraph(context, '')
     }
+
+    def 'document: dash elements with no blank lines'() {
+        given:
+        def content = '''
+- Foo
+- Boo
+- Blech
+'''
+        def eDoc = builder.document {
+            ul(lead: '', level: 1, marker: '-', markerLevel: 1) {
+                item {
+                    para {
+                        text 'Foo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Boo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Blech'
+                    }
+                }
+            }
+        }
+
+        when:
+        def doc = parse(content)
+
+        then:
+        doc == eDoc
+    }
+
+    def 'document: indented dash elements using spaces'() {
+        given:
+        def content = '''
+ - Foo
+ - Boo
+ - Blech
+'''
+        def eDoc = builder.document {
+            ul(lead: ' ', level: 1, marker: '-', markerLevel: 1) {
+                item {
+                    para {
+                        text 'Foo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Boo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Blech'
+                    }
+                }
+            }
+        }
+
+        when:
+        def doc = parse(content)
+
+        then:
+        doc == eDoc
+    }
 }

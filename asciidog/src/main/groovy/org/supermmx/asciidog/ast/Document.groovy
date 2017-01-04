@@ -1,9 +1,11 @@
 package org.supermmx.asciidog.ast
 
+import org.supermmx.asciidog.AttributeContainer
+
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.TupleConstructor
 
-@EqualsAndHashCode(callSuper=true, excludes=['references', 'header', 'preamble'])
+@EqualsAndHashCode(callSuper=true, excludes=['references', 'header', 'preamble', 'docType', 'documentAttributes'])
 @TupleConstructor
 class Document extends Block {
     static enum DocType {
@@ -38,7 +40,10 @@ class Document extends Block {
      */
     static final int DEFAULT_CHUNKING_LEVEL = 1
 
-    DocType docType
+    // only avaialble when the document is completed parsed
+    AttributeContainer documentAttributes
+
+    //DocType docType = DocType.article
 
     // references in this document
     Map<String, Node> references = [:]
@@ -47,7 +52,7 @@ class Document extends Block {
         type = Node.Type.DOCUMENT
 
         // excluded fields in toString
-        excludes = ['header', 'preamble', 'references']
+        excludes = ['header', 'preamble', 'references', 'documentAttributes']
     }
 
     Header getHeader() {

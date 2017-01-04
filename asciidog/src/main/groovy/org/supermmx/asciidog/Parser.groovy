@@ -51,7 +51,10 @@ class Parser {
     }
 
     Document parseDocument(ParserContext context) {
-        return (Document)parse(context)
+        Document doc =  (Document)parse(context)
+        doc.documentAttributes = context.attributes
+
+        return doc
     }
 
     static Node parse(ParserContext context) {

@@ -56,8 +56,11 @@ class DocumentParser extends BlockParserPlugin {
 
         def title = header.properties[HEADER_PROPERTY_DOCUMENT_TITLE]
         Document doc = new Document(title: title)
-
-        reader.nextLine()
+        if (title == null) {
+            context.attributes.setAttribute(Document.DOCTYPE, Document.DocType.inline.toString())
+        } else {
+            reader.nextLine()
+        }
 
         PluginRegistry pluginRegistry = PluginRegistry.instance
         headerParser = pluginRegistry.getPlugin(HeaderParser.ID)
@@ -72,6 +75,13 @@ class DocumentParser extends BlockParserPlugin {
 
     @Override
     protected List<ChildParserInfo> doGetChildParserInfos(ParserContext context) {
+        // any block for inline without header and preamble
+        if (context.attributes.getAttribute(Document.DOCTYPE).value == Document.DocType.inline.toString()) {
+            return [
+                ChildParserInfo.find()
+            ]
+        }
+
         return [
             ChildParserInfo.zeroOrOne(HeaderParser.ID),
             ChildParserInfo.zeroOrOne(PreambleParser.ID).findHeader(),

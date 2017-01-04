@@ -147,7 +147,7 @@ $
     String getNextChildParser(ParserContext context) {
         // copy expected child parsers
         if (context.childParsers == null) {
-            context.childParsers = getChildParserInfos().collect { it }
+            context.childParsers = getChildParserInfos(context).collect { it }
         }
 
         String childParser = null

@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.builder.factory
 
+import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Preamble
 import org.supermmx.asciidog.ast.Section
@@ -12,6 +13,7 @@ class DocumentFactory extends AbstractBlockFactory {
             Header,
             Preamble,
             Section,
+            Block,
         ]
     }
 

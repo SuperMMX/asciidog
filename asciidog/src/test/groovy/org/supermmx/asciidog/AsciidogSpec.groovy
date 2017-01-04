@@ -1,5 +1,6 @@
 package org.supermmx.asciidog
 
+import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.Node
@@ -44,5 +45,9 @@ class AsciidogSpec extends Specification {
         context.reader = reader
 
         return context
+    }
+
+    Document parse(String text) {
+        return new Parser().parseString(text)
     }
 }
