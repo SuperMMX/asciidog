@@ -293,4 +293,38 @@ class ListParserPluginSpec extends AsciidogSpec {
         then:
         doc == eDoc
     }
+
+    def 'document: indented dash elements using tabs'() {
+        given:
+        def content = '''
+\t-\tFoo
+\t-\tBoo
+\t-\tBlech
+'''
+        def eDoc = builder.document {
+            ul(lead: '\t', level: 1, marker: '-', markerLevel: 1) {
+                item {
+                    para {
+                        text 'Foo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Boo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Blech'
+                    }
+                }
+            }
+        }
+
+        when:
+        def doc = parse(content)
+
+        then:
+        doc == eDoc
+    }
 }
