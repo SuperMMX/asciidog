@@ -22,12 +22,14 @@ class Block extends Node {
             pre(this)
         }
 
-        blocks.each { block ->
+        children.each { block ->
             if (condition(block)) {
                 action(block)
             }
 
-            block.walk(condition, action, pre, post)
+            if (block in Block) {
+                block.walk(condition, action, pre, post)
+            }
         }
 
         if (post) {
