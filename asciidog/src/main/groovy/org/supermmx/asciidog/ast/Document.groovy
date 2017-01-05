@@ -5,7 +5,7 @@ import org.supermmx.asciidog.AttributeContainer
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.TupleConstructor
 
-@EqualsAndHashCode(callSuper=true, excludes=['references', 'header', 'preamble', 'docType', 'documentAttributes'])
+@EqualsAndHashCode(callSuper=true, excludes=['references', 'header', 'preamble', 'docType', 'attrs'])
 @TupleConstructor
 class Document extends Block {
     static enum DocType {
@@ -41,7 +41,7 @@ class Document extends Block {
     static final int DEFAULT_CHUNKING_LEVEL = 1
 
     // only avaialble when the document is completed parsed
-    AttributeContainer documentAttributes
+    AttributeContainer attrs
 
     //DocType docType = DocType.article
 
@@ -52,7 +52,7 @@ class Document extends Block {
         type = Node.Type.DOCUMENT
 
         // excluded fields in toString
-        excludes = ['header', 'preamble', 'references', 'documentAttributes']
+        excludes = ['header', 'preamble', 'references', 'attrs']
     }
 
     Header getHeader() {

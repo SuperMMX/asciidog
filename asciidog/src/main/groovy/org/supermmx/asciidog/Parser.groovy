@@ -52,7 +52,7 @@ class Parser {
 
     Document parseDocument(ParserContext context) {
         Document doc =  (Document)parse(context)
-        doc.documentAttributes = context.attributes
+        doc.attrs = context.attributes
 
         return doc
     }
