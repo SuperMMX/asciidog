@@ -28,6 +28,10 @@ class Attribute {
      * Attribute value
      */
     Object value
+    /**
+     * The raw string value
+     */
+    String valueString
 
     private void setName(String name) {
         this.name = name
@@ -36,5 +40,4 @@ class Attribute {
     private void setType(ValueType type) {
         this.type = type
     }
-
 }

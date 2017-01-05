@@ -40,6 +40,38 @@ class AttributeContainer {
         return this
     }
 
+    /**
+     * Access the raw value string, like attrs[name]
+     */
+    String getAt(String name) {
+        return getAttribute(name).valueString
+    }
+
+    /**
+     * Set the value, like attrs[name] = value
+     */
+    void putAt(String name, String value) {
+        setAttribute(name, value)
+    }
+
+    /**
+     * Set the value via field, like attrs.name = value
+     */
+    def propertyMissing(String name, String value) {
+        if (value == null) {
+            removeAttribute(name)
+        } else {
+            setAttribute(name, value)
+        }
+    }
+
+    /**
+     * Get the raw value string via field, like attrs.name
+     */
+    def propertyMissing(String name) {
+        return getAttribute(name)?.valueString
+    }
+
     Attribute setSystemAttribute(String name, String value) {
         setAttribute(name, null, value, true)
     }
@@ -141,7 +173,8 @@ class AttributeContainer {
 
         def attr = new Attribute([ name: name,
                                    type: type,
-                                   value: finalValue ])
+                                   value: finalValue,
+                                   valueString: value])
 
         // put the attribute into correct map
         if (isSystem) {
