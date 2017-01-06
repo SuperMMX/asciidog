@@ -6,8 +6,27 @@ import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.TextNode
+import org.supermmx.asciidog.parser.action.AttributeEntryParser
 
 class AttributeEntryParserSpec extends AsciidogSpec {
+    def 'static: is attribute, value of single line'() {
+        expect:
+        [ name, value ] == AttributeEntryParser.isAttribute(line)
+
+        where:
+        name    | value       | line
+        'attr'  | 'a value'   | ':attr: a value'
+        'attr'  | 'a value'   | ':attr:   a value'
+        'attr'  | null        | ':attr:'
+        'at tr'  | ''          | ':at tr:  '
+        '!at tr' | null        | ':!at tr:'
+        null    | null        | null
+        null    | null        | ''
+        null    | null        | 'abcdef'
+        null    | null        | '* abc'
+        null    | null        | '== abc'
+    }
+
     def 'document: creates an attribute'() {
         given:
         def content = ':frog: Tanglefoot'

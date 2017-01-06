@@ -1,9 +1,11 @@
-package org.supermmx.asciidog.parser.block
+package org.supermmx.asciidog.parser.action
 
 import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.block.BlockParserPlugin
+import org.supermmx.asciidog.parser.block.BlockParserPlugin.BlockHeader
 
 import groovy.util.logging.Slf4j
 
@@ -27,7 +29,7 @@ class AttributeEntryParser extends BlockParserPlugin {
     static final String HEADER_PROPERTY_ATTRIBUTE_NAME = 'attrName'
     static final String HEADER_PROPERTY_ATTRIBUTE_FIRST_LINE = 'attrFirstLine'
 
-    static final String ID = 'plugin:parser:block:define_attribute'
+    static final String ID = 'plugin:parser:action:define_attribute'
 
     AttributeEntryParser() {
         nodeType = Node.Type.DEFINE_ATTRIBUTE
