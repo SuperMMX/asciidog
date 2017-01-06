@@ -52,6 +52,17 @@ $
 \\]                   # end with ]
 $
 '''
+    static final def COMMENT_LINE_PATTERN = ~'''(?x)
+^
+//
+(                # 1, comment
+  (?!
+    //
+  )
+  .*
+)
+$
+'''
 
     /**
      * Whether to skip blank lines before the block
@@ -625,6 +636,28 @@ $
         }
 
         return attrs
+    }
+
+    /**
+     * Whether a line represents a comment line, like
+     *
+     * // this is a comment line
+     *
+     * @return the comment content, null if not a comment line
+     */
+    protected static String isCommentLine(String line) {
+        if (line == null) {
+            return null
+        }
+
+        def m = COMMENT_LINE_PATTERN.matcher(line)
+        if (!m.matches()) {
+            return null
+        }
+
+        String comment = m[0][1]
+
+        return comment
     }
 
     static enum ParserInfoType {
