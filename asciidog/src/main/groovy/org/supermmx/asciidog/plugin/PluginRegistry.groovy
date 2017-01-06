@@ -62,7 +62,7 @@ class PluginRegistry {
 
         def configs = PluginRegistry.class.getClassLoader().getResources('asciidog.groovy')
         configs.each { URL url ->
-            userLog.info('[PLUGIN] Loading AsciiDog Plugin from', url)
+            userLog.info('[PLUGIN] Loading AsciiDog Plugin from {}', url)
             def config = configSlurper.parse(url)
             log.debug('Plugin config = {}', config)
 
