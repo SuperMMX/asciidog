@@ -25,7 +25,8 @@ class AttributeContainerSpec extends Specification {
         given:
         def attrCon = new AttributeContainer()
         def expectedAttr = new Attribute(name: 'new', type: Attribute.ValueType.STRING,
-                                         value: 'new-value')
+                                         value: 'new-value',
+                                         valueString: 'new-value')
 
         when:
         def attr = attrCon.setSystemAttribute('new', Attribute.ValueType.STRING, 'new-value')
@@ -46,7 +47,8 @@ class AttributeContainerSpec extends Specification {
         given:
         def attrCon = new AttributeContainer()
         def expectedAttr = new Attribute(name: 'new', type: Attribute.ValueType.STRING,
-                                         value: 'new-value')
+                                         value: 'new-value',
+                                         valueString: 'new-value')
 
         when:
         def attr = attrCon.setAttribute('new', Attribute.ValueType.STRING, 'new-value')
@@ -67,9 +69,11 @@ class AttributeContainerSpec extends Specification {
         given:
         def attrCon = new AttributeContainer()
         def expectedAttr = new Attribute(name: 'new', type: Attribute.ValueType.STRING,
-                                         value: 'attribute')
+                                         value: 'attribute',
+                                         valueString: 'attribute')
         def expectedSysAttr = new Attribute(name: 'new', type: Attribute.ValueType.STRING,
-                                            value: 'system')
+                                            value: 'system',
+                                            valueString: 'system')
 
         when:
         def attr = attrCon.setAttribute('new', Attribute.ValueType.STRING, 'attribute')
@@ -92,7 +96,8 @@ class AttributeContainerSpec extends Specification {
         given:
         def attrCon = new AttributeContainer()
         def expectedAttr = new Attribute(name: DOCTYPE, type: Attribute.ValueType.STRING,
-                                         value: 'article')
+                                         value: 'article',
+                                         valueString: 'article')
 
         when:
         def attr = attrCon.getAttribute(DOCTYPE)
@@ -110,7 +115,8 @@ class AttributeContainerSpec extends Specification {
         given:
         def attrCon = new AttributeContainer()
         def expectedAttr = new Attribute(name: DOCTYPE, type: Attribute.ValueType.STRING,
-                                         value: 'book')
+                                         value: 'book',
+                                         valueString: 'book')
 
         when:
         def attr = attrCon.setAttribute(DOCTYPE, 'book')
@@ -131,7 +137,8 @@ class AttributeContainerSpec extends Specification {
         given:
         def attrCon = new AttributeContainer()
         def expectedAttr = new Attribute(name: DOCTYPE, type: Attribute.ValueType.STRING,
-                                         value: 'book')
+                                         value: 'book',
+                                         valueString: 'book')
 
         when:
         def attr = attrCon.setSystemAttribute(DOCTYPE, 'book')
@@ -151,7 +158,8 @@ class AttributeContainerSpec extends Specification {
         given:
         def attrCon = new AttributeContainer()
         def expectedAttr = new Attribute(name: DOCTYPE, type: Attribute.ValueType.STRING,
-                                         value: 'book')
+                                         value: 'book',
+                                         valueString: 'book')
 
         when:
         def sysAttr = attrCon.setSystemAttribute(DOCTYPE, 'book')
@@ -165,7 +173,8 @@ class AttributeContainerSpec extends Specification {
         attrCon.systemAttributes[DOCTYPE] == sysAttr
         attrCon.attributes[DOCTYPE] == new Attribute([ name: DOCTYPE,
                                                        type: Attribute.ValueType.STRING,
-                                                       value: 'inline' ])
+                                                       value: 'inline',
+                                                       valueString: 'inline'])
         attrCon.DEFAULT_ATTRIBUTES[DOCTYPE].value == Document.DocType.article.toString()
 
         attrCon.getAttribute(DOCTYPE) == sysAttr
@@ -187,14 +196,16 @@ class AttributeContainerSpec extends Specification {
                                                             value: [
                                                                 new TextNode('new '),
                                                                 new TextNode('initial value')
-                                                            ])
+                                                            ],
+                                                            valueString: 'new {init}')
         container.getAttribute('newNewValue') == new Attribute(name: 'newNewValue',
                                                             type: Attribute.ValueType.INLINES,
                                                             value: [
                                                                 new TextNode('new '),
                                                                 new TextNode('new '),
                                                                 new TextNode('initial value')
-                                                            ])
+                                                            ],
+                                                               valueString: 'new {newValue}')
     }
 
     def 'should delete an attribute that ends with !'() {
@@ -275,7 +286,8 @@ class AttributeContainerSpec extends Specification {
                                  value: [
                                      new TextNode('Asciidoctor '),
                                      new TextNode('1.0')
-                                 ])
+                                 ],
+                                 valueString: 'Asciidoctor {version}')
 
         def container = new AttributeContainer()
 

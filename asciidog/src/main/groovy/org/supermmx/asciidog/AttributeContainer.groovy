@@ -372,7 +372,7 @@ class AttributeContainer {
             def name = it[0]
             def type = it[1]
             def value = it[2]
-            DEFAULT_ATTRIBUTES[name] = new Attribute([ name: name, type: type, value: value ])
+            DEFAULT_ATTRIBUTES[name] = new Attribute([ name: name, type: type, value: value, valueString: value.toString() ])
         }
     }
 }
