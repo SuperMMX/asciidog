@@ -4,6 +4,7 @@ import org.supermmx.asciidog.AsciidogSpec
 import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.parser.action.AttributeEntryParser
 
 class HeaderParserSpec extends AsciidogSpec {
     def parser = new HeaderParser()

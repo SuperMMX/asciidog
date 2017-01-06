@@ -1,4 +1,5 @@
 import org.supermmx.asciidog.plugin.*
+import org.supermmx.asciidog.parser.action.*
 import org.supermmx.asciidog.parser.block.*
 import org.supermmx.asciidog.parser.inline.*
 

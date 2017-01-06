@@ -5,6 +5,7 @@ import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.action.AttributeEntryParser
 import org.supermmx.asciidog.plugin.PluginRegistry
 
 import groovy.util.logging.Slf4j
