@@ -12,13 +12,24 @@ import java.util.regex.Matcher
  * Plugin for Cross Reference
  */
 class CrossReferenceParser extends InlineParserPlugin {
+    static final def CROSS_REFERENCE_PATTERN = ~'''(?Usxm)
+(\\\\?)             # 1, escape
+(?:
+  \\[
+     ([^\\]]+?)     # 2, Attributes
+  \\]
+)?
+<<
+(.*?)          # 3, id, allow any characters
+>>
+'''
     static final String ID = 'plugin:parser:inline:cross_reference'
 
     CrossReferenceParser() {
         id = ID
         nodeType = Node.Type.CROSS_REFERENCE
 
-        pattern = Parser.CROSS_REFERENCE_PATTERN
+        pattern = CROSS_REFERENCE_PATTERN
     }
 
     @Override

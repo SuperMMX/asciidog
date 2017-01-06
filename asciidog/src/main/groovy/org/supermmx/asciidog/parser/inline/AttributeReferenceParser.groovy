@@ -18,12 +18,32 @@ import java.util.regex.Matcher
  * Attribute Refrence parser plugin
  */
 class AttributeReferenceParser extends InlineParserPlugin {
+    static final def ATTRIBUTE_REFERENCE_PATTERN = ~'''(?Usxm)
+(\\\\?)             # 1, escape
+\\{
+(                   # 2
+  (set|counter2?)   # 3, set or counter
+  :
+  ([^:]+?)          # 4, attribute name
+  (?:
+    :
+    (.*?)           # 5, attribute value
+  )?
+  |
+  (                 # 6, attribute name
+    [\\w-.]+?
+  )
+)
+\\}
+'''
+
     static final String ID = 'plugin:parser:inline:attribute_reference'
+
     AttributeReferenceParser() {
         id = ID
         nodeType = Node.Type.ATTRIBUTE_REFERENCE
 
-        pattern = Parser.ATTRIBUTE_REFERENCE_PATTERN
+        pattern = ATTRIBUTE_REFERENCE_PATTERN
     }
 
     @Override
