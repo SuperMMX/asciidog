@@ -14,7 +14,9 @@ class InlineInfo {
     boolean constrained
 
     boolean escaped
+    // the start index, zero based, inclusive
     int start
+    // the end index, zero based, exclusive
     int end
     int contentStart
     int contentEnd
@@ -67,7 +69,7 @@ class InlineInfo {
     }
 
     static boolean overlaps(int s1, int e1, int s2, int e2) {
-        return (s1 >= s2 && s1 <= e2) && (e1 >= e2) ||
-        (s1 <= s2) && (e1 >= s2 & e1 <= e2)
+        return (s1 >= s2 && s1 < e2) && (e1 >= e2) ||
+        (s1 <= s2) && (e1 > s2 & e1 <= e2)
     }
 }
