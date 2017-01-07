@@ -27,7 +27,7 @@ git clone https://github.com/SuperMMX/asciidog.git
 
 # Convert README.adoc to html5 and epub
 cd asciidog
-./gradlew run -Dargs="-i README.adoc -b html5,epub -o build"
+./gradlew run -Pargs="-i README.adoc -b html5,epub -o build"
 
 # View build/README.html and build/README.epub
 ----
@@ -65,6 +65,7 @@ cd asciidog
 === Backend
 
 * Basic HTML5 backend
+* Basic ePub3 backend
 
 === Builder
 
@@ -86,8 +87,8 @@ Sample plugin suite:
 * CriticMarkup
 
 == TODO
-
-* Put parser in inside parser package
+* Link
+* Delimited block
 * Create include node instead of hiding it in reader
 
 == Issues
