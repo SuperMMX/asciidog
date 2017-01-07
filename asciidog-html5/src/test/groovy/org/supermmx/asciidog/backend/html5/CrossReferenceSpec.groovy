@@ -3,21 +3,18 @@ package org.supermmx.asciidog.backend.html5
 class CrossReferenceSpec extends Html5Spec {
     def 'xref using angled bracket syntax for section'() {
         given:
-        def doc = builder.document() {
-            header 'Document Title'
-
+        def doc = builder.document(title: 'Document Title') {
             preamble {
                 para {
                     xref 'Section'
                 }
             }
 
-            section('Section')
+            section(title: 'Section')
         }
 
         def expectedBody = markupHtml {
             body {
-                h1 'Document Title'
                 p {
                     a(href: '#Section', 'Section')
                 }

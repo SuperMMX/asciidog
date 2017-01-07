@@ -2,10 +2,8 @@ package org.supermmx.asciidog.backend.html5
 
 class ListSpec extends Html5Spec {
     def 'ul: Simple lists'() {
-        def doc = builder.document {
-            header 'Document Title'
-
-            section('Lists') {
+        def doc = builder.document(title: 'Document Title') {
+            section(title: 'Lists') {
                 ul {
                     item {
                         para {
@@ -30,7 +28,6 @@ class ListSpec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                h1 'Document Title'
                 h2 (id: 'Lists', 'Lists')
                 ul {
                     li {

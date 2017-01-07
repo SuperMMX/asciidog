@@ -27,7 +27,7 @@ abstract class TextFormattingParser extends InlineParserPlugin {
 
                 def attrsStr = groups[2]
                 if (attrsStr != null) {
-                    def attrs = Parser.parseAttributes(attrsStr)
+                    def attrs = parseAttributes(attrsStr)
                     attributes.putAll(attrs)
                 }
             }

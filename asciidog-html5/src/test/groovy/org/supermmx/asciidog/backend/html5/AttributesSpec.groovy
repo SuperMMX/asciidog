@@ -3,8 +3,8 @@ package org.supermmx.asciidog.backend.html5
 class AttributesSpec extends Html5Spec {
     def 'resolves attributes inside attribute value within header'() {
         given:
-        def doc = builder.document {
-            header('Document Title') {
+        def doc = builder.document(title: 'Document Title') {
+            header {
                 attribute 'big', 'big'
                 attribute 'bigfoot', '{big}foot'
             }
@@ -15,10 +15,8 @@ class AttributesSpec extends Html5Spec {
                 }
             }
         }
-
         def expectedBody = markupHtml {
             body {
-                h1 'Document Title'
                 p 'bigfoot'
             }
         }
@@ -34,8 +32,8 @@ class AttributesSpec extends Html5Spec {
 
     def 'render properly with simple names'() {
         given:
-        def doc = builder.document {
-            header('Document Title') {
+        def doc = builder.document(title: 'Document Title') {
+            header {
                 attribute 'frog', 'Tanglefoot'
                 attribute 'my_super-hero', 'Spiderman'
             }
@@ -53,7 +51,6 @@ class AttributesSpec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                h1 'Document Title'
                 p 'Yo, Tanglefoot!\nBeat Spiderman!'
             }
         }
@@ -69,8 +66,8 @@ class AttributesSpec extends Html5Spec {
 
     def 'render properly with single character name'() {
         given:
-        def doc = builder.document {
-            header('Document Title') {
+        def doc = builder.document(title: 'Document Title') {
+            header {
                 attribute 'r', 'Ruby'
             }
 
@@ -89,7 +86,6 @@ R is for {r}!
 '''
         def expectedBody = markupHtml {
             body {
-                h1 'Document Title'
                 p 'R is for Ruby!'
             }
         }
