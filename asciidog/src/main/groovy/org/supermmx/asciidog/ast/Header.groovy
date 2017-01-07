@@ -1,24 +1,15 @@
 package org.supermmx.asciidog.ast;
 
-import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
+import groovy.transform.TupleConstructor
 
 /**
- * Document header.  The children blocks are attributes
+ * Document header.  The children blocks are authors, revisions and attributes
  */
-@Canonical
 @EqualsAndHashCode(callSuper=true)
-@ToString(includeSuper=true, includePackage=false, includeNames=true)
+@TupleConstructor
 class Header extends Block {
     public Header() {
         type = Node.Type.HEADER
-    }
-
-    List<Author> authors = []
-    Revision revision
-
-    Author getAuthor() {
-        authors[0]
     }
 }

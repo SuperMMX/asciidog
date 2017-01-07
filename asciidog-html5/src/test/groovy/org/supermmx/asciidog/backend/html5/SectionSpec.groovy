@@ -3,15 +3,12 @@ package org.supermmx.asciidog.backend.html5
 class SectionSpec extends Html5Spec {
     def 'section'() {
         given:
-        def doc = builder.document {
-            header 'Document Title'
-
-            section 'Section Title'
+        def doc = builder.document(title: 'Document Title') {
+            section(title: 'Section Title')
         }
 
         def expectedBody = markupHtml {
             body {
-                h1 'Document Title'
                 h2(id: 'Section_Title', 'Section Title')
             }
         }

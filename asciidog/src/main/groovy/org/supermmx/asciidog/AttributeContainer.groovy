@@ -2,6 +2,7 @@ package org.supermmx.asciidog
 
 import static org.supermmx.asciidog.Attribute.ValueType
 
+import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.AttributeReferenceNode
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Inline
@@ -32,6 +33,44 @@ class AttributeContainer {
     Map<String, Attribute> systemAttributes = [:]
     // Document attributes
     Map<String, Attribute> attributes = [:]
+
+    AttributeContainer leftShift(AttributeEntry entry) {
+        setAttribute(entry.name, entry.value)
+
+        return this
+    }
+
+    /**
+     * Access the raw value string, like attrs[name]
+     */
+    String getAt(String name) {
+        return getAttribute(name).valueString
+    }
+
+    /**
+     * Set the value, like attrs[name] = value
+     */
+    void putAt(String name, String value) {
+        setAttribute(name, value)
+    }
+
+    /**
+     * Set the value via field, like attrs.name = value
+     */
+    def propertyMissing(String name, String value) {
+        if (value == null) {
+            removeAttribute(name)
+        } else {
+            setAttribute(name, value)
+        }
+    }
+
+    /**
+     * Get the raw value string via field, like attrs.name
+     */
+    def propertyMissing(String name) {
+        return getAttribute(name)?.valueString
+    }
 
     Attribute setSystemAttribute(String name, String value) {
         setAttribute(name, null, value, true)
@@ -134,7 +173,8 @@ class AttributeContainer {
 
         def attr = new Attribute([ name: name,
                                    type: type,
-                                   value: finalValue ])
+                                   value: finalValue,
+                                   valueString: value])
 
         // put the attribute into correct map
         if (isSystem) {
@@ -332,7 +372,7 @@ class AttributeContainer {
             def name = it[0]
             def type = it[1]
             def value = it[2]
-            DEFAULT_ATTRIBUTES[name] = new Attribute([ name: name, type: type, value: value ])
+            DEFAULT_ATTRIBUTES[name] = new Attribute([ name: name, type: type, value: value, valueString: value.toString() ])
         }
     }
 }

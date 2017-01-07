@@ -6,6 +6,12 @@ import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.backend.AbstractLeafNodeRenderer
 import org.supermmx.asciidog.converter.DocumentContext
 
+import groovy.util.logging.Slf4j
+
+import org.slf4j.Logger
+
+@Slf4j
+@Slf4j(value='userLog', category="AsciiDog")
 class Html5InlineXrefRenderer extends AbstractLeafNodeRenderer {
     Html5InlineXrefRenderer() {
         nodeType = Node.Type.CROSS_REFERENCE

@@ -42,7 +42,9 @@ subprojects {
             exclude group:'org.codehaus.groovy'
         }
 
-        runtime 'ch.qos.logback:logback-classic:1.1.2'
+        runtime 'ch.qos.logback:logback-classic:1.1.7'
+
+        testRuntime 'cglib:cglib-nodep:3.2.4'
     }
 
     compileGroovy {

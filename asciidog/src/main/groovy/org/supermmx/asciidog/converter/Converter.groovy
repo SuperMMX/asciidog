@@ -62,6 +62,5 @@ class Converter {
     }
 
     void convertToHtml(Document doc, Writer writer) {
-        
     }
 }

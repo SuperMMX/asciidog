@@ -11,7 +11,7 @@ class ParagraphFactory extends InlineContainerFactory {
 
     def newInstance(FactoryBuilderSupport builder, name, value, Map attributes) {
         Paragraph paragraph = new Paragraph()
-        
+
         return paragraph
     }
 }

@@ -44,7 +44,7 @@ class Html5DocumentRenderer extends AbstractNodeRenderer {
             writeEndElement()
 
             writeStartElement('title')
-            writeCharacters(document.header.title)
+            writeCharacters(document.title)
             writeEndElement()
 
             // head

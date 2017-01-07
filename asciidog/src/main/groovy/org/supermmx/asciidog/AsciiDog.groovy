@@ -56,9 +56,13 @@ class AsciiDog {
 
         log.info("[Converter] Options: ${adOptions}")
 
+        // parse
         Parser parser = new Parser()
         Document doc = parser.parseFile(file)
 
+        log.debug('Parsed document = \n{}', doc)
+
+        // render
         Converter converter = new Converter()
 
         backends.each{ id ->

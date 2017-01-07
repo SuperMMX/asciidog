@@ -12,7 +12,7 @@ class PreambleFactory extends AbstractBlockFactory {
     @Override
     def newInstance(FactoryBuilderSupport builder, name, value, Map attributes) {
         Preamble preamble = new Preamble()
-        
+
         return preamble
     }
 }

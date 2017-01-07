@@ -41,7 +41,8 @@ class Html5Backend extends AbstractBackend {
         registerRenderer(Node.Type.LIST_ITEM, new Html5ListItemRenderer())
 
         registerRenderer(Node.Type.TEXT, new Html5InlineTextRenderer())
-        registerRenderer(Node.Type.FORMATTING, new Html5InlineFormattingRenderer())
+        registerRenderer(Node.Type.STRONG, new Html5StrongRenderer())
+        registerRenderer(Node.Type.EMPHASIS, new Html5EmphasisRenderer())
         registerRenderer(Node.Type.CROSS_REFERENCE, new Html5InlineXrefRenderer())
 
         chunkRenderer = new Html5ChunkRenderer()

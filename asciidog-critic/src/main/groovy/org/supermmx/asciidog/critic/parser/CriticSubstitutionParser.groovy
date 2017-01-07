@@ -12,8 +12,11 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 class CriticSubstitutionParser extends AbstractCriticParser {
+    static final String ID = 'plugin:parser:inline:critic:substitution'
+
     CriticSubstitutionParser() {
-        id = 'inline_parser_critic_substitution'
+        id = ID
+
         criticType = CriticNode.CriticType.SUBSTITUTION
         pattern = ~"""(?Usxm)
 \\{~~
@@ -33,6 +36,7 @@ class CriticSubstitutionParser extends AbstractCriticParser {
         CriticNode deletionNode = new CriticNode(criticType: CriticNode.CriticType.DELETION)
         CriticNode additionNode = new CriticNode(criticType: CriticNode.CriticType.ADDITION)
 
+        substNode << deletionNode << additionNode
         return [ substNode, deletionNode, additionNode ]
     }
 
@@ -73,6 +77,13 @@ class CriticSubstitutionParser extends AbstractCriticParser {
             contentStart = start
             contentEnd = end
         }
+
+        // only the top-level node is returned
+        infoList.removeAll()
+
+        substInfo << deletionInfo << additionInfo
+
+        infoList << substInfo
 
         return true
     }

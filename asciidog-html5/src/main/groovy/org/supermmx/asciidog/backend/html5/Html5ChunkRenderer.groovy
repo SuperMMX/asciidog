@@ -40,11 +40,7 @@ class Html5ChunkRenderer implements ChunkRenderer {
             writeEndElement()
 
             writeStartElement('title')
-            if (block in Document) {
-                writeCharacters(block.header?.title)
-            } else {
-                writeCharacters(block.title)
-            }
+            writeCharacters(block.title)
             writeEndElement()
 
             // head

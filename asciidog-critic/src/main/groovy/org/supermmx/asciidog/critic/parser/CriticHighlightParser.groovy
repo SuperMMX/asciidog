@@ -3,8 +3,11 @@ package org.supermmx.asciidog.critic.parser
 import org.supermmx.asciidog.critic.CriticNode
 
 class CriticHighlightParser extends AbstractCriticParser {
+    static final String ID = 'plugin:parser:inline:critic:highlight'
+
     CriticHighlightParser() {
-        id = 'inline_parser_critic_highlight'
+        id = ID
+
         criticType = CriticNode.CriticType.HIGHLIGHT
         pattern = ~"""(?Usxm)
 \\{==

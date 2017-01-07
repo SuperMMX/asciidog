@@ -1,16 +1,13 @@
 package org.supermmx.asciidog.ast
 
-import groovy.transform.Canonical
 import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
+import groovy.transform.TupleConstructor
 
 /**
  * The list contains multiple list items with the same level.
  */
-@Canonical
 @EqualsAndHashCode(callSuper=true)
-@ToString(includeSuper=true, includePackage=false, includeNames=true)
-
+@TupleConstructor
 abstract class AdocList extends Block {
     /**
      * the leading spaces

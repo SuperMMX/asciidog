@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.builder.factory
 
+import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Preamble
 import org.supermmx.asciidog.ast.Section
@@ -12,6 +13,7 @@ class DocumentFactory extends AbstractBlockFactory {
             Header,
             Preamble,
             Section,
+            Block,
         ]
     }
 
@@ -19,7 +21,7 @@ class DocumentFactory extends AbstractBlockFactory {
     def newInstance(FactoryBuilderSupport builder, name, value, Map attributes) {
         Document document = new Document()
         document.document = document
-        
+
         return document
     }
 
@@ -27,17 +29,17 @@ class DocumentFactory extends AbstractBlockFactory {
     void doSetChild(FactoryBuilderSupport builder, parent, child) {
         boolean callSuper = true
         if (child in Header) {
-            if (parent.blocks.size() > 0) {
+            if (parent.children.size() > 0) {
                 callSuper = false
                 throw new Exception('"header" should be the first child in "document"')
             }
         } else if (child in Preamble) {
-            if (parent.blocks.size() == 1) {
-                if (!(parent.blocks[0] in Header)) {
+            if (parent.children.size() == 1) {
+                if (!(parent.children[0] in Header)) {
                     callSuper = false
                     throw new Exception('"preamble" should be after "header" and before "section"')
                 }
-            } else if (parent.blocks.size() > 1) {
+            } else if (parent.children.size() > 1) {
                 callSuper = false
                 throw new Exception('"preamble" should be the first or second child in "document"')
             }

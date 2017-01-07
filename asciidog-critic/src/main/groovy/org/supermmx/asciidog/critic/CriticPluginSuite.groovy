@@ -20,5 +20,5 @@ class CriticPluginSuite extends PluginSuite {
 
         // renderers
         plugins << new CriticRendererPlugin()
-    }    
+    }
 }
