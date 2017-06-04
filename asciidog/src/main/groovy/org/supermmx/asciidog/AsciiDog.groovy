@@ -49,6 +49,9 @@ class AsciiDog {
             adOptions[(Document.OUTPUT_CHUNKED)] = options.oc.toString()
         }
 
+        // more options
+        adOptions[Document.OUTPUT_WRITING_MODE] = Document.WritingMode.vrl.toString()
+
         log.info("[Converter] AsciiDoc Input File: {}", file)
         log.info("[Converter] Backends: {}", backends)
         log.info("[Converter] Converted Output Directory: {}", output)
