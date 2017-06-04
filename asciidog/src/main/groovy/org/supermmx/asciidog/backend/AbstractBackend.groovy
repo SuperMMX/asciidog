@@ -36,6 +36,14 @@ abstract class AbstractBackend implements Backend {
 
     ChunkRenderer chunkRenderer
 
+    /**
+     * No default chunk path
+     */
+    @Override
+    public String getChunkPath(DocumentContext context) {
+        return null
+    }
+
     NodeRenderer getRenderer(Node.Type nodeType) {
         def renderer = null
 
