@@ -25,7 +25,7 @@ class Html5ChunkRenderer implements ChunkRenderer {
 
         writer.with {
             // no xml declaration
-            //writeStartDocument()
+            writeStartDocument()
 
             writeDTD('<!DOCTYPE html>')
 
@@ -35,14 +35,39 @@ class Html5ChunkRenderer implements ChunkRenderer {
             // head
             writeStartElement('head')
 
-            writeStartElement('meta')
+            writeEmptyElement('meta')
             writeAttribute('charset', 'UTF-8')
-            writeEndElement()
 
             writeStartElement('title')
             writeCharacters(block.title)
             writeEndElement()
 
+            def writingMode = context.attrContainer[Document.OUTPUT_WRITING_MODE]
+            if (writingMode == Document.WritingMode.vrl.toString()) {
+                writeEmptyElement('link')
+
+                def htmlDir = context.attrContainer[Html5Backend.HTML_DIR]
+                def cssDir = context.attrContainer[Html5Backend.CSS_DIR]
+                def cssRelPath = ((htmlDir == null) ? '' : '../') + ((cssDir == null) ? '' : (cssDir + '/'))
+
+                writeAttribute('href', cssRelPath + 'vrl.css')
+                writeAttribute('rel', 'stylesheet')
+                writeAttribute('type', 'text/css')
+
+                // only copy once for document
+                if (block in Document) {
+                    def cssStream = this.getClass().getClassLoader().getResourceAsStream('org/supermmx/asciidog/backend/html5/vrl.css')
+
+                    def cssPath = ((cssDir == null) ? '' : (cssDir + '/'))
+                    def vrlCssFile = new File(context.outputDir, cssPath + 'vrl.css')
+                    if (!vrlCssFile.parentFile.exists()) {
+                        vrlCssFile.parentFile.mkdirs()
+                    }
+                    vrlCssFile.bytes = cssStream.bytes
+                    cssStream.close()
+                }
+
+            }
             // head
             writeEndElement()
 

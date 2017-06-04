@@ -49,7 +49,11 @@ class Converter {
 
         def context = new DocumentContext(document: doc,
                                           backend: backend)
-        context.outputDir = dirObj
+        // set different for different backends
+        context.outputDir = new File(dirObj, backend.id)
+        if (!context.outputDir.exists()) {
+            context.outputDir.mkdirs();
+        }
 
         // convert all options to document attributes
         context.attrContainer.removeSystemAttributes()

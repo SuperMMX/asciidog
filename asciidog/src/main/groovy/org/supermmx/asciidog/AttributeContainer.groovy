@@ -44,7 +44,7 @@ class AttributeContainer {
      * Access the raw value string, like attrs[name]
      */
     String getAt(String name) {
-        return getAttribute(name).valueString
+        return getAttribute(name)?.valueString
     }
 
     /**
@@ -360,6 +360,8 @@ class AttributeContainer {
     private static def DEFAULT_ATTR_DEFS = [
         [ Document.DOCTYPE, Attribute.ValueType.STRING, Document.DocType.article.toString() ],
         [ Document.TOC, Attribute.ValueType.STRING, 'auto' ],
+
+        [ Document.OUTPUT_WRITING_MODE, Attribute.ValueType.STRING, Document.WritingMode.htb.toString() ],
 
         [ Document.OUTPUT_BASE, Attribute.ValueType.STRING, '' ],
         [ Document.OUTPUT_CHUNKED, Attribute.ValueType.BOOLEAN, false ],

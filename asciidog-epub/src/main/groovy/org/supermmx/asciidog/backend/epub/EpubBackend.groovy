@@ -33,6 +33,10 @@ class EpubBackend extends Html5Backend {
         // always chunking for epub
         context.attrContainer.setSystemAttribute(Document.OUTPUT_CHUNKED, true.toString())
 
+        // TODO: check attribute existence
+        context.attrContainer.setAttribute(HTML_DIR, 'xhtml')
+        context.attrContainer.setAttribute(CSS_DIR, 'css')
+
         // set the chunk extension
         context.chunkExt = '.xhtml'
     }
@@ -58,17 +62,36 @@ class EpubBackend extends Html5Backend {
 
         // language
         def langAttr = context.attrContainer.getAttribute('language')
-        def lang = langAttr ? langAttr.value : 'en'
+        def lang = langAttr ? langAttr.value[0].text : 'en'
         epubCreator.addDcElement(DcesTerm.language, lang, null)
 
         // modified
         epubCreator.addMetaModified(new Date())
 
+        // primary writing mode
+        def writingMode = context.attrContainer[Document.OUTPUT_WRITING_MODE]
+        if (writingMode == Document.WritingMode.vrl.toString()) {
+
+            rendition.spine.ppd = 'rtl'
+
+            def cssDir = context.attrContainer[Html5Backend.CSS_DIR]
+            def cssPath = (cssDir == null) ? '' : (cssDir + '/')
+            def vrlCss = new File(context.outputDir, cssPath + 'vrl.css')
+            epubCreator.addItem(vrlCss.absolutePath, cssPath + 'vrl.css', 'vrl.css')
+
+            // Kindle property
+            def writingModeMeta = epubCreator.addMeta('primary-writing-mode', 'vertical-rl')
+            writingModeMeta.obsolete = true
+        }
+
+        def htmlDir = context.attrContainer[Html5Backend.HTML_DIR]
+        def htmlPath = (htmlDir == null) ? '' : (htmlDir + '/')
+
         // find all the chunks
         context.chunkingStrategy.chunks.each { chunk ->
-            def chunkFile = new File(outputDir, chunk.fileName)
+            def chunkFile = new File(outputDir, htmlPath + chunk.fileName)
 
-            epubCreator.addSpineItem(chunkFile.absolutePath, chunk.fileName, chunk.block.id, chunk.block.title)
+            epubCreator.addSpineItem(chunkFile.absolutePath, htmlPath + chunk.fileName, chunk.block.id, chunk.block.title)
         }
 
         // add epub toc item
@@ -92,6 +115,13 @@ class EpubBackend extends Html5Backend {
         def item = nav
         def navItems = [ ]
 
+        def chunkPath = getChunkPath(context)
+        if (chunkPath == null) {
+            chunkPath = ''
+        } else {
+            chunkPath += '/'
+        }
+
         // go through all sections
         def condition = { Node node ->
             node.type == Node.Type.SECTION
@@ -106,7 +136,7 @@ class EpubBackend extends Html5Backend {
             }
 
             def childItem = new NavigationItem(title: node.title,
-                                               file: chunk?.fileName,
+                                               file: chunkPath + chunk?.fileName,
                                                anchor: anchor)
             anchor = null
 

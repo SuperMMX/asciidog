@@ -21,6 +21,10 @@ class AsciiDog {
             b(longOpt: 'backends', args: Option.UNLIMITED_VALUES, argName: 'backends', valueSeparator: ',', 'Comma-separated backend IDs')
 
             oc(longOpt: 'output-chunked', 'Enable chunked output')
+
+            // all other options
+            O(longOpt: 'options', args: Option.UNLIMITED_VALUES, argName: 'options', valueSeparator: ',', 'Other options')
+
         }
 
         def options = cli.parse(args)
@@ -47,6 +51,20 @@ class AsciiDog {
 
         if (options.oc) {
             adOptions[(Document.OUTPUT_CHUNKED)] = options.oc.toString()
+        }
+
+        // add other options
+        def moreOptions = options.Os
+        if (moreOptions) {
+            adOptions << moreOptions.collectEntries { it ->
+                def tokens = it.split('=')
+                def key = tokens[0]
+                if (tokens.length > 1) {
+                    [(key): tokens[1]]
+                } else {
+                    [(key): '']
+                }
+            }
         }
 
         log.info("[Converter] AsciiDoc Input File: {}", file)

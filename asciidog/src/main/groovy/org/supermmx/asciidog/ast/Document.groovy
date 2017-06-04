@@ -18,6 +18,19 @@ class Document extends Block {
     static final String TOC = 'toc'
 
     /**
+     * Writing mode for output, same as CSS writing mode
+     */
+    static final String OUTPUT_WRITING_MODE = 'output-writing-mode';
+    /**
+     * The supported writing mode
+     */
+    static enum WritingMode {
+        htb,
+        vrl,
+        vlr
+    }
+
+    /**
      * Base name for the output
      */
     static final String OUTPUT_BASE = 'output-base'
