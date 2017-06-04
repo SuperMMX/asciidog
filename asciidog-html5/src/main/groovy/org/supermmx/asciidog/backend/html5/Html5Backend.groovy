@@ -28,6 +28,15 @@ import java.lang.reflect.Proxy
 
 @Slf4j
 class Html5Backend extends AbstractBackend {
+    /**
+     * The option for the directory to store all HTML files
+     */
+    static final String HTML_DIR = 'html-dir'
+    /**
+     * The option for the directory to store stylesheets
+     */
+    static final String CSS_DIR = 'css-dir'
+
     Html5Backend() {
         id = 'html5'
         ext = '.html'
@@ -46,5 +55,15 @@ class Html5Backend extends AbstractBackend {
         registerRenderer(Node.Type.CROSS_REFERENCE, new Html5InlineXrefRenderer())
 
         chunkRenderer = new Html5ChunkRenderer()
+    }
+
+    /**
+     * Get the chunk path for html files from the attributes
+     */
+    @Override
+    String getChunkPath(DocumentContext context) {
+        def htmlDir = context.attrContainer[HTML_DIR]
+
+        return htmlDir
     }
 }

@@ -39,6 +39,11 @@ interface Backend {
     String getExt()
 
     /**
+     * The path inside the output dir
+     */
+    String getChunkPath(DocumentContext context)
+
+    /**
      * Register the renderer to this backend.
      * FIXME: how to handle rendering based the subtype or other attributes?
      *

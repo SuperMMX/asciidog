@@ -135,7 +135,17 @@ class DocumentWalker {
         context.chunk = chunk
 
         if (!context.attrContainer.getAttribute(Document.OUTPUT_STREAM).value) {
-            def chunkFile = new File(context.outputDir, chunk.fileName)
+            def filePath = chunk.fileName
+            // the directory inside the output directory
+            def chunkPath = context.backend.getChunkPath(context)
+            if (chunkPath != null) {
+                filePath = chunkPath + File.separator + filePath
+            }
+
+            def chunkFile = new File(context.outputDir, filePath)
+            if (!chunkFile.parentFile.exists()) {
+                chunkFile.parentFile.mkdirs()
+            }
 
             log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
 
