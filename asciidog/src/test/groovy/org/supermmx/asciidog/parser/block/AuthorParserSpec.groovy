@@ -45,6 +45,8 @@ class AuthorParserSpec extends AsciidogSpec {
         where:
         line            |  result
         '张三'          |  true
+        '朝代‧人名'          |  true
+        '朝代·人名'          |  true
         '张三 <zhang.san@email.com>'          |  true
         'First Last <abc@def.com>' |  true
         'First <abc@def.com> ; Second Last <test@test.org>' |  true
