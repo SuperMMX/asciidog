@@ -60,7 +60,7 @@ class AttributeEntryParser extends BlockParserPlugin {
         def value = header?.properties[HEADER_PROPERTY_ATTRIBUTE_FIRST_LINE]
 
         // FIXME: value of multiple lines
-        AttributeEntry attr = new AttributeEntry([ name: name, value: value ])
+        AttributeEntry attr = new AttributeEntry(name: name, value: value)
 
         context.attributes << attr
 
