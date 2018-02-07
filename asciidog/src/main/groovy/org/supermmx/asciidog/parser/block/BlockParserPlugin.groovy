@@ -73,6 +73,86 @@ $
      * Parse the block based on current context
      */
     Block parse(ParserContext context) {
+        // parse current block
+        log.info("Start parsing...")
+
+        def block = parseBlock(context)
+        if (block == null) {
+            return null
+        }
+
+        context.block = block;
+
+        log.debug("Parsing children...")
+        def parent = context.parent
+
+        block.parent = parent
+        block.document = context.document
+
+        // parse children
+        def lastParserId = null
+        def lastCursor = null
+
+        def childParserId = getNextChildParser(context)
+        while (childParserId != null) {
+            log.info("Child parser is ${childParserId}");
+
+            lastParserId = childParserId
+            lastCursor = context.reader.cursor.clone()
+
+            def childBlock = null
+
+            def childParser = PluginRegistry.instance.getPlugin(childParserId)
+            if (childParser != null) {
+                // save current context
+
+                context.push()
+
+                context.parent = block
+                context.properties.putAll(context.childParserProps)
+                context.childParserProps.clear()
+
+                childBlock = childParser.parse(context);
+
+                def parentParserProps = context.parentParserProps
+
+                context.pop()
+
+                if (parentParserProps != null) {
+                    context.properties.putAll((Map)parentParserProps)
+                }
+
+                if (childBlock != null) {
+                    block << childBlock
+                }
+            }
+
+            // next child
+            childParserId = getNextChildParser(context)
+
+            // infinite loop detected when the parser is the same and the cursor doesn't move
+            if (childParserId == lastParserId
+                && context.reader.cursor == lastCursor) {
+                log.error('Infinite loop detected, current parser: {}, cursor: {}',
+                          childParserId, context.reader.cursor)
+                childParserId = null
+
+                // stop the parsing process
+                context.stop = true;
+            }
+
+            if (context.stop) {
+                break;
+            }
+        }
+
+        return block;
+    }
+
+    /**
+     * Parse the block based on current context
+     */
+    protected Block parseBlock(ParserContext context) {
         // checking
         def header = context.blockHeader
         def reader = context.reader

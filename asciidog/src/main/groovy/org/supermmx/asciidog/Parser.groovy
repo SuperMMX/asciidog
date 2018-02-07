@@ -51,13 +51,37 @@ class Parser {
     }
 
     Document parseDocument(ParserContext context) {
-        Document doc =  (Document)parse(context)
+        Document doc = (Document)parse(context)
         doc.attrs = context.attributes
 
         return doc
     }
 
-    static Node parse(ParserContext context) {
+    static Block parse(ParserContext context) {
+        def parserId = context.parserId
+
+        // set the default parser
+        if (parserId == null) {
+            parserId = DocumentParser.ID
+            context.parserId = parserId
+        }
+
+        // create document if the root parse is not document parser
+        if (parserId != DocumentParser.ID
+            && context.document == null) {
+            context.document = new Document()
+        }
+
+        def parser = PluginRegistry.instance.getPlugin(parserId)
+        if (parser == null) {
+            userLog.error("Parser \"${parserId}\" specified in the context not found");
+            return null;
+        }
+
+        return parser.parse(context);
+    }
+
+    static Node parseOld(ParserContext context) {
         Block rootBlock = null
         def parserId = context.parserId
 
