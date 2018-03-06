@@ -3,3 +3,11 @@ html {
     -webkit-writing-mode: vertical-rl;
     -epub-writing-mode: vertical-rl;
 }
+
+body {
+    margin: 0;
+    margin-left: 0%;
+    margin-right: 0%;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
