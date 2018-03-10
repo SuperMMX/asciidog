@@ -54,37 +54,30 @@ class LexerSpec extends Specification {
         def reader = Reader.createFromString('''line''')
         def lexer = new Lexer(reader: reader)
 
-        when: 'first token'
-        def token = lexer.next()
-
-        then:
-        token.type == Token.Type.TEXT
-        token.value == 'line'
-        token.row == 0
-        token.col == 0
-
-        when: 'eol'
-        token = lexer.next()
-
-        then:
-        token.type == Token.Type.EOL
-        token.value == null
-        token.row == 0
-        token.col == 4
-
-        when: 'eof'
-        token = lexer.next()
-
-        then:
-        token.type == Token.Type.EOF
-        token.value == null
-        token.row == 1
-        token.col == 0
+        expect:
+        lexer.tokens() == [
+            new Token(Token.Type.TEXT, 'line', '', 0, 0),
+            new Token(Token.Type.EOL, null, '', 0, 4),
+            new Token(Token.Type.EOF, null, '', 1, 0),
+        ]
 
         when: 'null'
         token = lexer.next()
 
         then:
         token == null
+    }
+
+    def 'simple digits'() {
+        given:
+        def reader = Reader.createFromString('''12345''')
+        def lexer = new Lexer(reader: reader)
+
+        expect:
+        lexer.tokens() == [
+            new Token(Token.Type.DIGITS, '12345', '', 0, 0),
+            new Token(Token.Type.EOL, null, '', 0, 5),
+            new Token(Token.Type.EOF, null, '', 1, 0)
+        ]
     }
 }
