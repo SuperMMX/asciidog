@@ -93,4 +93,20 @@ class LexerSpec extends Specification {
             new Token(Token.Type.EOF, null, '', 1, 0)
         ]
     }
+
+    def 'simple puncts'() {
+        given:
+        def reader = Reader.createFromString('''#%^.''')
+        def lexer = new Lexer(reader: reader)
+
+        expect:
+        lexer.tokens() == [
+            new Token(Token.Type.PUNCTS, '#', '', 0, 0),
+            new Token(Token.Type.PUNCTS, '%', '', 0, 1),
+            new Token(Token.Type.PUNCTS, '^', '', 0, 2),
+            new Token(Token.Type.PUNCTS, '.', '', 0, 3),
+            new Token(Token.Type.EOL, null, '', 0, 4),
+            new Token(Token.Type.EOF, null, '', 1, 0)
+        ]
+    }
 }
