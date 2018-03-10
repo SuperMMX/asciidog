@@ -80,4 +80,17 @@ class LexerSpec extends Specification {
             new Token(Token.Type.EOF, null, '', 1, 0)
         ]
     }
+
+    def 'simple white spaces'() {
+        given:
+        def reader = Reader.createFromString(''' \t\t ''')
+        def lexer = new Lexer(reader: reader)
+
+        expect:
+        lexer.tokens() == [
+            new Token(Token.Type.WHITE_SPACES, ' \t\t ', '', 0, 0),
+            new Token(Token.Type.EOL, null, '', 0, 4),
+            new Token(Token.Type.EOF, null, '', 1, 0)
+        ]
+    }
 }

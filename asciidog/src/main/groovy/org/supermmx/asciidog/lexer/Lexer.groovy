@@ -81,6 +81,9 @@ class Lexer {
 
             // same character as last one, combine them
             if (ch == lastCh) {
+                lastCh = ch
+                index ++
+
                 continue
             }
 
