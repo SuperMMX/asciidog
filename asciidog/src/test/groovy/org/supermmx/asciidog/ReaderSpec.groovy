@@ -3,6 +3,17 @@ package org.supermmx.asciidog
 import spock.lang.*
 
 class ReaderSpec extends Specification {
+    def 'blank line'() {
+        given:
+        def reader = Reader.createFromString('');
+
+        when:
+        def line = reader.peekLine()
+
+        then:
+        line == null
+    }
+
     def 'peek line'() {
         given:
         def reader = Reader.createFromString('''line1
@@ -58,7 +69,7 @@ line3
         then:
         line == 'line1'
     }
-    
+
     def 'peek lines without enough data'() {
         given:
         def reader = Reader.createFromString('''line1
