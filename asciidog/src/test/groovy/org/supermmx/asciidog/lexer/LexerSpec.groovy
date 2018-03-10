@@ -109,4 +109,34 @@ class LexerSpec extends Specification {
             new Token(Token.Type.EOF, null, '', 1, 0)
         ]
     }
+
+    def 'mixed'() {
+        given:
+        def reader = Reader.createFromString('''== Section
+image::test.jpeg[Test,300,200]
+''')
+        def lexer = new Lexer(reader: reader)
+
+        expect:
+        lexer.tokens() == [
+            new Token(Token.Type.PUNCTS, '==', '', 0, 0),
+            new Token(Token.Type.WHITE_SPACES, ' ', '', 0, 2),
+            new Token(Token.Type.TEXT, 'Section', '', 0, 3),
+            new Token(Token.Type.EOL, null, '', 0, 10),
+            new Token(Token.Type.TEXT, 'image', '', 1, 0),
+            new Token(Token.Type.PUNCTS, '::', '', 1, 5),
+            new Token(Token.Type.TEXT, 'test', '', 1, 7),
+            new Token(Token.Type.PUNCTS, '.', '', 1, 11),
+            new Token(Token.Type.TEXT, 'jpeg', '', 1, 12),
+            new Token(Token.Type.PUNCTS, '[', '', 1, 16),
+            new Token(Token.Type.TEXT, 'Test', '', 1, 17),
+            new Token(Token.Type.PUNCTS, ',', '', 1, 21),
+            new Token(Token.Type.DIGITS, '300', '', 1, 22),
+            new Token(Token.Type.PUNCTS, ',', '', 1, 25),
+            new Token(Token.Type.DIGITS, '200', '', 1, 26),
+            new Token(Token.Type.PUNCTS, ']', '', 1, 29),
+            new Token(Token.Type.EOL, null, '', 1, 30),
+            new Token(Token.Type.EOF, null, '', 2, 0)
+        ]
+    }
 }
