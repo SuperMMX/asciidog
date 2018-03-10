@@ -62,7 +62,7 @@ class LexerSpec extends Specification {
         ]
 
         when: 'null'
-        token = lexer.next()
+        def token = lexer.next()
 
         then:
         token == null
