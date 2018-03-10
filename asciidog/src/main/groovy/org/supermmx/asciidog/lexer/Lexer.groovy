@@ -58,8 +58,8 @@ class Lexer {
             if (lastToken == null
                 // duplicate call
                 || lastToken.type != Token.Type.EOF) {
-                tokens << new Token(type: Token.Type.EOF,
-                                    uri: uri, row: row, col: col)
+                tokens << new Token(Token.Type.EOF, null,
+                                    uri, row, col)
                 result = tokens.head()
             }
 
@@ -102,10 +102,10 @@ class Lexer {
             } else {
                 // compare to the current type
                 if (chType != type
-                    // PUNCT characters are not combined
-                    || (chType == Token.Type.PUNCT)) {
+                    // the type is not combining
+                    || !chType.combining) {
                     def value = line.substring(col, index)
-                    def token = new Token(type: type, value: value, row: row, col: col)
+                    def token = new Token(type, value, uri, row, col)
                     tokens << token
 
                     log.debug 'Token created: {}', token
@@ -126,7 +126,7 @@ class Lexer {
         if (col < index) {
             // last token
             def value = line.substring(col, index)
-            def token = new Token(type: type, value: value, row: row, col: col)
+            def token = new Token(type, value, uri, row, col)
             tokens << token
 
             log.debug 'Last token in line created: {}', token
@@ -135,8 +135,7 @@ class Lexer {
         }
 
         // eol
-        tokens << new Token(type: Token.Type.EOL,
-                            uri: uri, row: row, col: col)
+        tokens << new Token(Token.Type.EOL, null, uri, row, col)
 
         log.debug "Line tokens: ${tokens}"
 
@@ -155,5 +154,15 @@ class Lexer {
         }
 
         return token
+    }
+
+    List<Token> tokens() {
+        def tokens = []
+
+        while (hasNext()) {
+            tokens << next()
+        }
+
+        return tokens
     }
 }
