@@ -53,6 +53,7 @@ class Reader {
         def line = null
 
         while ((line = segment.nextLine()) == null) {
+            // end of the file
             // keep the last segment ?
             def nextSegment = segment.nextSegment
             if (nextSegment != null) {
