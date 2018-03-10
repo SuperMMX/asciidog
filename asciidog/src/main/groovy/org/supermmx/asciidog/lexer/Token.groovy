@@ -2,38 +2,55 @@ package org.supermmx.asciidog.lexer
 
 import org.supermmx.asciidog.reader.Cursor
 
+import groovy.transform.Canonical
+
 /**
  * A token from the file or stream, consecutive same characters are combined
  * in the same token, and WHITE_SPACE and TEXT are always combined
  */
+@Canonical
 class Token {
     static enum Type {
         // White spaces: ' ' or \t
-        WHITE_SPACE(' \t'),
+        WHITE_SPACES(' \t'),
+        DIGITS('0123456789'),
         // End of Line
-        EOL,
+        EOL(false),
         // End of File
-        EOF,
+        EOF(false),
         // ASCII punctuation
-        PUNCT('!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'),
+        PUNCTS('!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~', false),
         // all other
         TEXT
 
         /**
          * Types that need to match against characters classes
          */
-        static List<Type> MATCHING_TYPES = [ WHITE_SPACE, PUNCT ]
+        static List<Type> MATCHING_TYPES = [ WHITE_SPACES, DIGITS, PUNCTS ]
 
         /**
          * The character classes to match for the type
          */
         String characterClasses
+        /**
+         * Whether to combine different characters
+         */
+        boolean combining = true
 
         Type() {
         }
 
+        Type(boolean combining) {
+            this(null, combining)
+        }
+
         Type(String characterClasses) {
+            this(characterClasses, true)
+        }
+
+        Type(String characterClasses, boolean combining) {
             this.characterClasses = characterClasses
+            this.combining = combining
         }
 
         /**
