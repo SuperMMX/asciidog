@@ -8,7 +8,7 @@ class LexerSpec extends Specification {
     def 'peek blank file'() {
         given:
         def reader = Reader.createFromString('')
-        def lexer = new Lexer(reader: reader)
+        def lexer = new Lexer(reader)
 
         when:
         def token = lexer.peek()
@@ -23,7 +23,7 @@ class LexerSpec extends Specification {
         given:
         def reader = Reader.createFromString('''
 ''')
-        def lexer = new Lexer(reader: reader)
+        def lexer = new Lexer(reader)
 
         when:
         def token = lexer.peek()
@@ -37,7 +37,7 @@ class LexerSpec extends Specification {
     def 'peek token'() {
         given:
         def reader = Reader.createFromString('''line''')
-        def lexer = new Lexer(reader: reader)
+        def lexer = new Lexer(reader)
 
         when:
         def token = lexer.peek()
@@ -49,29 +49,10 @@ class LexerSpec extends Specification {
         token.col == 0
     }
 
-    def 'next tokens'() {
-        given:
-        def reader = Reader.createFromString('''line''')
-        def lexer = new Lexer(reader: reader)
-
-        expect:
-        lexer.tokens() == [
-            new Token(Token.Type.TEXT, 'line', '', 0, 0),
-            new Token(Token.Type.EOL, null, '', 0, 4),
-            new Token(Token.Type.EOF, null, '', 1, 0),
-        ]
-
-        when: 'null'
-        def token = lexer.next()
-
-        then:
-        token == null
-    }
-
     def 'simple digits'() {
         given:
         def reader = Reader.createFromString('''12345''')
-        def lexer = new Lexer(reader: reader)
+        def lexer = new Lexer(reader)
 
         expect:
         lexer.tokens() == [
@@ -84,7 +65,7 @@ class LexerSpec extends Specification {
     def 'simple white spaces'() {
         given:
         def reader = Reader.createFromString(''' \t\t ''')
-        def lexer = new Lexer(reader: reader)
+        def lexer = new Lexer(reader)
 
         expect:
         lexer.tokens() == [
@@ -97,7 +78,7 @@ class LexerSpec extends Specification {
     def 'simple puncts'() {
         given:
         def reader = Reader.createFromString('''#%^.''')
-        def lexer = new Lexer(reader: reader)
+        def lexer = new Lexer(reader)
 
         expect:
         lexer.tokens() == [
@@ -110,12 +91,54 @@ class LexerSpec extends Specification {
         ]
     }
 
-    def 'mixed'() {
+    def 'peek next n tokens'() {
         given:
         def reader = Reader.createFromString('''== Section
 image::test.jpeg[Test,300,200]
 ''')
-        def lexer = new Lexer(reader: reader)
+        def lexer = new Lexer(reader)
+
+        expect:
+        lexer.peek(5) == [
+            new Token(Token.Type.PUNCTS, '==', '', 0, 0),
+            new Token(Token.Type.WHITE_SPACES, ' ', '', 0, 2),
+            new Token(Token.Type.TEXT, 'Section', '', 0, 3),
+            new Token(Token.Type.EOL, null, '', 0, 10),
+            new Token(Token.Type.TEXT, 'image', '', 1, 0),
+        ]
+
+        and:
+        lexer.next() == new Token(Token.Type.PUNCTS, '==', '', 0, 0)
+
+    }
+
+    def 'next n tokens'() {
+        given:
+        def reader = Reader.createFromString('''== Section
+image::test.jpeg[Test,300,200]
+''')
+        def lexer = new Lexer(reader)
+
+        expect:
+        lexer.next(5) == [
+            new Token(Token.Type.PUNCTS, '==', '', 0, 0),
+            new Token(Token.Type.WHITE_SPACES, ' ', '', 0, 2),
+            new Token(Token.Type.TEXT, 'Section', '', 0, 3),
+            new Token(Token.Type.EOL, null, '', 0, 10),
+            new Token(Token.Type.TEXT, 'image', '', 1, 0),
+        ]
+
+        and:
+        lexer.next() == new Token(Token.Type.PUNCTS, '::', '', 1, 5)
+
+    }
+
+    def 'all tokens'() {
+        given:
+        def reader = Reader.createFromString('''== Section
+image::test.jpeg[Test,300,200]
+''')
+        def lexer = new Lexer(reader)
 
         expect:
         lexer.tokens() == [
@@ -139,4 +162,5 @@ image::test.jpeg[Test,300,200]
             new Token(Token.Type.EOF, null, '', 2, 0)
         ]
     }
+
 }
