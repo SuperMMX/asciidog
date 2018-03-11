@@ -19,13 +19,17 @@ class Lexer {
     private Reader reader
 
     /**
-     * The tokens of the current line
+     * The tokens of the current line or more
      */
-    private List<Token> tokens = []
+    private List<Token> tokens = [] as LinkedList<Token>
     /**
      * The last token
      */
     private Token lastToken
+
+    Lexer(Reader reader) {
+        this.reader = reader
+    }
 
     /**
      * whether there are more tokens
@@ -35,15 +39,75 @@ class Lexer {
     }
 
     /**
-     * Peek the next tokens
+     * Peek the next token
      */
     Token peek() {
-        def result = null
+        def list = peek(1)
 
-        if (tokens.size() > 0) {
-            return tokens.head()
+        if (list.size() == 0) {
+            return null
         }
 
+        return list.get(0)
+    }
+
+    /**
+     * Peek the next-n tokens
+     */
+    List<Token> peek(int count) {
+        while (tokens.size() < count && more()) {
+        }
+
+        return tokens.take(count)
+    }
+
+    /**
+     * Take the next token and remove it from the queue
+     */
+    Token next() {
+        def list = next(1)
+
+        if (list.size() == 0) {
+            return null
+        }
+
+        return list.get(0)
+    }
+
+    /**
+     * Take the next n tokens and remove them from the queue.
+     *
+     * @param count the count of the tokens to take, -1 means all
+     *
+     * @return a list of the tokens
+     */
+    List<Token> next(int count) {
+        def list = []
+        while (hasNext()) {
+            lastToken = tokens.remove(0)
+            list << lastToken
+
+            if (count > 0) {
+                count --
+                if (count == 0) {
+                    break
+                }
+            }
+        }
+
+        return list
+    }
+
+    /**
+     * Take all the remaining tokens, same as next(-1)
+     *
+     * @return a list of the tokens
+     */
+    List<Token> tokens() {
+        return next(-1)
+    }
+
+    protected boolean more() {
         // tokenize the next line
 
         def cursor = reader.getCursor()
@@ -60,10 +124,9 @@ class Lexer {
                 || lastToken.type != Token.Type.EOF) {
                 tokens << new Token(Token.Type.EOF, null,
                                     uri, row, col)
-                result = tokens.head()
             }
 
-            return result
+            return false
         }
 
         def len = line.length()
@@ -142,30 +205,7 @@ class Lexer {
 
         log.debug "Line tokens: ${tokens}"
 
-        return tokens.head()
+        return true
     }
 
-    /**
-     * Get the next token
-     */
-    Token next() {
-        def token = peek()
-
-        if (token != null) {
-            tokens.remove(0)
-            lastToken = token
-        }
-
-        return token
-    }
-
-    List<Token> tokens() {
-        def tokens = []
-
-        while (hasNext()) {
-            tokens << next()
-        }
-
-        return tokens
-    }
 }
