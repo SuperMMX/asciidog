@@ -133,6 +133,72 @@ image::test.jpeg[Test,300,200]
 
     }
 
+    def 'back one token'() {
+        given:
+        def reader = Reader.createFromString('''== Section
+image::test.jpeg[Test,300,200]
+''')
+        def lexer = new Lexer(reader)
+
+        when:
+        def tokens = lexer.next(5)
+        lexer.back(tokens[4])
+
+        then:
+        lexer.peek() == tokens[4]
+    }
+
+    def 'back tokens'() {
+        given:
+        def reader = Reader.createFromString('''== Section
+image::test.jpeg[Test,300,200]
+''')
+        def lexer = new Lexer(reader)
+
+        when:
+        def tokens = lexer.next(8)
+        lexer.back(tokens.takeRight(4))
+
+        then:
+        lexer.peek(4) == tokens.takeRight(4)
+    }
+
+    def 'combine to eol'() {
+        given:
+        def reader = Reader.createFromString('''== Section  
+image::test.jpeg[Test,300,200]
+next line
+''')
+        def lexer = new Lexer(reader)
+
+        expect:
+        lexer.combineToEOL() == '== Section  '
+        lexer.next().value == 'image'
+
+        when:
+        lexer.next(4)
+
+        then:
+        lexer.combineToEOL(false) == '[Test,300,200]'
+        lexer.peek().type == Token.Type.EOL
+    }
+
+    def 'skip blanks'() {
+        def reader = Reader.createFromString('''== Section  
+
+\t  \t
+  \t\t  next line
+''')
+        def lexer = new Lexer(reader)
+
+        when:
+        lexer.next(3)
+        lexer.skipBlanks()
+
+        then:
+        lexer.next().value == 'next'
+    }
+
     def 'all tokens'() {
         given:
         def reader = Reader.createFromString('''== Section

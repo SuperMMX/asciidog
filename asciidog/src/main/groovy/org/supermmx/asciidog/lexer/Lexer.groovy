@@ -107,6 +107,66 @@ class Lexer {
         return next(-1)
     }
 
+    /**
+     * Skip consecutive WHITE_SPACES and EOLs
+     */
+    void skipBlanks() {
+        while (hasNext()) {
+            def token = next()
+
+            if (token.type != Token.Type.WHITE_SPACES
+                && token.type != Token.Type.EOL) {
+                back(token)
+                break
+            }
+        }
+    }
+
+    /**
+     * Combine the value of the remaining tokens till EOL
+     *
+     * @consumeEOL whether to consume the EOL token
+     *
+     * @return the combined result
+     */
+    String combineToEOL(boolean consumeEOL = true) {
+        def buf = new StringBuilder()
+
+        while (hasNext()) {
+            def token = next()
+            if (token.type != Token.Type.EOL) {
+                buf.append(token.value)
+            } else {
+                if (!consumeEOL) {
+                    back(token)
+                }
+                break
+            }
+        }
+
+        return buf.toString()
+    }
+
+    /**
+     * Put the token back in front
+     */
+    void back(Token token) {
+        if (token != null) {
+            tokens.add(0, token)
+        }
+    }
+
+    /**
+     * Put tokens back in front
+     */
+    void back(List<Token> backTokens) {
+        if (backTokens == null) {
+            return
+        }
+
+        tokens.addAll(0, backTokens)
+    }
+
     protected boolean more() {
         // tokenize the next line
 
