@@ -155,7 +155,7 @@ $
     protected Block parseBlock(ParserContext context) {
         // checking
         def header = context.blockHeader
-        def reader = context.reader
+        def lexer = context.lexer
 
         def parent = context.parent
         log.trace('Parser: {}, Trying parse block type {} with header {}',
@@ -167,24 +167,12 @@ $
 
         // skip blank lines if necessary
         if (header?.type == null && isSkippingBlankLines) {
-            reader.skipBlankLines()
+            lexer.skipBlanks()
         }
-
-        def line = reader.peekLine()
-        log.debug('Parser: {}, line = {}', id, line)
-        def isStart = checkStart(line, header, context.expected ?: false)
-        log.debug('Parser: {}, check start = {}', id, isStart)
-
-        if (!isStart) {
-            return null
-        }
-
-        log.debug('Parser: {}, Parsing block type {}, parent type {}, parent seq {}',
-                  id, nodeType, parent?.type, parent?.seq)
 
         // create the block
         Block block = createBlock(context, parent, header)
-        if (block ==  null) {
+        if (block == null) {
             return null
         }
 
@@ -213,10 +201,13 @@ $
         return doCheckStart(line, header, expected)
     }
 
-    abstract protected boolean doCheckStart(String line, BlockHeader header, boolean expected)
+    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
+        return false
+    }
 
     /**
-     * Create the block from current context, especially from current block header
+     * Create the block from current context, especially from current block header,
+     * without parsing the child nodes
      */
     protected Block createBlock(ParserContext context, Block parent, BlockHeader header) {
         return doCreateBlock(context, parent, header)
