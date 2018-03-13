@@ -7,6 +7,7 @@ import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Header
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
 import org.supermmx.asciidog.parser.block.HeaderParser
 import org.supermmx.asciidog.parser.block.PreambleParser
@@ -24,48 +25,40 @@ class DocumentParser extends BlockParserPlugin {
 
     static final String ID = 'plugin:parser:block:document'
 
-    private HeaderParser headerParser
-    private PreambleParser preambleParser
-    private SectionParser sectionParser
-
     DocumentParser() {
         nodeType = Node.Type.DOCUMENT
         id = ID
     }
 
     @Override
-    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
-        SectionParser sectionParser =
-            PluginRegistry.instance.getPlugin(SectionParser.ID)
-
-        // if the first line is level 0 section,
-        def isSection = sectionParser.checkStart(line, header, true)
-        def level = header.properties[(SectionParser.HEADER_PROPERTY_SECTION_LEVEL)]
-        def title = header.properties[(SectionParser.HEADER_PROPERTY_SECTION_TITLE)]
-
-        if (isSection && level == 0) {
-            header.properties[(HEADER_PROPERTY_DOCUMENT_TITLE)] = title
-        }
-
-        return true
-    }
-
-    @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
-        def reader = context.reader
+        def lexer = context.lexer
 
-        def title = header.properties[HEADER_PROPERTY_DOCUMENT_TITLE]
-        Document doc = new Document(title: title)
-        if (title == null) {
-            context.attributes.setAttribute(Document.DOCTYPE, Document.DocType.inline.toString())
-        } else {
-            reader.nextLine()
+        def (markToken, wsToken, titleToken) = lexer.peek(3)
+
+        if (markToken == null) {
+            return null
         }
 
-        PluginRegistry pluginRegistry = PluginRegistry.instance
-        headerParser = pluginRegistry.getPlugin(HeaderParser.ID)
-        preambleParser = pluginRegistry.getPlugin(PreambleParser.ID)
-        sectionParser = pluginRegistry.getPlugin(SectionParser.ID)
+        def doc = new Document()
+        if (markToken.value == '='
+            && wsToken?.type == Token.Type.WHITE_SPACES
+            && titleToken?.type != Token.Type.EOL) {
+            // normal document
+
+            // advance to title
+            lexer.next(2)
+
+            // TODO: parse the title as inlines
+            def title = lexer.combineToEOL()
+            doc.title = title
+
+            // title consumed
+            lexer.next()
+        } else {
+            // inline document
+            context.attributes.setAttribute(Document.DOCTYPE, Document.DocType.inline.toString())
+        }
 
         // set the document for the context
         context.document = doc
