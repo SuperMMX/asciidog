@@ -229,4 +229,20 @@ image::test.jpeg[Test,300,200]
         ]
     }
 
+    def 'mark and reset'() {
+        given:
+        def reader = Reader.createFromString('''== Section
+image::test.jpeg[Test,300,200]
+''')
+        def lexer = new Lexer(reader)
+
+        when:
+        lexer.next(2)
+        lexer.mark()
+        lexer.next(5)
+        lexer.reset()
+
+        then:
+        lexer.next().value == 'Section'
+    }
 }

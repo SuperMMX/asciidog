@@ -27,6 +27,15 @@ class Lexer {
      */
     private Token lastToken
 
+    /**
+     * The saved tokens when marked
+     */
+    private List<Token> markTokens = [] as LinkedList<Token>
+    /**
+     * The saved last token when marked
+     */
+    private Token markLastToken
+
     Lexer(Reader reader) {
         this.reader = reader
     }
@@ -86,6 +95,11 @@ class Lexer {
         while (hasNext()) {
             lastToken = tokens.remove(0)
             list << lastToken
+
+            // in mark state
+            if (markLastToken != null) {
+                markTokens << lastToken
+            }
 
             if (count > 0) {
                 count --
@@ -167,6 +181,44 @@ class Lexer {
         tokens.addAll(0, backTokens)
     }
 
+    /**
+     * Mark current token position. A subsequent call to the reset method
+     * repositions the lexer at the last marked position
+     */
+    void mark() {
+        // remark current position
+        if (markLastToken != null) {
+            markTokens.removeAll()
+        }
+
+        markLastToken = lastToken
+    }
+
+    /**
+     * Repositions the lexer to the position that the mark method
+     * was last called
+     */
+    void reset() {
+        // not marked
+        if (markLastToken == null) {
+            return
+        }
+
+        // push back the saved tokens from marked position
+        back(markTokens)
+        // restore last token
+        lastToken = markLastToken
+
+        // reset state
+        markTokens.removeAll()
+        markLastToken = null
+    }
+
+    /**
+     * Read more tokens
+     *
+     * @return true if there are more tokens, otherwise false
+     */
     protected boolean more() {
         // tokenize the next line
 
