@@ -16,6 +16,8 @@ class Token {
         DIGITS('0123456789'),
         // End of Line
         EOL(false),
+        // Begin of File
+        BOF(false),
         // End of File
         EOF(false),
         // ASCII punctuation
