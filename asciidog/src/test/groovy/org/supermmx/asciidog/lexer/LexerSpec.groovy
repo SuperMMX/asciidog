@@ -58,7 +58,7 @@ class LexerSpec extends Specification {
         expect:
         lexer.tokens() == [
             new Token(Token.Type.DIGITS, '12345', '', 0, 0),
-            new Token(Token.Type.EOL, null, '', 0, 5),
+            new Token(Token.Type.EOL, '\n', '', 0, 5),
             new Token(Token.Type.EOF, null, '', 1, 0)
         ]
     }
@@ -71,7 +71,7 @@ class LexerSpec extends Specification {
         expect:
         lexer.tokens() == [
             new Token(Token.Type.WHITE_SPACES, ' \t\t ', '', 0, 0),
-            new Token(Token.Type.EOL, null, '', 0, 4),
+            new Token(Token.Type.EOL, '\n', '', 0, 4),
             new Token(Token.Type.EOF, null, '', 1, 0)
         ]
     }
@@ -87,7 +87,7 @@ class LexerSpec extends Specification {
             new Token(Token.Type.PUNCTS, '%', '', 0, 1),
             new Token(Token.Type.PUNCTS, '^', '', 0, 2),
             new Token(Token.Type.PUNCTS, '.', '', 0, 3),
-            new Token(Token.Type.EOL, null, '', 0, 4),
+            new Token(Token.Type.EOL, '\n', '', 0, 4),
             new Token(Token.Type.EOF, null, '', 1, 0)
         ]
     }
@@ -104,7 +104,7 @@ image::test.jpeg[Test,300,200]
             new Token(Token.Type.PUNCTS, '==', '', 0, 0),
             new Token(Token.Type.WHITE_SPACES, ' ', '', 0, 2),
             new Token(Token.Type.TEXT, 'Section', '', 0, 3),
-            new Token(Token.Type.EOL, null, '', 0, 10),
+            new Token(Token.Type.EOL, '\n', '', 0, 10),
             new Token(Token.Type.TEXT, 'image', '', 1, 0),
         ]
 
@@ -125,7 +125,7 @@ image::test.jpeg[Test,300,200]
             new Token(Token.Type.PUNCTS, '==', '', 0, 0),
             new Token(Token.Type.WHITE_SPACES, ' ', '', 0, 2),
             new Token(Token.Type.TEXT, 'Section', '', 0, 3),
-            new Token(Token.Type.EOL, null, '', 0, 10),
+            new Token(Token.Type.EOL, '\n', '', 0, 10),
             new Token(Token.Type.TEXT, 'image', '', 1, 0),
         ]
 
@@ -215,7 +215,7 @@ image::test.jpeg[Test,300,200]
             new Token(Token.Type.PUNCTS, '==', '', 0, 0),
             new Token(Token.Type.WHITE_SPACES, ' ', '', 0, 2),
             new Token(Token.Type.TEXT, 'Section', '', 0, 3),
-            new Token(Token.Type.EOL, null, '', 0, 10),
+            new Token(Token.Type.EOL, '\n', '', 0, 10),
             new Token(Token.Type.TEXT, 'image', '', 1, 0),
             new Token(Token.Type.PUNCTS, '::', '', 1, 5),
             new Token(Token.Type.TEXT, 'test', '', 1, 7),
@@ -228,7 +228,7 @@ image::test.jpeg[Test,300,200]
             new Token(Token.Type.PUNCTS, ',', '', 1, 25),
             new Token(Token.Type.DIGITS, '200', '', 1, 26),
             new Token(Token.Type.PUNCTS, ']', '', 1, 29),
-            new Token(Token.Type.EOL, null, '', 1, 30),
+            new Token(Token.Type.EOL, '\n', '', 1, 30),
             new Token(Token.Type.EOF, null, '', 2, 0)
         ]
     }

@@ -351,7 +351,7 @@ class Lexer {
         }
 
         // eol
-        tokens << new Token(Token.Type.EOL, null, uri, row, col)
+        tokens << new Token(Token.Type.EOL, '\n', uri, row, col)
 
         log.debug "Line tokens: ${tokens}"
 
