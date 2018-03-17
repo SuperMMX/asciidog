@@ -2,6 +2,7 @@ package org.supermmx.asciidog.lexer
 
 import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.reader.Cursor
+import org.supermmx.asciidog.parser.TokenMatcher
 
 import groovy.util.logging.Slf4j
 
@@ -137,24 +138,41 @@ class Lexer {
     }
 
     /**
-     * Combine the value of the remaining tokens till EOL
+     * Combine the value of the remaining tokens till the matcher matches.
+     * NOTE: This method will re-mark the lexer, the previous mark is cleared
      *
-     * @consumeEOL whether to consume the EOL token
+     * @consume whether to consume the matched tokens. The default value is true.
+     * @ignore whether to ignore or include the consumed tokens. Only valid
+     *         when consume is true. The default value is true.
      *
      * @return the combined result
      */
-    String combineToEOL(boolean consumeEOL = true) {
+    String combineTo(TokenMatcher matcher, boolean consume = true, boolean ignore = true) {
         def buf = new StringBuilder()
 
         while (hasNext()) {
-            def token = next()
-            if (token.type != Token.Type.EOL) {
-                buf.append(token.value)
-            } else {
-                if (!consumeEOL) {
-                    back(token)
+            // mark for every matching
+            mark()
+
+            def matched = matcher.matches(this)
+            if (matched) {
+                // consume the tokens
+                if (consume) {
+                    if (ignore) {
+                        // not to combine
+                        clearMark()
+                    } else {
+                        // add to the buffer
+                        tokensFromMark.each { buf.append(it.value) }
+                    }
+                } else {
+                    reset()
                 }
                 break
+            } else {
+                // doesn't match, add the token
+                reset()
+                buf.append(next().value)
             }
         }
 
@@ -188,10 +206,19 @@ class Lexer {
     void mark() {
         // remark current position
         if (markLastToken != null) {
-            markTokens.removeAll()
+            markTokens.clear()
         }
 
         markLastToken = lastToken
+    }
+
+    /**
+     * Get tokens from mark
+     *
+     * @return list of tokens from the marked position to current position
+     */
+    List<Token> getTokensFromMark() {
+        return markTokens
     }
 
     /**
@@ -210,7 +237,14 @@ class Lexer {
         lastToken = markLastToken
 
         // reset state
-        markTokens.removeAll()
+        clearMark()
+    }
+
+    /**
+     * Clear the mark
+     */
+    void clearMark() {
+        markTokens.clear()
         markLastToken = null
     }
 
@@ -227,11 +261,15 @@ class Lexer {
         def row = cursor.lineno
         def col = cursor.column
 
+        // the first token is always the BOF, but not returned to the caller
+        if (lastToken == null) {
+            lastToken = new Token(Token.Type.BOF, null, uri, -1, 0)
+        }
         def line = reader.nextLine()
 
         // EOF
         if (line == null) {
-            if (lastToken == null
+            if (lastToken.type == Token.Type.BOF
                 // duplicate call
                 || lastToken.type != Token.Type.EOF) {
                 tokens << new Token(Token.Type.EOF, null,

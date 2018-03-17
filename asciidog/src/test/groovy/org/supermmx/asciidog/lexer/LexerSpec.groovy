@@ -3,6 +3,7 @@ package org.supermmx.asciidog.lexer
 import spock.lang.*
 
 import org.supermmx.asciidog.Reader
+import org.supermmx.asciidog.parser.TokenMatcher
 
 class LexerSpec extends Specification {
     def 'peek blank file'() {
@@ -166,21 +167,24 @@ image::test.jpeg[Test,300,200]
     def 'combine to eol'() {
         given:
         def reader = Reader.createFromString('''== Section  
-image::test.jpeg[Test,300,200]
-next line
+  image::test.jpeg[Test,300,200]  
+next 100 lines
 ''')
         def lexer = new Lexer(reader)
+        def matcher = TokenMatcher.type(Token.Type.EOL)
 
-        expect:
-        lexer.combineToEOL() == '== Section  '
-        lexer.next().value == 'image'
+        expect: 'not consuming'
+        lexer.combineTo(matcher, false) == '== Section  '
+        lexer.next().type == Token.Type.EOL
 
-        when:
-        lexer.next(4)
+        and: 'consume and ignore'
+        lexer.combineTo(matcher) == '  image::test.jpeg[Test,300,200]  '
+        lexer.peek().value == 'next'
 
-        then:
-        lexer.combineToEOL(false) == '[Test,300,200]'
-        lexer.peek().type == Token.Type.EOL
+        and:
+        lexer.combineTo(matcher, true, false) == '''next 100 lines
+'''
+        lexer.peek().type == Token.Type.EOF
     }
 
     def 'skip blanks'() {
