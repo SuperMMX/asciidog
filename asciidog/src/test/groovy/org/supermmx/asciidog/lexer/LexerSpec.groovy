@@ -185,7 +185,7 @@ next 100 lines
         lexer.combineTo(matcher, true, false) == '''next 100 lines
 '''
         lexer.peek().type == Token.Type.EOF
-        lexer.tokensFromMark == []
+        lexer.tokensFromMark == null
     }
 
     def 'skip blanks'() {
@@ -234,20 +234,87 @@ image::test.jpeg[Test,300,200]
         ]
     }
 
-    def 'mark and reset'() {
+    def 'mark, clearMark and reset'() {
         given:
         def reader = Reader.createFromString('''== Section
 image::test.jpeg[Test,300,200]
 ''')
         def lexer = new Lexer(reader)
 
+        expect:
+        lexer.tokensFromMark == null
+
+        when: 'first mark'
+        lexer.mark()
+
+        then:
+        lexer.tokensFromMark == []
+
         when:
         lexer.next(2)
+
+        then:
+        lexer.tokensFromMark == [
+            new Token(Token.Type.PUNCTS, '==', '', 0, 0),
+            new Token(Token.Type.WHITE_SPACES, ' ', '', 0, 2),
+        ]
+
+        when: 'second mark'
         lexer.mark()
-        lexer.next(5)
+
+        then:
+        lexer.tokensFromMark == []
+
+        when:
+        lexer.next(3)
+
+        then:
+        lexer.tokensFromMark == [
+            new Token(Token.Type.TEXT, 'Section', '', 0, 3),
+            new Token(Token.Type.EOL, '\n', '', 0, 10),
+            new Token(Token.Type.TEXT, 'image', '', 1, 0),
+        ]
+
+        when: 'third mark'
+        lexer.mark()
+        lexer.next(2)
+
+        then:
+        lexer.tokensFromMark == [
+            new Token(Token.Type.PUNCTS, '::', '', 1, 5),
+            new Token(Token.Type.TEXT, 'test', '', 1, 7),
+        ]
+
+        when: 'third reset'
         lexer.reset()
 
         then:
-        lexer.next().value == 'Section'
+        lexer.peek() == new Token(Token.Type.PUNCTS, '::', '', 1, 5)
+        lexer.tokensFromMark == [
+            new Token(Token.Type.TEXT, 'Section', '', 0, 3),
+            new Token(Token.Type.EOL, '\n', '', 0, 10),
+            new Token(Token.Type.TEXT, 'image', '', 1, 0),
+        ]
+
+        when: 'second clear'
+        lexer.clearMark()
+
+        then:
+        lexer.peek() == new Token(Token.Type.PUNCTS, '::', '', 1, 5)
+        lexer.tokensFromMark == [
+            new Token(Token.Type.PUNCTS, '==', '', 0, 0),
+            new Token(Token.Type.WHITE_SPACES, ' ', '', 0, 2),
+            new Token(Token.Type.TEXT, 'Section', '', 0, 3),
+            new Token(Token.Type.EOL, '\n', '', 0, 10),
+            new Token(Token.Type.TEXT, 'image', '', 1, 0),
+        ]
+
+        when:
+        lexer.reset()
+
+        then:
+        lexer.peek() == new Token(Token.Type.PUNCTS, '==', '', 0, 0)
+        lexer.tokensFromMark == null
+
     }
 }

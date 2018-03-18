@@ -32,10 +32,8 @@ class Lexer {
      * The saved tokens when marked
      */
     private List<Token> markTokens = [] as LinkedList<Token>
-    /**
-     * The saved last token when marked
-     */
-    private Token markLastToken
+
+    private List<Integer> marks = []
 
     Lexer(Reader reader) {
         this.reader = reader
@@ -98,7 +96,7 @@ class Lexer {
             list << lastToken
 
             // in mark state
-            if (markLastToken != null) {
+            if (marks.size() > 0) {
                 markTokens << lastToken
             }
 
@@ -139,7 +137,6 @@ class Lexer {
 
     /**
      * Combine the value of the remaining tokens till the matcher matches.
-     * NOTE: This method will re-mark the lexer, the previous mark is cleared
      *
      * @consume whether to consume the matched tokens. The default value is true.
      * @ignore whether to ignore or include the consumed tokens. Only valid
@@ -199,51 +196,66 @@ class Lexer {
 
     /**
      * Mark current token position. A subsequent call to the reset method
-     * repositions the lexer at the last marked position
+     * re-positions the lexer at the last marked position, and clearMark method
+     * to keep the current position but clear the mark
      */
     void mark() {
-        // remark current position
-        if (markLastToken != null) {
-            markTokens.clear()
-        }
-
-        markLastToken = lastToken
+        marks << markTokens.size()
     }
 
     /**
-     * Get tokens from mark
+     * Get tokens from the last mark
      *
-     * @return list of tokens from the marked position to current position
+     * @return list of tokens from the last marked position to current position. Return null if there are no marks
      */
     List<Token> getTokensFromMark() {
-        return markTokens
+        // no marks
+        if (marks.size() == 0) {
+            return null
+        }
+
+        // take the tokens from the marked position to the end
+        return markTokens.takeRight(markTokens.size() - marks.last())
     }
 
     /**
-     * Repositions the lexer to the position that the mark method
+     * Re-positions the lexer to the position that the mark method
      * was last called
      */
     void reset() {
-        // not marked
-        if (markLastToken == null) {
+        def backTokens = this.tokensFromMark
+        if (backTokens == null) {
             return
         }
 
-        // push back the saved tokens from marked position
-        back(markTokens)
-        // restore last token
-        lastToken = markLastToken
+        // push back the tokens from the mark position
+        back(backTokens)
 
-        // reset state
+        // remove last count tokens from mark tokens
+        for (def count = backTokens.size(); count > 0; count --) {
+            markTokens.pop()
+        }
+
+        // clear the mark
         clearMark()
     }
 
     /**
-     * Clear the mark
+     * Clear the last mark, and will NOT re-position the current token position
      */
     void clearMark() {
-        markTokens.clear()
-        markLastToken = null
+        // no marks
+        if (marks.size() == 0) {
+            return
+        }
+
+        // remove the last mark
+        marks.pop()
+
+        // clear mark tokens if there are no more marks
+        if (marks.size() == 0) {
+            markTokens.clear()
+        }
     }
 
     /**
