@@ -158,13 +158,11 @@ class Lexer {
             if (matched) {
                 // consume the tokens
                 if (consume) {
-                    if (ignore) {
-                        // not to combine
-                        clearMark()
-                    } else {
+                    if (!ignore) {
                         // add to the buffer
                         tokensFromMark.each { buf.append(it.value) }
                     }
+                    clearMark()
                 } else {
                     reset()
                 }

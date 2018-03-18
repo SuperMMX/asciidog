@@ -185,6 +185,7 @@ next 100 lines
         lexer.combineTo(matcher, true, false) == '''next 100 lines
 '''
         lexer.peek().type == Token.Type.EOF
+        lexer.tokensFromMark == []
     }
 
     def 'skip blanks'() {
