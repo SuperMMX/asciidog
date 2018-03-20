@@ -9,9 +9,11 @@ import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.parser.block.BlockParserPlugin
 import org.supermmx.asciidog.parser.block.BlockParserPlugin.BlockHeader
 import org.supermmx.asciidog.parser.block.DocumentParser
+import org.supermmx.asciidog.lexer.Lexer
 
 class ParserContext implements Context {
     Reader reader
+    Lexer lexer
 
     AttributeContainer attributes = new AttributeContainer()
 

@@ -32,7 +32,9 @@ class AsciidogSpec extends Specification {
     def parser(def text) {
         def parser = new Parser()
         def reader = Reader.createFromString(text)
+        def lexer = new Lexer(reader)
         parser.reader = reader
+        parser.lexer = lexer
 
         return parser
     }
