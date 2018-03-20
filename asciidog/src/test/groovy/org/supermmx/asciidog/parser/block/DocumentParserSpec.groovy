@@ -64,20 +64,6 @@ class DocumentParserSpec extends AsciidogSpec {
         context.lexer.peek().value == 'this'
     }
 
-    def 'checkStart: good'() {
-        given:
-
-        def line = '= Title'
-        def header = new BlockParserPlugin.BlockHeader()
-
-        when:
-        def isStart = parser.checkStart(line, header, true)
-
-        then:
-        isStart
-        header.properties[(DocumentParser.HEADER_PROPERTY_DOCUMENT_TITLE)] == 'Title'
-    }
-
     def 'document: with header and preamble'() {
         given:
         def content = '''= Document Title

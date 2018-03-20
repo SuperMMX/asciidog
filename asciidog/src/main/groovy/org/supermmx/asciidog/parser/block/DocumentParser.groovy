@@ -1,5 +1,7 @@
 package org.supermmx.asciidog.parser.block
 
+import static org.supermmx.asciidog.parser.TokenMatcher.*
+
 import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.ast.Authors
 import org.supermmx.asciidog.ast.Block
@@ -9,6 +11,7 @@ import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.TokenMatcher
 import org.supermmx.asciidog.parser.block.HeaderParser
 import org.supermmx.asciidog.parser.block.PreambleParser
 import org.supermmx.asciidog.parser.block.SectionParser
@@ -31,6 +34,11 @@ class DocumentParser extends BlockParserPlugin {
     }
 
     @Override
+    protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
+        return true
+    }
+
+    @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
         def lexer = context.lexer
 
@@ -50,11 +58,8 @@ class DocumentParser extends BlockParserPlugin {
             lexer.next(2)
 
             // TODO: parse the title as inlines
-            def title = lexer.combineToEOL()
+            def title = lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
             doc.title = title
-
-            // title consumed
-            lexer.next()
         } else {
             // inline document
             context.attributes.setAttribute(Document.DOCTYPE, Document.DocType.inline.toString())
