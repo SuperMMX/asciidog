@@ -3,7 +3,9 @@ package org.supermmx.asciidog.parser.block
 import org.supermmx.asciidog.ast.Blank
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.TokenMatcher
 import org.supermmx.asciidog.plugin.ParserPlugin
 import org.supermmx.asciidog.plugin.PluginRegistry
 
@@ -170,6 +172,14 @@ $
             lexer.skipBlanks()
         }
 
+        // FIXME: this one is not really needed
+        def isStart = checkStart(context, header, context.expected ?: false)
+        log.debug('Parser: {}, check start = {}', id, isStart)
+
+        if (!isStart) {
+            return null
+        }
+
         // create the block
         Block block = createBlock(context, parent, header)
         if (block == null) {
@@ -202,6 +212,20 @@ $
     }
 
     protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
+        return false
+    }
+
+    boolean checkStart(ParserContext context, BlockHeader header, boolean expected) {
+        context.lexer.mark()
+
+        def result = doCheckStart(context, header, expected)
+
+        context.lexer.reset()
+
+        return result
+    }
+
+    protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
         return false
     }
 
@@ -401,17 +425,24 @@ $
             return header
         }
 
-        def reader = context.reader
+        def lexer = context.lexer
 
         log.debug('Parser: {}, Start parsing block header...', id)
 
-        reader.skipBlankLines()
+        lexer.skipBlanks()
 
         header = new BlockHeader()
 
         def line = null
-        while ((line = reader.peekLine()) != null) {
+        def matcher = TokenMatcher.type(Token.Type.EOL)
+        while (lexer.peek().type != Token.Type.EOF) {
+
+            // TODO: parse with tokens
+            lexer.mark()
+            line = lexer.combineTo(matcher)
+
             if (line.length() == 0) {
+                lexer.reset()
                 break
             }
 
@@ -423,7 +454,7 @@ $
                 header.id = anchorId
                 header.lines << line
 
-                reader.nextLine()
+                lexer.clearMark()
 
                 continue
             }
@@ -434,7 +465,7 @@ $
                 header.title = title
                 header.lines << line
 
-                reader.nextLine()
+                lexer.clearMark()
 
                 continue
             }
@@ -445,13 +476,15 @@ $
                 header.attributes.putAll(attrs)
                 header.lines << line
 
-                reader.nextLine()
+                lexer.clearMark()
 
                 continue
             }
 
+            lexer.reset()
+
             SectionParser sectionParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
-            if (sectionParser.checkStart(line, header, false)) {
+            if (sectionParser.checkStart(context, header, false)) {
                 header.parserId = sectionParser.id
 
                 break
@@ -460,7 +493,7 @@ $
             // go through all block parsers to determine what block it is
             for (BlockParserPlugin plugin: PluginRegistry.instance.getBlockParsers()) {
                 log.debug('Parser: {}, Try parser wth id: {}', id, plugin.id)
-                if (plugin.checkStart(line, header, false)) {
+                if (plugin.checkStart(context, header, false)) {
                     log.debug('Parser: {}, Parser {} matches', id, plugin.id)
                     header.parserId = plugin.id
 
