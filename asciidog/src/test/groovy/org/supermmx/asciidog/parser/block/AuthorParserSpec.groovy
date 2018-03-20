@@ -66,11 +66,12 @@ class AuthorParserSpec extends AsciidogSpec {
 
     def 'checkStart: not expected'() {
         given:
-        def line = 'Stuart Rackham <founder@asciidoc.org>'
+        def content = 'Stuart Rackham <founder@asciidoc.org>'
+        def context = parserContext(content)
         def header = new BlockParserPlugin.BlockHeader()
 
         when:
-        def isStart = authorParser.checkStart(line, header, false)
+        def isStart = authorParser.checkStart(context, header, false)
 
         then:
         !isStart
@@ -78,11 +79,12 @@ class AuthorParserSpec extends AsciidogSpec {
 
     def 'checkStart: expected invalid'() {
         given:
-        def line = 'Stuart Rackham'
+        def content = 'Stuart Rackham'
+        def context = parserContext(content)
         def header = new BlockParserPlugin.BlockHeader()
 
         when:
-        def isStart = authorParser.checkStart(line, header, false)
+        def isStart = authorParser.checkStart(context, header, false)
 
         then:
         !isStart
@@ -90,15 +92,15 @@ class AuthorParserSpec extends AsciidogSpec {
 
     def 'checkStart: expected single author line'() {
         given:
-        def line = 'Stuart Rackham <founder@asciidoc.org>'
+        def content = 'Stuart Rackham <founder@asciidoc.org>'
+        def context = parserContext(content)
         def header = new BlockParserPlugin.BlockHeader()
 
         when:
-        def isStart = authorParser.checkStart(line, header, true)
+        def isStart = authorParser.checkStart(context, header, true)
 
         then:
         isStart
-        header.properties[(AuthorParser.HEADER_PROPERTY_AUTHOR_LINE)] == line
     }
 
     def 'standalone: parse authors'() {
