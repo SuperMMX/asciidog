@@ -38,6 +38,9 @@ class SectionParser extends BlockParserPlugin {
 
     static final TokenMatcher CHECK_MATCHER = sequence([
         match({ token, valueObj ->
+            if (token.value == null) {
+                return false
+            }
             def value = token.value
             def size = value.length()
             value.charAt(0) == '=' && size >= 1 && size <= 5
