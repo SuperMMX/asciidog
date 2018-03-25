@@ -68,6 +68,10 @@ class Token {
     }
 
     /**
+     * The token index in the token stream
+     */
+    int index
+    /**
      * The token type
      */
     Type type
@@ -90,7 +94,8 @@ class Token {
     int col
 
     String toString() {
-        def valueStr = value ? "\"${value}\"" : null
-        return "Token: [ ($row, $col): $type, ${valueStr} ]"
+        def valueStr = value == '\n' ? '\\n' : value
+        valueStr = value ? "\"${value}\"" : null
+        return "Token: [ $index: ($row, $col): $type, ${valueStr} ]"
     }
 }
