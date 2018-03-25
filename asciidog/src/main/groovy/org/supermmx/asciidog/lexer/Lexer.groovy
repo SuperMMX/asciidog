@@ -3,6 +3,7 @@ package org.supermmx.asciidog.lexer
 import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.reader.Cursor
 import org.supermmx.asciidog.parser.TokenMatcher
+import org.supermmx.asciidog.parser.ParserContext
 
 import groovy.util.logging.Slf4j
 
@@ -18,6 +19,8 @@ class Lexer {
      * The underlying reader
      */
     private Reader reader
+
+    private int index = 0
 
     /**
      * The tokens of the current line or more
@@ -148,10 +151,13 @@ class Lexer {
         def buf = new StringBuilder()
 
         while (hasNext()) {
+            if (peek().type == Token.Type.EOF) {
+                break
+            }
             // mark for every matching
             mark()
 
-            def matched = matcher.matches(this)
+            def matched = matcher.matches(new ParserContext(lexer: this), null)
             if (matched) {
                 // consume the tokens
                 if (consume) {
@@ -273,7 +279,7 @@ class Lexer {
 
         // the first token is always the BOF, but not returned to the caller
         if (lastToken == null) {
-            lastToken = new Token(Token.Type.BOF, null, uri, -1, 0)
+            lastToken = new Token(-1, Token.Type.BOF, null, uri, -1, 0)
         }
         def line = reader.nextLine()
 
@@ -282,7 +288,7 @@ class Lexer {
             if (lastToken.type == Token.Type.BOF
                 // duplicate call
                 || lastToken.type != Token.Type.EOF) {
-                tokens << new Token(Token.Type.EOF, null,
+                tokens << new Token(index++, Token.Type.EOF, null,
                                     uri, row, col)
             }
 
@@ -290,22 +296,22 @@ class Lexer {
         }
 
         def len = line.length()
-        def index = 0
+        def chIndex = 0
 
         def type = null
         def lastCh = null
 
         log.debug 'Line {}: "{}"', row, line
 
-        while (index < len) {
-            def ch = line.charAt(index)
+        while (chIndex < len) {
+            def ch = line.charAt(chIndex)
 
-            log.debug 'index = {}, ch = {}, last char = {}, last type = {}', index, ch, lastCh, type
+            log.debug 'chIndex = {}, ch = {}, last char = {}, last type = {}', chIndex, ch, lastCh, type
 
             // same character as last one, combine them
             if (ch == lastCh) {
                 lastCh = ch
-                index ++
+                chIndex ++
 
                 continue
             }
@@ -330,38 +336,38 @@ class Lexer {
                 if (chType != type
                     // the type is not combining
                     || !chType.combining) {
-                    def value = line.substring(col, index)
-                    def token = new Token(type, value, uri, row, col)
+                    def value = line.substring(col, chIndex)
+                    def token = new Token(index++, type, value, uri, row, col)
                     tokens << token
 
                     log.debug 'Token created: {}', token
 
-                    col = index
+                    col = chIndex
                     type = chType
                 }
             }
 
             lastCh = ch
 
-            index++
+            chIndex++
         }
 
-        log.debug "col = ${col}, index = ${index}"
+        log.debug "col = ${col}, chIndex = ${chIndex}"
 
         // last one
-        if (col < index) {
+        if (col < chIndex) {
             // last token
-            def value = line.substring(col, index)
-            def token = new Token(type, value, uri, row, col)
+            def value = line.substring(col, chIndex)
+            def token = new Token(index++, type, value, uri, row, col)
             tokens << token
 
             log.debug 'Last token in line created: {}', token
 
-            col = index
+            col = chIndex
         }
 
         // eol
-        tokens << new Token(Token.Type.EOL, '\n', uri, row, col)
+        tokens << new Token(index++, Token.Type.EOL, '\n', uri, row, col)
 
         log.debug "Line tokens: ${tokens}"
 
