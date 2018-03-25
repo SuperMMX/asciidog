@@ -5,7 +5,10 @@ import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
+import org.supermmx.asciidog.lexer.Lexer
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.TokenMatcher
 import org.supermmx.asciidog.plugin.PluginRegistry
 
 import groovy.util.logging.Slf4j
@@ -23,23 +26,22 @@ class ParagraphParser extends BlockParserPlugin {
     }
 
     @Override
-    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
+    protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
+        def line = context.lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
+
         return (line != null) && (line.trim().length() > 0)
     }
 
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
-        def reader = context.reader
+        def lexer = context.lexer
 
         Paragraph para = null
 
         def lines = []
 
-        def line = reader.peekLine()
-
-        log.debug('paragraph line = {}', line)
-
-        while (line != null && line.length() > 0) {
+        def buf = new StringBuilder()
+        while (lexer.hasNext()) {
             if (para == null) {
                 para = new Paragraph()
                 fillBlockFromHeader(para, header)
@@ -48,40 +50,44 @@ class ParagraphParser extends BlockParserPlugin {
                 context.keepHeader = true
             }
 
-            lines << line
-
-            reader.nextLine()
-
-            line = reader.peekLine()
-            log.debug('paragraph line = {}', line)
-
-            if (line == null || line.length() == 0) {
-                reader.nextLine()
-
-                context.blockHeader = null
-                break
-            }
-
-            def isEnd = false
-            def checkers = context.paragraphEndingCheckers
-            for (def i = checkers.size() - 1; i >= 0; i--) {
-                def parser = checkers[i]
-
-                isEnd = parser.toEndParagraph(context, line)
-
-                // just stop here no matter what ??
-                if (isEnd) {
-                    break
-                }
-            }
-
-            if (isEnd) {
-                break
+            def token = lexer.next()
+            if (token.type != Token.Type.EOL) {
+                buf.append(token.value)
             } else {
-                if (context.blockHeader?.lines) {
-                    lines.addAll(context.blockHeader?.lines)
+                if (buf.length() == 0) {
+                    // blank in a new line
+                    context.blockHeader = null
+                    break
+                } else {
+                    // end of current line
+                    def line = buf.toString()
+
+                    buf = new StringBuilder()
+
+                    def isEnd = false
+                    def checkers = context.paragraphEndingCheckers
+                    for (def i = checkers.size() - 1; i >= 0; i--) {
+                        def parser = checkers[i]
+
+                        isEnd = parser.toEndParagraph(context, line)
+
+                        // just stop here no matter what ??
+                        if (isEnd) {
+                            break
+                        }
+                    }
+
+                    if (isEnd) {
+                        break
+                    } else {
+                        if (context.blockHeader?.lines) {
+                            lines.addAll(context.blockHeader?.lines)
+                        }
+                        context.blockHeader = null
+                    }
+                    lines << line
+
                 }
-                context.blockHeader = null
             }
         }
 

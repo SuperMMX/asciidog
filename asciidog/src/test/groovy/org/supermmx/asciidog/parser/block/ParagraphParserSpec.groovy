@@ -13,8 +13,8 @@ class ParagraphParserSpec extends AsciidogSpec {
         given:
 
         expect:
-        parser.checkStart(line, null, true) == value
-        parser.checkStart(line, null, false) == value
+        parser.checkStart(parserContext(line), null, true) == value
+        parser.checkStart(parserContext(line), null, false) == value
 
         where:
         line      | value
