@@ -2,69 +2,114 @@ package org.supermmx.asciidog.parser
 
 import org.supermmx.asciidog.lexer.Lexer
 import org.supermmx.asciidog.lexer.Token
+import org.supermmx.asciidog.parser.block.BlockParserPlugin.BlockHeader
 
-import groovy.transform.TupleConstructor
+import java.util.regex.Pattern
 
 /**
  * Match tokens
  */
 abstract class TokenMatcher {
-    abstract boolean matches(Lexer lexer)
+    protected abstract boolean doMatch(ParserContext context, BlockHeader header = null)
+
+    /**
+     * Closure called when the matching is finished { matched -> code }
+     */
+    Closure action
+
+    boolean matches(ParserContext context, BlockHeader header) {
+        context.lexer.mark()
+
+        def matched = doMatch(context, header)
+
+        action?.call(context, header, matched)
+
+        context.lexer.clearMark()
+
+        return matched
+    }
 
     /**
      * Match the token value
      */
-    static TokenMatcher literal(String value) {
-        return new ClosureMatcher(value, { token, valueObj ->
+    static TokenMatcher literal(String value, Closure action = null) {
+        return new ClosureMatcher(value: value, condition: { token, valueObj ->
             token?.value == valueObj
-        })
+        }, action: action)
+    }
+
+    static TokenMatcher regex(String regex, Closure action = null) {
+        return regex(~regex, action)
+    }
+
+    static TokenMatcher regex(Pattern pattern, Closure action = null) {
+        return new ClosureMatcher(value: pattern, condition: { token, valueObj ->
+            pattern.matcher(token?.value).matches()
+        }, action: action)
     }
 
     /**
      * Match the token type
      */
-    static TokenMatcher type(Token.Type type) {
-        return new ClosureMatcher(type, { token, typeObj ->
+    static TokenMatcher type(Token.Type type, Closure action = null) {
+        return new ClosureMatcher(value: type, condition: { token, typeObj ->
             token?.type == typeObj
-        })
+        }, action: action)
     }
 
     /**
      * Match the token with custom closure
      */
-    static TokenMatcher match(Closure closure) {
-        return new ClosureMatcher(null, closure)
+    static TokenMatcher match(Closure closure, Closure action = null) {
+        return new ClosureMatcher(condition: closure, action: action)
     }
 
     /**
      * Match a sequence of matchers
      */
-    static TokenMatcher sequence(TokenMatcher... matchers) {
-        return new SequenceMatcher(matchers)
+    static TokenMatcher sequence(List<TokenMatcher> matchers, Closure action = null) {
+        return new SequenceMatcher(matchers: matchers, action: action)
     }
 
-    @TupleConstructor
-    static class ClosureMatcher extends TokenMatcher {
+    static TokenMatcher not(TokenMatcher matcher, Closure action = null) {
+        return new NotMatcher(matcher: matcher, action: action)
+    }
+
+    /**
+     * Only matches one token
+     */
+    static abstract class SimpleMatcher extends TokenMatcher {
+    }
+
+    static class ClosureMatcher extends SimpleMatcher {
         Object value
         Closure condition
 
         @Override
-        boolean matches(Lexer lexer) {
-            def token = lexer.next()
+        protected boolean doMatch(ParserContext context, BlockHeader header) {
+            def token = context.lexer.next()
 
             return condition(token, value)
         }
     }
 
-    @TupleConstructor
-    static class SequenceMatcher extends TokenMatcher {
-        TokenMatcher[] matchers = []
+    static class NotMatcher extends TokenMatcher {
+        TokenMatcher matcher
 
         @Override
-        boolean matches(Lexer lexer) {
+        protected boolean doMatch(ParserContext context, BlockHeader header) {
+            return !matcher.matches(context, header)
+        }
+    }
+
+    static class SequenceMatcher extends TokenMatcher {
+        List<TokenMatcher> matchers = []
+
+        @Override
+        protected boolean doMatch(ParserContext context, BlockHeader header) {
             def result = true
             for (def matcher: matchers) {
-                if (!matcher.matches(lexer)) {
+                if (!matcher.matches(context, header)) {
                     result = false
                     break
                 }
@@ -78,8 +123,8 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        boolean matches(Lexer lexer) {
-            matcher.matches(lexer)
+        protected boolean doMatch(ParserContext context, BlockHeader header) {
+            matcher.matches(context, header)
 
             return true
         }
@@ -89,8 +134,8 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        boolean matches(Lexer lexer) {
-            while (matcher.matches(lexer)) {
+        protected boolean doMatch(ParserContext context, BlockHeader header) {
+            while (matcher.matches(context, header)) {
             }
 
             return true
@@ -101,9 +146,9 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        boolean matches(Lexer lexer) {
+        protected boolean doMatch(ParserContext context, BlockHeader header) {
             def count = 0
-            while (matcher.matches(lexer)) {
+            while (matcher.matches(context, header)) {
                 count ++
             }
 
