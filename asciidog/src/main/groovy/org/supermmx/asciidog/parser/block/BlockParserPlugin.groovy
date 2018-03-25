@@ -368,11 +368,8 @@ $
         return false
     }
 
-    /**
-     * internal class
-     */
     @Canonical
-    protected static class BlockHeader {
+    public static class BlockHeader {
         static final String COMMENT_LINE_COMMENT = 'comment'
 
         Node.Type type
@@ -435,7 +432,10 @@ $
 
         def line = null
         def matcher = TokenMatcher.type(Token.Type.EOL)
+
         while (lexer.peek().type != Token.Type.EOF) {
+
+            log.debug 'Token: {}', lexer.peek()
 
             // TODO: parse with tokens
             lexer.mark()
