@@ -124,15 +124,19 @@ class Lexer {
     }
 
     /**
-     * Skip consecutive WHITE_SPACES and EOLs
+     * Skip consecutive WHITE_SPACES or/and EOLs
+     *
+     * @param includeEOLs including EOLs, the default value is true
+     * @param includeWhiteSpaces including white spaces, the default value is false
      */
-    void skipBlanks() {
+    void skipBlanks(boolean includeEOLs = true, boolean includeWhiteSpaces = false) {
         while (hasNext()) {
-            def token = next()
+            def token = peek()
 
-            if (token.type != Token.Type.WHITE_SPACES
-                && token.type != Token.Type.EOL) {
-                back(token)
+            if (includeEOLs && token.type == Token.Type.EOL
+                || includeWhiteSpaces && token.type == Token.Type.WHITE_SPACES) {
+                next()
+            } else {
                 break
             }
         }

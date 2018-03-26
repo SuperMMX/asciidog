@@ -2,10 +2,11 @@ package org.supermmx.asciidog.lexer
 
 import spock.lang.*
 
+import org.supermmx.asciidog.AsciidogSpec
 import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.parser.TokenMatcher
 
-class LexerSpec extends Specification {
+class LexerSpec extends AsciidogSpec {
     def 'peek blank file'() {
         given:
         def reader = Reader.createFromString('')
@@ -203,7 +204,58 @@ next 100 lines
 
     }
 
-    def 'skip blanks'() {
+    def 'skip blanks: blank lines only'() {
+        def content = '''
+
+   first line
+
+
+next line
+'''
+        def lexer = parserContext(content).lexer
+
+        when:
+        lexer.skipBlanks()
+
+        then:
+        lexer.peek().value == '   '
+
+        when:
+        lexer.next(4)
+        lexer.skipBlanks()
+
+        then:
+        lexer.peek().value == 'next'
+    }
+
+    def 'skip blanks: white spaces'() {
+        def reader = Reader.createFromString('''first \t  \t
+  \t\t  next line
+''')
+        def lexer = new Lexer(reader)
+
+        when:
+        lexer.skipBlanks(false, true)
+
+        then:
+        lexer.peek().value == 'first'
+
+        when:
+        lexer.next()
+        lexer.skipBlanks(false, true)
+
+        then:
+        lexer.peek().type == Token.Type.EOL
+
+        when:
+        lexer.next()
+        lexer.skipBlanks(false, true)
+
+        then:
+        lexer.peek().value == 'next'
+    }
+
+    def 'skip blanks: mixed'() {
         def reader = Reader.createFromString('''== Section  
 
 \t  \t
@@ -213,7 +265,7 @@ next 100 lines
 
         when:
         lexer.next(3)
-        lexer.skipBlanks()
+        lexer.skipBlanks(true, true)
 
         then:
         lexer.next().value == 'next'
