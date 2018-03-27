@@ -95,7 +95,7 @@ class Token {
 
     String toString() {
         def valueStr = value == '\n' ? '\\n' : value
-        valueStr = value ? "\"${value}\"" : null
+        valueStr = value ? "\"${valueStr}\"" : null
         return "Token: [ $index: ($row, $col): $type, ${valueStr} ]"
     }
 }
