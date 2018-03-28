@@ -7,6 +7,7 @@ import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.ListItem
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
 
 import groovy.util.logging.Slf4j
@@ -24,8 +25,8 @@ class ListItemParser extends BlockParserPlugin {
     }
 
     @Override
-    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
-        log.debug('Expected: {}, Line: {}, Header: {}', expected, line, header)
+    protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
+        log.debug('Expected: {}, Token: {}, Header: {}', expected, context.lexer.peek(), header)
         return expected && header?.type?.isList()
     }
 
@@ -45,13 +46,15 @@ class ListItemParser extends BlockParserPlugin {
         def listItem = new ListItem()
         fillBlockFromHeader(listItem, header)
 
-        def reader = context.reader
-        def line = reader.peekLine()
-        def index = header?.properties[LIST_CONTENT_START]
+        def lexer = context.lexer
+        def token = lexer.next()
+        if (token.type == Token.Type.WHITE_SPACES) {
+            lexer.next()
+        }
 
-        // skip the list markers and blanks before the real content
-        reader.skipChars(index)
+        lexer.next()
 
+        log.info '==== list item next token = {}', lexer.peek()
         return listItem
     }
 

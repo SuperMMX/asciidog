@@ -16,7 +16,7 @@ class ListItemParserSpec extends AsciidogSpec {
 
     def 'checkStart: check start'() {
         expect:
-        isStart == parser.checkStart(line, new BlockHeader(type: type), expected)
+        isStart == parser.checkStart(parserContext(line), new BlockHeader(type: type), expected)
 
         where:
         isStart | line | type                     | expected
@@ -211,7 +211,6 @@ class ListItemParserSpec extends AsciidogSpec {
                 type = Node.Type.ORDERED_LIST
                 properties[LIST_MARKER] = '.'
                 properties[LIST_MARKER_LEVEL] = 1
-                properties[LIST_CONTENT_START] = 2
             }
             expected = true
         }
