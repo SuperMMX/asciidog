@@ -172,12 +172,15 @@ $
             lexer.skipBlanks()
         }
 
-        // FIXME: this one is not really needed
-        def isStart = checkStart(context, header, context.expected ?: false)
-        log.debug('Parser: {}, check start = {}', id, isStart)
+        // no header or expected, need to check start
+        if (header.type == null || context.expected) {
+            // FIXME: this one is not really needed
+            def isStart = checkStart(context, header, context.expected ?: false)
+            log.debug('Parser: {}, check start = {}', id, isStart)
 
-        if (!isStart) {
-            return null
+            if (!isStart) {
+                return null
+            }
         }
 
         // create the block
@@ -360,11 +363,11 @@ $
      * This block parser should determine whether to end the current child
      * paragraph parsing or not.
      */
-    protected boolean toEndParagraph(ParserContext context, String line) {
-        return doToEndParagraph(context, line)
+    protected boolean toEndParagraph(ParserContext context) {
+        return doToEndParagraph(context)
     }
 
-    protected boolean doToEndParagraph(ParserContext context, String line) {
+    protected boolean doToEndParagraph(ParserContext context) {
         return false
     }
 
@@ -418,6 +421,7 @@ $
      */
     protected BlockHeader nextBlockHeader(ParserContext context) {
         def header = context.blockHeader
+        log.info '==== nextBlockHeader: parent.sequence = {}, parent.type = {}, before checking header = {}', context.block?.seq, context.block?.type, header
         if (header != null) {
             return header
         }
@@ -517,15 +521,15 @@ $
             // no block is found
 
             /*
-              def actionBlocks = header.actionBlocks
-              if (actionBlocks.size() > 0) {
-              // check the action blocks
-              def blank = new Blank()
-              blank.blocks.addAll(actionBlocks)
+             def actionBlocks = header.actionBlocks
+             if (actionBlocks.size() > 0) {
+             // check the action blocks
+             def blank = new Blank()
+             blank.blocks.addAll(actionBlocks)
 
-              context.parent << blank
-              }
-            */
+             context.parent << blank
+         }
+             */
 
             header = null
         }
