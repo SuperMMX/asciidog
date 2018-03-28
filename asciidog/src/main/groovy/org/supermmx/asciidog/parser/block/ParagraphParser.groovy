@@ -28,6 +28,7 @@ class ParagraphParser extends BlockParserPlugin {
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
         def line = context.lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
+        log.info '==== paragraph check start: line = {}', line
 
         return (line != null) && (line.trim().length() > 0)
     }
@@ -50,8 +51,15 @@ class ParagraphParser extends BlockParserPlugin {
                 context.keepHeader = true
             }
 
-            def token = lexer.next()
+            def token = lexer.peek()
+            log.info '==== paragraph token = {}', token
+            if (token.type == Token.Type.EOF) {
+                break
+            }
+
+            lexer.next()
             if (token.type != Token.Type.EOL) {
+                log.info '==== paragraph append to line: {}', token
                 buf.append(token.value)
             } else {
                 if (buf.length() == 0) {
@@ -61,6 +69,8 @@ class ParagraphParser extends BlockParserPlugin {
                 } else {
                     // end of current line
                     def line = buf.toString()
+                    log.info '==== paragraph add new line: {}', line
+                    lines << line
 
                     buf = new StringBuilder()
 
@@ -69,8 +79,9 @@ class ParagraphParser extends BlockParserPlugin {
                     for (def i = checkers.size() - 1; i >= 0; i--) {
                         def parser = checkers[i]
 
-                        isEnd = parser.toEndParagraph(context, line)
+                        isEnd = parser.toEndParagraph(context)
 
+                        log.info '==== paragraph to end paragraph = {}', isEnd
                         // just stop here no matter what ??
                         if (isEnd) {
                             break
@@ -85,7 +96,6 @@ class ParagraphParser extends BlockParserPlugin {
                         }
                         context.blockHeader = null
                     }
-                    lines << line
 
                 }
             }
@@ -94,6 +104,7 @@ class ParagraphParser extends BlockParserPlugin {
         if (para != null) {
             // parse the inline nodes
             // the children has been added in the paragraph when parsing
+            log.info '==== paragraph lines = {}, next token = {}', lines, lexer.peek()
             Parser.parseInlineNodes(para, lines.join('\n'))
         }
 

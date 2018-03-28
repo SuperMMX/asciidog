@@ -55,8 +55,7 @@ fourth line'''
         def parentParser = Spy(BlockParserPlugin)
 
         parentParser.id >> 'parent'
-        parentParser.toEndParagraph(_, '--') >> true
-        parentParser.toEndParagraph(_, _) >> false
+        parentParser.toEndParagraph(_) >> { args -> args[0].lexer.peek().value == '--' }
 
         PluginRegistry.instance.register(parentParser)
         context.parentParserId = 'parent'
