@@ -17,7 +17,7 @@ abstract class TokenMatcher {
      */
     Closure action
 
-    boolean matches(ParserContext context, BlockHeader header) {
+    boolean matches(ParserContext context, BlockHeader header = null) {
         context.lexer.mark()
 
         def matched = doMatch(context, header)
@@ -39,10 +39,10 @@ abstract class TokenMatcher {
     }
 
     static TokenMatcher regex(String regex, Closure action = null) {
-        return regex(~regex, action)
+        return regexPattern(~regex, action)
     }
 
-    static TokenMatcher regex(Pattern pattern, Closure action = null) {
+    static TokenMatcher regexPattern(Pattern pattern, Closure action = null) {
         return new ClosureMatcher(value: pattern, condition: { token, valueObj ->
             pattern.matcher(token?.value).matches()
         }, action: action)
@@ -71,6 +71,10 @@ abstract class TokenMatcher {
         return new SequenceMatcher(matchers: matchers, action: action)
     }
 
+    static TokenMatcher optional(TokenMatcher matcher, Closure action = null) {
+        return new OptionalMatcher(matcher: matcher, action: action)
+    }
+
     static TokenMatcher not(TokenMatcher matcher, Closure action = null) {
         return new NotMatcher(matcher: matcher, action: action)
     }
@@ -86,7 +90,7 @@ abstract class TokenMatcher {
         Closure condition
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header) {
+        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
             def token = context.lexer.next()
 
             return condition(token, value)
@@ -97,7 +101,7 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header) {
+        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
             return !matcher.matches(context, header)
         }
     }
@@ -123,8 +127,14 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header) {
-            matcher.matches(context, header)
+        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
+            context.lexer.mark()
+            def matched = matcher.matches(context, header)
+            if (matched) {
+                context.lexer.clearMark()
+            } else {
+                context.lexer.reset()
+            }
 
             return true
         }
@@ -134,7 +144,7 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header) {
+        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
             while (matcher.matches(context, header)) {
             }
 
@@ -146,7 +156,7 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header) {
+        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
             def count = 0
             while (matcher.matches(context, header)) {
                 count ++
