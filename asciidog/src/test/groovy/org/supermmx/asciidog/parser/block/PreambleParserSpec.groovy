@@ -9,7 +9,7 @@ class PreambleParserSpec extends AsciidogSpec {
 
     def 'checkStart: check start'() {
         expect:
-        parser.checkStart(line, header, expected) == value
+        parser.checkStart(parserContext(line), header, expected) == value
 
         where:
         value | expected | line | header
