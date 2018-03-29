@@ -102,7 +102,7 @@ class SectionParser extends BlockParserPlugin {
 
         // check the parsed level and the expected level
         def expectedLevel = context.expectedSectionLevel
-        if (level != expectedLevel) {
+        if (expectedLevel != null && level != expectedLevel) {
             log.error('{},{}: Wrong section level {}, expected level is {}',
                       markToken.row, markToken.col, level, expectedLevel)
 
