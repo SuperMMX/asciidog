@@ -74,6 +74,11 @@ class ParagraphParser extends BlockParserPlugin {
 
                     buf = new StringBuilder()
 
+                    // paragraph ends
+                    if (lexer.peek().type == Token.Type.EOL) {
+                        break
+                    }
+
                     def isEnd = false
                     def checkers = context.paragraphEndingCheckers
                     for (def i = checkers.size() - 1; i >= 0; i--) {

@@ -101,4 +101,29 @@ third line'''
         then:
         para == ePara
     }
+
+    def 'standalone: content after paragraph'() {
+        given:
+        def content = '''
+
+first line
+second line
+
+third line
+
+'''
+        def context = parserContext(content)
+        context.parserId = parser.id
+
+        def ePara = builder.para {
+            text '''first line
+second line'''
+        }
+
+        when:
+        def para = parser.parse(context)
+
+        then:
+        para == ePara
+    }
 }
