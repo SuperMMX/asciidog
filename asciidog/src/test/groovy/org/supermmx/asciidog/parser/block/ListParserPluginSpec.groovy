@@ -336,4 +336,40 @@ class ListParserPluginSpec extends AsciidogSpec {
         then:
         doc == eDoc
     }
+
+    def 'document: section after list'() {
+        given:
+        def content = '''
+== Section Title
+
+* item1
+* item2
+
+=== Subsection Title
+'''
+        def eDoc = builder.document {
+            section(title: 'Section Title', level: 1) {
+                ul(lead: '', level: 1, marker: '*', markerLevel: 1) {
+                    item {
+                        para {
+                            text 'item1'
+                        }
+                    }
+                    item {
+                        para {
+                            text 'item2'
+                        }
+                    }
+                }
+                section(title: 'Subsection Title', level: 2) {
+                }
+            }
+        }
+
+        when:
+        def doc = parse(content)
+
+        then:
+        doc == eDoc
+    }
 }
