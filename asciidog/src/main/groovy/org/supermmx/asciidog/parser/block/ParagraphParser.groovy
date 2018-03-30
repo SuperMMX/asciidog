@@ -1,5 +1,7 @@
 package org.supermmx.asciidog.parser.block
 
+import static org.supermmx.asciidog.parser.TokenMatcher.*
+
 import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.Block
@@ -25,12 +27,18 @@ class ParagraphParser extends BlockParserPlugin {
         id = ID
     }
 
+    static final TokenMatcher MATCHER = sequence([
+        zeroOrMore(type(Token.Type.WHITE_SPACES)),
+        match({ token, valueObj ->
+            token.type != Token.Type.WHITE_SPACES &&
+                token.type != Token.Type.EOL &&
+                token.type != Token.Type.EOF
+        })
+    ])
+
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
-        def line = context.lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
-        log.info '==== paragraph check start: line = {}', line
-
-        return (line != null) && (line.trim().length() > 0)
+        return MATCHER.matches(context, header)
     }
 
     @Override
