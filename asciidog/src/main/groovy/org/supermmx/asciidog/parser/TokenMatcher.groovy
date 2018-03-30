@@ -17,6 +17,10 @@ abstract class TokenMatcher {
      */
     Closure action
 
+    /**
+     * Match against this matcher starting from next token.
+     * The tokens are consumed if matched
+     */
     boolean matches(ParserContext context, BlockHeader header = null) {
         context.lexer.mark()
 
@@ -24,7 +28,11 @@ abstract class TokenMatcher {
 
         action?.call(context, header, matched)
 
-        context.lexer.clearMark()
+        if (matched) {
+            context.lexer.clearMark()
+        } else {
+            context.lexer.reset()
+        }
 
         return matched
     }
@@ -79,6 +87,10 @@ abstract class TokenMatcher {
         return new NotMatcher(matcher: matcher, action: action)
     }
 
+    static TokenMatcher zeroOrMore(TokenMatcher matcher, Closure action = null) {
+        return new ZeroOrMoreMatcher(matcher: matcher, action: action)
+    }
+
     /**
      * Only matches one token
      */
@@ -128,13 +140,7 @@ abstract class TokenMatcher {
 
         @Override
         protected boolean doMatch(ParserContext context, BlockHeader header = null) {
-            context.lexer.mark()
-            def matched = matcher.matches(context, header)
-            if (matched) {
-                context.lexer.clearMark()
-            } else {
-                context.lexer.reset()
-            }
+            matcher.matches(context, header)
 
             return true
         }
