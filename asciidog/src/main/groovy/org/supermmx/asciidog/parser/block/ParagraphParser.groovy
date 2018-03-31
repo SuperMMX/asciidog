@@ -28,7 +28,7 @@ class ParagraphParser extends BlockParserPlugin {
     }
 
     static final TokenMatcher MATCHER = sequence([
-        zeroOrMore(type(Token.Type.WHITE_SPACES)),
+        optional(type(Token.Type.WHITE_SPACES)),
         match({ token, valueObj ->
             token.type != Token.Type.WHITE_SPACES &&
                 token.type != Token.Type.EOL &&
