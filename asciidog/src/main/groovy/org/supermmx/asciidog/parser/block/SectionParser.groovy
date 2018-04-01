@@ -77,7 +77,7 @@ class SectionParser extends BlockParserPlugin {
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
         def lexer = context.lexer
 
-        log.info '=== next token = {}', lexer.peek()
+        log.trace '=== next token = {}', lexer.peek()
 
         def (markToken, wsToken, titleToken) = lexer.peek(3)
 

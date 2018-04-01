@@ -76,7 +76,7 @@ $
      */
     Block parse(ParserContext context) {
         // parse current block
-        log.info("Start parsing...")
+        log.debug("Start parsing...")
 
         def block = parseBlock(context)
         if (block == null) {
@@ -97,7 +97,7 @@ $
 
         def childParserId = getNextChildParser(context)
         while (childParserId != null) {
-            log.info("Child parser is ${childParserId}");
+            log.debug("Child parser is ${childParserId}");
 
             lastParserId = childParserId
             lastCursor = context.reader.cursor.clone()
@@ -421,7 +421,7 @@ $
      */
     protected BlockHeader nextBlockHeader(ParserContext context) {
         def header = context.blockHeader
-        log.info '==== nextBlockHeader: parent.sequence = {}, parent.type = {}, before checking header = {}', context.block?.seq, context.block?.type, header
+        log.debug '==== nextBlockHeader: parent.sequence = {}, parent.type = {}, before checking header = {}', context.block?.seq, context.block?.type, header
         if (header != null) {
             return header
         }

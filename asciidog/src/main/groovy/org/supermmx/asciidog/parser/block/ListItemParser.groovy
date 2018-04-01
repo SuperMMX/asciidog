@@ -54,7 +54,7 @@ class ListItemParser extends BlockParserPlugin {
 
         lexer.next()
 
-        log.info '==== list item next token = {}', lexer.peek()
+        log.trace '==== list item next token = {}', lexer.peek()
         return listItem
     }
 

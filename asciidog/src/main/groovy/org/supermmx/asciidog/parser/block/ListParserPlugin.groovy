@@ -56,7 +56,7 @@ $
                 header.properties[LIST_LEAD] = lead
             })),
         match({ token, valueObj ->
-            log.info '==== matcher token = {}', token
+            log.trace '==== matcher token = {}', token
             def value = token.value
             def marker = value.charAt(0)
             def length = value.length()
@@ -82,7 +82,7 @@ $
 
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
-        log.info '==== list parser check start: header = {}', header
+        log.debug '==== list parser check start: header = {}', header
         if (header?.type != null
             && header?.type != nodeType) {
             return false
@@ -183,7 +183,7 @@ $
     protected boolean doToEndParagraph(ParserContext context) {
         def end = false
 
-        log.info '==== list parer plugin: end paragraph, next token = {}', context.lexer.peek()
+        log.debug '==== list parer plugin: end paragraph, next token = {}', context.lexer.peek()
         context.lexer.mark()
         def matched = LIST_CONTINUATION_MATCHER.matches(context, null)
         context.lexer.reset()
@@ -205,7 +205,7 @@ $
             // check block header for every line
             def header = nextBlockHeader(context)
 
-            log.info '==== list parser plugin: check header = {}', header
+            log.debug '==== list parser plugin: check header = {}', header
             /**
              * . first list paragraph
              * * next list paragraph
@@ -264,16 +264,4 @@ $
 
         return [ type, lead, marker, markerLevel, contentStart ]
     }
-
-    /**
-     * Whether a line is the list continuation, like
-     *
-     * +
-     *
-     * or
-     *
-     *    +
-     *
-     * @return leading spaces if is a list continuation, or null
-     */
 }
