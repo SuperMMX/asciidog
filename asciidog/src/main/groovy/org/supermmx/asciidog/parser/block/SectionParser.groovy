@@ -1,12 +1,16 @@
 package org.supermmx.asciidog.parser.block
 
+import static org.supermmx.asciidog.parser.TokenMatcher.*
+
 import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.Utils
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.Section
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.TokenMatcher
 
 import groovy.util.logging.Slf4j
 
@@ -32,43 +36,78 @@ class SectionParser extends BlockParserPlugin {
 
     static final String ID = 'plugin:parser:block:section'
 
-    SectionParser() {
+    static final TokenMatcher CHECK_MATCHER = sequence([
+        match({ token, valueObj ->
+            if (token.value == null) {
+                return false
+            }
+            def value = token.value
+            def size = value.length()
+            value.charAt(0) == '=' && size >= 1 && size <= 5
+        }, { ParserContext context, BlockHeader header, boolean matched ->
+                if (matched) {
+                    def tokens = context.lexer.tokensFromMark
+                    header.properties[(HEADER_PROPERTY_SECTION_LEVEL)] = tokens[0].value.length() - 1
+                }
+            }),
+        type(Token.Type.WHITE_SPACES),
+        not(type(Token.Type.EOL))
+    ])
+
+   SectionParser() {
         nodeType = Node.Type.SECTION
         id = ID
     }
 
     @Override
-    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
-        def (level, title) = isSection(line)
+    protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
+        def lexer = context.lexer
+        lexer.mark()
+        def isStart = CHECK_MATCHER.matches(context, header)
+        lexer.reset()
 
-        if (level == -1) {
-            return false
-        }
-
-        if (header != null) {
+        if (isStart && header != null) {
             header.type = Node.Type.SECTION
-            header.properties[(HEADER_PROPERTY_SECTION_LEVEL)] = level
-            header.properties[(HEADER_PROPERTY_SECTION_TITLE)] = title
         }
 
-        return true
+        return isStart
     }
 
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
-        def level = header.properties[(HEADER_PROPERTY_SECTION_LEVEL)]
-        def title = header.properties[(HEADER_PROPERTY_SECTION_TITLE)]
+        def lexer = context.lexer
 
-        def reader = context.reader
+        log.trace '=== next token = {}', lexer.peek()
+
+        def (markToken, wsToken, titleToken) = lexer.peek(3)
+
+        if (markToken == null) {
+            return null
+        }
+
+        if (markToken.value.charAt(0) != (char)'=') {
+            return null
+        }
+
+        def level = markToken.value.length() - 1
+        lexer.next()
+
+        if (wsToken?.type != Token.Type.WHITE_SPACES) {
+            // report warning
+        }
+        lexer.next()
+
+        // TODO: parse the title as inlines
+        def title = lexer.combineTo(type(Token.Type.EOL))
 
         // check the parsed level and the expected level
         def expectedLevel = context.expectedSectionLevel
-        if (level != expectedLevel) {
-            log.error('{}: Wrong section level {}, expected level is {}',
-                      reader.cursor, level, expectedLevel)
+        if (expectedLevel != null && level != expectedLevel) {
+            log.error('{},{}: Wrong section level {}, expected level is {}',
+                      markToken.row, markToken.col, level, expectedLevel)
 
-            userLog.error('{}: Wrong section level {}, expected level is {}',
-                          reader.cursor, level, expectedLevel)
+            userLog.error('{},{}: Wrong section level {}, expected level is {}',
+                          markToken.row, markToken.col, level, expectedLevel)
 
             context.stop = true
 
@@ -82,8 +121,6 @@ class SectionParser extends BlockParserPlugin {
         Utils.generateId(section)
 
         context.document.references[section.id] = section
-
-        reader.nextLine()
 
         return section
     }

@@ -1,12 +1,16 @@
 package org.supermmx.asciidog.parser.block
 
+import static org.supermmx.asciidog.parser.TokenMatcher.*
+
 import org.supermmx.asciidog.Reader
 import org.supermmx.asciidog.ast.Author
 import org.supermmx.asciidog.ast.Authors
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.TokenMatcher
 
 import groovy.util.logging.Slf4j
 
@@ -60,13 +64,14 @@ ${AUTHOR_REGEX}
     }
 
     @Override
-    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
+    protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
+        def lexer = context.lexer
+
         def isStart = false
         if (expected) {
+            // TODO: check with TokenMatcher
+            def line = lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
             isStart = AUTHOR_LINE_PATTERN.matcher(line).matches()
-            if (isStart) {
-                header.properties[(HEADER_PROPERTY_AUTHOR_LINE)] = line
-            }
         }
 
         return isStart
@@ -81,9 +86,10 @@ ${AUTHOR_REGEX}
 
     protected String doGetNextChildParser(ParserContext context, Block block) {
         // create child nodes
-        def reader = context.reader
+        def lexer = context.lexer
 
-        def line = reader.nextLine()
+        // TODO: parse with lexer
+        def line = lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
 
         line.split(';').each {
             def author = createAuthor(it)

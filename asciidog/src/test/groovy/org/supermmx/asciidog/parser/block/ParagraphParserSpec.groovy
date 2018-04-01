@@ -13,8 +13,8 @@ class ParagraphParserSpec extends AsciidogSpec {
         given:
 
         expect:
-        parser.checkStart(line, null, true) == value
-        parser.checkStart(line, null, false) == value
+        parser.checkStart(parserContext(line), null, true) == value
+        parser.checkStart(parserContext(line), null, false) == value
 
         where:
         line      | value
@@ -55,8 +55,7 @@ fourth line'''
         def parentParser = Spy(BlockParserPlugin)
 
         parentParser.id >> 'parent'
-        parentParser.toEndParagraph(_, '--') >> true
-        parentParser.toEndParagraph(_, _) >> false
+        parentParser.toEndParagraph(_) >> { args -> args[0].lexer.peek().value == '--' }
 
         PluginRegistry.instance.register(parentParser)
         context.parentParserId = 'parent'
@@ -94,6 +93,31 @@ third line
             text '''first line
 second line
 third line'''
+        }
+
+        when:
+        def para = parser.parse(context)
+
+        then:
+        para == ePara
+    }
+
+    def 'standalone: content after paragraph'() {
+        given:
+        def content = '''
+
+first line
+second line
+
+third line
+
+'''
+        def context = parserContext(content)
+        context.parserId = parser.id
+
+        def ePara = builder.para {
+            text '''first line
+second line'''
         }
 
         when:

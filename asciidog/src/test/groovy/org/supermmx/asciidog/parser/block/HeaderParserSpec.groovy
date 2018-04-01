@@ -11,7 +11,7 @@ class HeaderParserSpec extends AsciidogSpec {
 
     def 'checkStart'() {
         expect:
-        isStart == parser.checkStart('', null, expected)
+        isStart == parser.checkStart(parserContext(''), null, expected)
 
         where:
         isStart | expected

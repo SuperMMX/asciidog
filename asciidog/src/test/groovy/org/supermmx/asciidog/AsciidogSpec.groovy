@@ -7,6 +7,7 @@ import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.builder.AsciiDocBuilder
+import org.supermmx.asciidog.lexer.Lexer
 import org.supermmx.asciidog.parser.ParserContext
 
 import spock.lang.*
@@ -31,7 +32,9 @@ class AsciidogSpec extends Specification {
     def parser(def text) {
         def parser = new Parser()
         def reader = Reader.createFromString(text)
+        def lexer = new Lexer(reader)
         parser.reader = reader
+        parser.lexer = lexer
 
         return parser
     }
@@ -42,7 +45,9 @@ class AsciidogSpec extends Specification {
     def parserContext(def text) {
         def context = new ParserContext()
         def reader = Reader.createFromString(text)
+        def lexer = new Lexer(reader)
         context.reader = reader
+        context.lexer = lexer
 
         return context
     }

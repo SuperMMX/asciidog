@@ -1,9 +1,13 @@
 package org.supermmx.asciidog.parser.action
 
+import static org.supermmx.asciidog.parser.TokenMatcher.*
+
 import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.TokenMatcher
 import org.supermmx.asciidog.parser.block.BlockParserPlugin
 import org.supermmx.asciidog.parser.block.BlockParserPlugin.BlockHeader
 
@@ -37,8 +41,12 @@ class AttributeEntryParser extends BlockParserPlugin {
     }
 
     @Override
-    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
-        log.debug('doCheckStart: line = {}', line)
+    protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
+        def lexer = context.lexer
+
+        // TODO: parse with tokens
+        def line = lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
+
         def (name, value) = isAttribute(line)
 
         if (name == null) {
@@ -56,6 +64,10 @@ class AttributeEntryParser extends BlockParserPlugin {
 
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
+        // TODO: parse tokens
+        def lexer = context.lexer
+        def line = lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
+
         def name = header?.properties[HEADER_PROPERTY_ATTRIBUTE_NAME]
         def value = header?.properties[HEADER_PROPERTY_ATTRIBUTE_FIRST_LINE]
 
@@ -63,8 +75,6 @@ class AttributeEntryParser extends BlockParserPlugin {
         AttributeEntry attr = new AttributeEntry(name: name, value: value)
 
         context.attributes << attr
-
-        context.reader.nextLine()
 
         return attr
     }

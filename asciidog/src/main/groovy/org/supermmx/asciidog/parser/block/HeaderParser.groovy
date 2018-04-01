@@ -24,7 +24,7 @@ class HeaderParser extends BlockParserPlugin {
     }
 
     @Override
-    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
+    protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
         return expected
     }
 

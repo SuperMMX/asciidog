@@ -21,6 +21,8 @@ import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.ast.FormattingNode
 import org.supermmx.asciidog.ast.UnOrderedList
 
+import org.supermmx.asciidog.lexer.Lexer
+
 import org.supermmx.asciidog.parser.ParserContext
 import org.supermmx.asciidog.parser.block.DocumentParser
 
@@ -38,6 +40,7 @@ class Parser {
         ParserContext context = new ParserContext()
 
         context.reader = Reader.createFromString(content)
+        context.lexer = new Lexer(context.reader)
 
         return parseDocument(context)
     }
@@ -46,6 +49,7 @@ class Parser {
         ParserContext context = new ParserContext()
 
         context.reader = Reader.createFromFile(filename)
+        context.lexer = new Lexer(context.reader)
 
         return parseDocument(context)
     }

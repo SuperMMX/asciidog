@@ -3,7 +3,9 @@ package org.supermmx.asciidog.parser.block
 import org.supermmx.asciidog.ast.Blank
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
+import org.supermmx.asciidog.parser.TokenMatcher
 import org.supermmx.asciidog.plugin.ParserPlugin
 import org.supermmx.asciidog.plugin.PluginRegistry
 
@@ -74,7 +76,7 @@ $
      */
     Block parse(ParserContext context) {
         // parse current block
-        log.info("Start parsing...")
+        log.debug("Start parsing...")
 
         def block = parseBlock(context)
         if (block == null) {
@@ -95,7 +97,7 @@ $
 
         def childParserId = getNextChildParser(context)
         while (childParserId != null) {
-            log.info("Child parser is ${childParserId}");
+            log.debug("Child parser is ${childParserId}");
 
             lastParserId = childParserId
             lastCursor = context.reader.cursor.clone()
@@ -155,7 +157,7 @@ $
     protected Block parseBlock(ParserContext context) {
         // checking
         def header = context.blockHeader
-        def reader = context.reader
+        def lexer = context.lexer
 
         def parent = context.parent
         log.trace('Parser: {}, Trying parse block type {} with header {}',
@@ -167,24 +169,23 @@ $
 
         // skip blank lines if necessary
         if (header?.type == null && isSkippingBlankLines) {
-            reader.skipBlankLines()
+            lexer.skipBlanks()
         }
 
-        def line = reader.peekLine()
-        log.debug('Parser: {}, line = {}', id, line)
-        def isStart = checkStart(line, header, context.expected ?: false)
-        log.debug('Parser: {}, check start = {}', id, isStart)
+        // no header or expected, need to check start
+        if (header.type == null || context.expected) {
+            // FIXME: this one is not really needed
+            def isStart = checkStart(context, header, context.expected ?: false)
+            log.debug('Parser: {}, check start = {}', id, isStart)
 
-        if (!isStart) {
-            return null
+            if (!isStart) {
+                return null
+            }
         }
-
-        log.debug('Parser: {}, Parsing block type {}, parent type {}, parent seq {}',
-                  id, nodeType, parent?.type, parent?.seq)
 
         // create the block
         Block block = createBlock(context, parent, header)
-        if (block ==  null) {
+        if (block == null) {
             return null
         }
 
@@ -213,10 +214,27 @@ $
         return doCheckStart(line, header, expected)
     }
 
-    abstract protected boolean doCheckStart(String line, BlockHeader header, boolean expected)
+    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
+        return false
+    }
+
+    boolean checkStart(ParserContext context, BlockHeader header, boolean expected) {
+        context.lexer.mark()
+
+        def result = doCheckStart(context, header, expected)
+
+        context.lexer.reset()
+
+        return result
+    }
+
+    protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
+        return false
+    }
 
     /**
-     * Create the block from current context, especially from current block header
+     * Create the block from current context, especially from current block header,
+     * without parsing the child nodes
      */
     protected Block createBlock(ParserContext context, Block parent, BlockHeader header) {
         return doCreateBlock(context, parent, header)
@@ -345,19 +363,16 @@ $
      * This block parser should determine whether to end the current child
      * paragraph parsing or not.
      */
-    protected boolean toEndParagraph(ParserContext context, String line) {
-        return doToEndParagraph(context, line)
+    protected boolean toEndParagraph(ParserContext context) {
+        return doToEndParagraph(context)
     }
 
-    protected boolean doToEndParagraph(ParserContext context, String line) {
+    protected boolean doToEndParagraph(ParserContext context) {
         return false
     }
 
-    /**
-     * internal class
-     */
     @Canonical
-    protected static class BlockHeader {
+    public static class BlockHeader {
         static final String COMMENT_LINE_COMMENT = 'comment'
 
         Node.Type type
@@ -406,21 +421,32 @@ $
      */
     protected BlockHeader nextBlockHeader(ParserContext context) {
         def header = context.blockHeader
+        log.debug '==== nextBlockHeader: parent.sequence = {}, parent.type = {}, before checking header = {}', context.block?.seq, context.block?.type, header
         if (header != null) {
             return header
         }
 
-        def reader = context.reader
+        def lexer = context.lexer
 
         log.debug('Parser: {}, Start parsing block header...', id)
 
-        reader.skipBlankLines()
+        lexer.skipBlanks()
 
         header = new BlockHeader()
 
         def line = null
-        while ((line = reader.peekLine()) != null) {
+        def matcher = TokenMatcher.type(Token.Type.EOL)
+
+        while (lexer.peek().type != Token.Type.EOF) {
+
+            log.debug 'Token: {}', lexer.peek()
+
+            // TODO: parse with tokens
+            lexer.mark()
+            line = lexer.combineTo(matcher)
+
             if (line.length() == 0) {
+                lexer.reset()
                 break
             }
 
@@ -432,7 +458,7 @@ $
                 header.id = anchorId
                 header.lines << line
 
-                reader.nextLine()
+                lexer.clearMark()
 
                 continue
             }
@@ -443,7 +469,7 @@ $
                 header.title = title
                 header.lines << line
 
-                reader.nextLine()
+                lexer.clearMark()
 
                 continue
             }
@@ -454,13 +480,15 @@ $
                 header.attributes.putAll(attrs)
                 header.lines << line
 
-                reader.nextLine()
+                lexer.clearMark()
 
                 continue
             }
 
+            lexer.reset()
+
             SectionParser sectionParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
-            if (sectionParser.checkStart(line, header, false)) {
+            if (sectionParser.checkStart(context, header, false)) {
                 header.parserId = sectionParser.id
 
                 break
@@ -469,7 +497,7 @@ $
             // go through all block parsers to determine what block it is
             for (BlockParserPlugin plugin: PluginRegistry.instance.getBlockParsers()) {
                 log.debug('Parser: {}, Try parser wth id: {}', id, plugin.id)
-                if (plugin.checkStart(line, header, false)) {
+                if (plugin.checkStart(context, header, false)) {
                     log.debug('Parser: {}, Parser {} matches', id, plugin.id)
                     header.parserId = plugin.id
 
@@ -493,15 +521,15 @@ $
             // no block is found
 
             /*
-              def actionBlocks = header.actionBlocks
-              if (actionBlocks.size() > 0) {
-              // check the action blocks
-              def blank = new Blank()
-              blank.blocks.addAll(actionBlocks)
+             def actionBlocks = header.actionBlocks
+             if (actionBlocks.size() > 0) {
+             // check the action blocks
+             def blank = new Blank()
+             blank.blocks.addAll(actionBlocks)
 
-              context.parent << blank
-              }
-            */
+             context.parent << blank
+         }
+             */
 
             header = null
         }

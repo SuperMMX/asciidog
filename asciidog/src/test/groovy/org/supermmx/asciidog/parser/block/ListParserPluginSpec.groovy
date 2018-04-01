@@ -55,7 +55,7 @@ class ListParserPluginSpec extends AsciidogSpec {
         def header = new BlockHeader()
 
         when:
-        def isStart = parser.checkStart(line, header, false)
+        def isStart = parser.checkStart(parserContext(line), header, false)
 
         then:
         isStart
@@ -64,7 +64,6 @@ class ListParserPluginSpec extends AsciidogSpec {
                                       (LIST_LEAD): '  ',
                                       (LIST_MARKER): '.',
                                       (LIST_MARKER_LEVEL): 2,
-                                      (LIST_CONTENT_START): 6,
                                   ])
     }
 
@@ -76,7 +75,6 @@ class ListParserPluginSpec extends AsciidogSpec {
                                          (LIST_LEAD): '  ',
                                          (LIST_MARKER): '.',
                                          (LIST_MARKER_LEVEL): 2,
-                                         (LIST_CONTENT_START): 6,
                                      ],
                                      id: 'list_id', title: 'List Title',
                                      attributes:[ 'attr1': 'value1', 'attr2': 2])
@@ -95,7 +93,6 @@ class ListParserPluginSpec extends AsciidogSpec {
                                                    (LIST_LEAD): '  ',
                                                    (LIST_MARKER): '.',
                                                    (LIST_MARKER_LEVEL): 2,
-                                                   (LIST_CONTENT_START): 6,
                                                ])
         context.keepHeader == true
         context.paragraphEndingCheckers.size() == 1
@@ -111,7 +108,6 @@ class ListParserPluginSpec extends AsciidogSpec {
                                          (LIST_LEAD): '  ',
                                          (LIST_MARKER): '.',
                                          (LIST_MARKER_LEVEL): 2,
-                                         (LIST_CONTENT_START): 6,
                                      ],
                                      id: 'list_id', title: 'List Title',
                                      attributes:[ 'attr1': 'value1', 'attr2': 2])
@@ -133,7 +129,6 @@ class ListParserPluginSpec extends AsciidogSpec {
                                                    (LIST_LEAD): '  ',
                                                    (LIST_MARKER): '.',
                                                    (LIST_MARKER_LEVEL): 2,
-                                                   (LIST_CONTENT_START): 6,
                                                ])
         context.keepHeader == true
         context.paragraphEndingCheckers.size() == 1
@@ -206,8 +201,8 @@ class ListParserPluginSpec extends AsciidogSpec {
 
     def 'toEndParagraph: list continuation' () {
         expect:
-        parser.toEndParagraph(parserContext('+'), '+')
-        parser.toEndParagraph(parserContext('  +'), '  +')
+        parser.toEndParagraph(parserContext('+'))
+        parser.toEndParagraph(parserContext('  +'))
     }
 
     def 'toEndParagraph: unordered list' () {
@@ -217,7 +212,7 @@ class ListParserPluginSpec extends AsciidogSpec {
         context.blockHeader = new BlockHeader(type: Node.Type.UNORDERED_LIST)
 
         expect:
-        parser.toEndParagraph(context, '')
+        parser.toEndParagraph(context)
     }
 
     def 'toEndParagraph: ordered list' () {
@@ -227,7 +222,7 @@ class ListParserPluginSpec extends AsciidogSpec {
         context.blockHeader = new BlockHeader(type: Node.Type.ORDERED_LIST)
 
         expect:
-        parser.toEndParagraph(context, '')
+        parser.toEndParagraph(context)
     }
 
     def 'toEndParagraph: paragraph' () {
@@ -237,7 +232,7 @@ class ListParserPluginSpec extends AsciidogSpec {
         context.blockHeader = new BlockHeader(type: Node.Type.PARAGRAPH)
 
         expect:
-        !parser.toEndParagraph(context, '')
+        !parser.toEndParagraph(context)
     }
 
     def 'document: dash elements with no blank lines'() {
@@ -331,6 +326,42 @@ class ListParserPluginSpec extends AsciidogSpec {
                     para {
                         text 'Blech'
                     }
+                }
+            }
+        }
+
+        when:
+        def doc = parse(content)
+
+        then:
+        doc == eDoc
+    }
+
+    def 'document: section after list'() {
+        given:
+        def content = '''
+== Section Title
+
+* item1
+* item2
+
+=== Subsection Title
+'''
+        def eDoc = builder.document {
+            section(title: 'Section Title', level: 1) {
+                ul(lead: '', level: 1, marker: '*', markerLevel: 1) {
+                    item {
+                        para {
+                            text 'item1'
+                        }
+                    }
+                    item {
+                        para {
+                            text 'item2'
+                        }
+                    }
+                }
+                section(title: 'Subsection Title', level: 2) {
                 }
             }
         }
