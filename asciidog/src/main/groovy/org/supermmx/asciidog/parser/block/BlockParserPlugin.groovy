@@ -2,7 +2,9 @@ package org.supermmx.asciidog.parser.block
 
 import org.supermmx.asciidog.ast.Blank
 import org.supermmx.asciidog.ast.Block
+import org.supermmx.asciidog.ast.InlineContainer
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
 import org.supermmx.asciidog.parser.TokenMatcher
@@ -369,6 +371,121 @@ $
 
     protected boolean doToEndParagraph(ParserContext context) {
         return false
+    }
+
+    /**
+     * Parse inline nodes
+     *
+     * @param context the parser context
+     * @param parent the parent to attach the inline nodes to
+     * @param endMatcher the matcher to end the inline parsing
+     */
+    public void parseInlines(ParserContext context, InlineContainer parent, TokenMatcher endMatcher) {
+        // the inline node stack
+        def nodeStack = []
+        // the corresponding parser stack
+        def parserStack = []
+
+        def lexer = context.lexer
+
+        def buf = new StringBuilder()
+
+        // last identified inline parser
+        def lastParser = null
+        // the current parent for next inline nodes
+        def currentParent = parent
+
+        while (lexer.hasNext()) {
+            def token = lexer.peek()
+            log.trace ''
+            log.trace '==== next token = {}', token
+
+            // whether to stop the inline parsing
+            if (token.type == Token.Type.EOF) {
+                break
+            } else if (token.type == Token.Type.EOL) {
+                lexer.next()
+
+                def isEnd = endMatcher.matches(context, null)
+                log.trace '==== To end whole inline parsing: {}, next token = {}', isEnd, lexer.peek()
+                if (isEnd) {
+                    break
+                } else {
+                    if (lexer.peek().type != Token.Type.EOF) {
+                        buf.append(token.value)
+                    }
+                    continue
+                }
+            }
+
+            // check the end of the last parser
+            log.trace '==== last parser = {}', lastParser?.id
+            if (lastParser != null) {
+                // check the end matcher of the current parent
+                // TODO: check ends of all parents?
+                def isEnd = lastParser.checkEnd(context)
+                log.trace '==== check inline end = {}, next token = {}', isEnd, lexer.peek()
+                if (isEnd) {
+                    if (buf.length() > 0) {
+                        TextNode textNode = new TextNode(buf.toString())
+                        buf = new StringBuilder()
+                        currentParent << textNode
+                    }
+
+                    if (parserStack.size() > 0) {
+                        lastParser = parserStack.pop()
+                    } else {
+                        lastParser = null
+                    }
+                    currentParent = nodeStack.pop()
+
+                    continue
+                }
+            }
+
+            // find new parser
+            log.trace '==== last parser = {}, parent = {}', lastParser?.id, currentParent.type
+            def parserFound = false
+            for (def plugin: PluginRegistry.instance.getInlineParsers()) {
+                parserFound = plugin.checkStart(context)
+                if (parserFound) {
+                    if (lastParser != null) {
+                        parserStack.push(lastParser)
+                    }
+                    lastParser = plugin
+                    break
+                }
+            }
+
+            log.trace '==== parser found = {}, ID = {}', parserFound, lastParser?.id
+            if (parserFound) {
+                // start a new inline node
+                def node = lastParser.parse(context, currentParent)
+
+                if (buf.length() > 0) {
+                    TextNode textNode = new TextNode(buf.toString())
+                    buf = new StringBuilder()
+                    currentParent << textNode
+                }
+                currentParent << node
+
+                nodeStack.push(currentParent)
+                currentParent = node
+            } else {
+                // append as text
+                // TODO: CJKV new line checking
+                buf.append(token.value)
+                lexer.next()
+            }
+        }
+
+        // remaining stuf
+        if (buf.length() > 0) {
+            TextNode textNode = new TextNode(buf.toString())
+            buf = new StringBuilder()
+            // should be the last one
+            currentParent << textNode
+        }
     }
 
     @Canonical

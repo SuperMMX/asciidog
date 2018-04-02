@@ -8,10 +8,12 @@ import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.TextNode
+import org.supermmx.asciidog.parser.block.ParagraphParser
 
 import spock.lang.*
 
 class InlineSpec extends AsciidogSpec {
+    def parser = new ParagraphParser()
     /* === Node: Strong Unconstrained === */
 
     def 'single-line unconstrained strong chars'() {
@@ -264,7 +266,31 @@ class InlineSpec extends AsciidogSpec {
 
     def 'test'() {
         given:
-        Parser.parseInlineNodes(new Paragraph(),
-                               '中**文段**落 this is a ch**ine**se paragraph\n*多行段落*')
+            def context = parserContext('''
+中**文段落 this is a ch__ine__se **paragraph
+多__行段落__ the end''')
+        context.parserId = parser.id
+
+        def ePara = builder.para {
+            text '中'
+            strong {
+                text '文段落 this is a ch'
+                em {
+                    text 'ine'
+                }
+                text 'se '
+            }
+            text 'paragraph\n多'
+            em {
+                text '行段落'
+            }
+            text ' the end'
+        }
+
+        when:
+        def para = parser.parse(context)
+
+        then:
+        para == ePara
     }
 }
