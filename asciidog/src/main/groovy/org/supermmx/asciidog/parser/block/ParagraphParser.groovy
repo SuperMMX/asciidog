@@ -27,6 +27,9 @@ class ParagraphParser extends BlockParserPlugin {
         id = ID
     }
 
+    /**
+     * The paragraph start matcher
+     */
     static final TokenMatcher CHECK_MATCHER = sequence([
         optional(type(Token.Type.WHITE_SPACES)),
         match({ context, header, valueObj ->
@@ -37,7 +40,32 @@ class ParagraphParser extends BlockParserPlugin {
         })
     ])
 
-    static final TokenMatcher END_MATCHER = null
+    /**
+     * The paragraph end matcher, which is either determined by parents
+     * or by the paragraph itself (like new line after the paragraph)
+     */
+    static final TokenMatcher END_MATCHER = match({ context, header, valueObj ->
+        def isEnd = false
+        def checkers = context.paragraphEndingCheckers
+        for (def i = checkers.size() - 1; i >= 0; i--) {
+            def parser = checkers[i]
+
+            isEnd = parser.toEndParagraph(context)
+
+            log.debug '==== paragraph to end paragraph = {}', isEnd
+            // just stop here no matter what ??
+            if (isEnd) {
+                break
+            }
+        }
+
+        if (!isEnd) {
+            def token = context.lexer.peek()
+            isEnd = (token.type == Token.Type.EOL || token.type == Token.Type.EOF)
+        }
+
+        return isEnd
+    })
 
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
@@ -48,18 +76,20 @@ class ParagraphParser extends BlockParserPlugin {
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
         def lexer = context.lexer
 
-        /*
-        para = new Paragraph()
+        def para = new Paragraph()
         fillBlockFromHeader(para, header)
 
         context.blockHeader = null
         context.keepHeader = true
 
-        parseInlines(context, para)
-         */
+        parseInlines(context, para, END_MATCHER)
+
+        if (true) {
+            return para
+        }
 
         // old code
-        Paragraph para = null
+        para = null
 
         def lines = []
 
