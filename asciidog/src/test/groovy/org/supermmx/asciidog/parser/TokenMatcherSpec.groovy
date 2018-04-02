@@ -53,11 +53,13 @@ image::test.jpeg[Test,300,200]
         lexer.next(4)
 
         then:
-        TokenMatcher.match({ token, value ->
+        TokenMatcher.match({ newContext, header, value ->
+            def token = newContext.lexer.next()
             token?.type == Token.Type.TEXT && token?.value == 'image'
         }).matches(context)
 
-        !TokenMatcher.match({ token, value ->
+        !TokenMatcher.match({ newContext, header, value ->
+            def token = newContext.lexer.next()
             token?.type == Token.Type.PUNCTS && token?.value != '::'
         }).matches(context)
     }

@@ -37,7 +37,8 @@ class SectionParser extends BlockParserPlugin {
     static final String ID = 'plugin:parser:block:section'
 
     static final TokenMatcher CHECK_MATCHER = sequence([
-        match({ token, valueObj ->
+        match({ context, header, valueObj ->
+            def token = context.lexer.next()
             if (token.value == null) {
                 return false
             }
@@ -99,6 +100,7 @@ class SectionParser extends BlockParserPlugin {
 
         // TODO: parse the title as inlines
         def title = lexer.combineTo(type(Token.Type.EOL))
+        //def inlines = parseInlines(context, type(Token.Type.EOL))
 
         // check the parsed level and the expected level
         def expectedLevel = context.expectedSectionLevel

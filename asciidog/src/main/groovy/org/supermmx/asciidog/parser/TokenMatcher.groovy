@@ -13,7 +13,7 @@ abstract class TokenMatcher {
     protected abstract boolean doMatch(ParserContext context, BlockHeader header = null)
 
     /**
-     * Closure called when the matching is finished { matched -> code }
+     * Closure called when the matching is finished { context, header, matched -> code }
      */
     Closure action
 
@@ -41,7 +41,8 @@ abstract class TokenMatcher {
      * Match the token value
      */
     static TokenMatcher literal(String value, Closure action = null) {
-        return new ClosureMatcher(value: value, condition: { token, valueObj ->
+        return new ClosureMatcher(value: value, condition: { context, header, valueObj ->
+            def token = context.lexer.next()
             token?.value == valueObj
         }, action: action)
     }
@@ -51,7 +52,8 @@ abstract class TokenMatcher {
     }
 
     static TokenMatcher regexPattern(Pattern pattern, Closure action = null) {
-        return new ClosureMatcher(value: pattern, condition: { token, valueObj ->
+        return new ClosureMatcher(value: pattern, condition: { context, header, valueObj ->
+            def token = context.lexer.next()
             pattern.matcher(token?.value).matches()
         }, action: action)
     }
@@ -60,7 +62,8 @@ abstract class TokenMatcher {
      * Match the token type
      */
     static TokenMatcher type(Token.Type type, Closure action = null) {
-        return new ClosureMatcher(value: type, condition: { token, typeObj ->
+        return new ClosureMatcher(value: type, condition: { context, header, typeObj ->
+            def token = context.lexer.next()
             token?.type == typeObj
         }, action: action)
     }
@@ -103,9 +106,7 @@ abstract class TokenMatcher {
 
         @Override
         protected boolean doMatch(ParserContext context, BlockHeader header = null) {
-            def token = context.lexer.next()
-
-            return condition(token, value)
+            return condition(context, header, value)
         }
     }
 

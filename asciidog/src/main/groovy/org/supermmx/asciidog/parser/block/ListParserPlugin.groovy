@@ -55,7 +55,8 @@ $
                 }
                 header.properties[LIST_LEAD] = lead
             })),
-        match({ token, valueObj ->
+        match({ context, header, valueObj ->
+            def token = context.lexer.next()
             log.trace '==== matcher token = {}', token
             def value = token.value
             def marker = value.charAt(0)
