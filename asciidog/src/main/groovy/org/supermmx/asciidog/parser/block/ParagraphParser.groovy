@@ -45,7 +45,12 @@ class ParagraphParser extends BlockParserPlugin {
      * or by the paragraph itself (like new line after the paragraph)
      */
     static final TokenMatcher END_MATCHER = match({ context, header, valueObj ->
-        def isEnd = false
+        def token = context.lexer.peek()
+        def isEnd = (token.type == Token.Type.EOL || token.type == Token.Type.EOF)
+        if (isEnd) {
+            return isEnd
+        }
+
         def checkers = context.paragraphEndingCheckers
         for (def i = checkers.size() - 1; i >= 0; i--) {
             def parser = checkers[i]
@@ -57,11 +62,6 @@ class ParagraphParser extends BlockParserPlugin {
             if (isEnd) {
                 break
             }
-        }
-
-        if (!isEnd) {
-            def token = context.lexer.peek()
-            isEnd = (token.type == Token.Type.EOL || token.type == Token.Type.EOF)
         }
 
         return isEnd
