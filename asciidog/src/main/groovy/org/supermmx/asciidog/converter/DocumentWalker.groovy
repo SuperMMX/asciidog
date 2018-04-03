@@ -109,7 +109,7 @@ class DocumentWalker {
         log.debug "Pre rendering inline: type: ${inline.type}"
         renderer?.pre(context, inline)
 
-        if (inline in InlineContainer) {
+        if (inline.children.size() > 0) {
             traverseInlineContainer(context, inline)
         } else {
             log.debug "Rendering inline: type: ${inline.type}"
