@@ -230,7 +230,7 @@ class AttributeContainer {
         inlines.each { inline ->
             if (inline instanceof InlineContainer) {
                 // replace recursively
-                inline.inlineNodes = replaceAttributeReferences(inline.inlineNodes)
+                inline.children = replaceAttributeReferences(inline.children)
                 result << inline
             } else if (inline instanceof AttributeReferenceNode) {
                 // replace the reference
