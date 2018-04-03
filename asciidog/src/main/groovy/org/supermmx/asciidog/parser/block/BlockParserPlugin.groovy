@@ -221,11 +221,17 @@ $
     }
 
     boolean checkStart(ParserContext context, BlockHeader header, boolean expected) {
-        context.lexer.mark()
+        def lexer = context.lexer
+
+        lexer.mark()
 
         def result = doCheckStart(context, header, expected)
 
-        context.lexer.reset()
+        if (result) {
+            lexer.clearMark()
+        } else {
+            lexer.reset()
+        }
 
         return result
     }
@@ -492,6 +498,9 @@ $
             SectionParser sectionParser = PluginRegistry.instance.getPlugin(SectionParser.ID)
             if (sectionParser.checkStart(context, header, false)) {
                 header.parserId = sectionParser.id
+                if (header.type == null) {
+                    header.type = sectionParser.nodeType
+                }
 
                 break
             }
@@ -502,6 +511,9 @@ $
                 if (plugin.checkStart(context, header, false)) {
                     log.debug('Parser: {}, Parser {} matches', id, plugin.id)
                     header.parserId = plugin.id
+                    if (header.type == null) {
+                        header.type = plugin.nodeType
+                    }
 
                     break
                 }
@@ -517,7 +529,7 @@ $
         }
 
         log.debug('{}', header)
-        log.debug('Parser: {}, End parsing block header', id)
+        log.debug('Parser: {}, End parsing block header', header.parserId)
 
         if (header.type == null) {
             // no block is found

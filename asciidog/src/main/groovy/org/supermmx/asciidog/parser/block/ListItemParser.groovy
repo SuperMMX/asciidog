@@ -47,12 +47,6 @@ class ListItemParser extends BlockParserPlugin {
         fillBlockFromHeader(listItem, header)
 
         def lexer = context.lexer
-        def token = lexer.next()
-        if (token.type == Token.Type.WHITE_SPACES) {
-            lexer.next()
-        }
-
-        lexer.next()
 
         log.trace '==== list item next token = {}', lexer.peek()
         return listItem

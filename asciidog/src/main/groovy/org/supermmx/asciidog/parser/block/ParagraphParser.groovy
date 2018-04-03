@@ -33,7 +33,7 @@ class ParagraphParser extends BlockParserPlugin {
     static final TokenMatcher CHECK_MATCHER = sequence([
         optional(type(Token.Type.WHITE_SPACES)),
         match({ context, header, valueObj ->
-            def token = context.lexer.next()
+            def token = context.lexer.peek()
             token.type != Token.Type.WHITE_SPACES &&
                 token.type != Token.Type.EOL &&
                 token.type != Token.Type.EOF

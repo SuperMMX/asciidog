@@ -71,6 +71,7 @@ ${AUTHOR_REGEX}
         if (expected) {
             // TODO: check with TokenMatcher
             def line = lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
+            header.properties[HEADER_PROPERTY_AUTHOR_LINE] = line
             isStart = AUTHOR_LINE_PATTERN.matcher(line).matches()
         }
 
@@ -81,25 +82,29 @@ ${AUTHOR_REGEX}
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
         def authors = new Authors()
 
-        return authors
-    }
-
-    protected String doGetNextChildParser(ParserContext context, Block block) {
         // create child nodes
         def lexer = context.lexer
 
         // TODO: parse with lexer
-        def line = lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
+        def line = header.properties[HEADER_PROPERTY_AUTHOR_LINE]
 
         line.split(';').each {
             def author = createAuthor(it)
-            author.parent = block
-            author.document = block.document
+            author.parent = authors
 
-            block << author
+            authors << author
         }
 
+        return authors
+    }
+
+    @Override
+    protected String doGetNextChildParser(ParserContext context, Block block) {
         // no child parsers
+
+        block.children.each { author ->
+            author.document = block.document
+        }
 
         return null
     }

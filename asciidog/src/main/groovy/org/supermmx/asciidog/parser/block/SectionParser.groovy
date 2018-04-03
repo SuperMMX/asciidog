@@ -33,6 +33,7 @@ class SectionParser extends BlockParserPlugin {
 
     static final String HEADER_PROPERTY_SECTION_TITLE = 'secTitle'
     static final String HEADER_PROPERTY_SECTION_LEVEL = 'secLevel'
+    static final String HEADER_PROPERTY_MARK_TOKEN = 'secMarkToken'
 
     static final String ID = 'plugin:parser:block:section'
 
@@ -48,7 +49,8 @@ class SectionParser extends BlockParserPlugin {
         }, { ParserContext context, BlockHeader header, boolean matched ->
                 if (matched) {
                     def tokens = context.lexer.tokensFromMark
-                    header.properties[(HEADER_PROPERTY_SECTION_LEVEL)] = tokens[0].value.length() - 1
+                    header.properties[HEADER_PROPERTY_SECTION_LEVEL] = tokens[0].value.length() - 1
+                    header.properties[HEADER_PROPERTY_MARK_TOKEN] = tokens[0]
                 }
             }),
         type(Token.Type.WHITE_SPACES),
@@ -62,14 +64,14 @@ class SectionParser extends BlockParserPlugin {
 
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
-        def lexer = context.lexer
-        lexer.mark()
-        def isStart = CHECK_MATCHER.matches(context, header)
-        lexer.reset()
-
-        if (isStart && header != null) {
-            header.type = Node.Type.SECTION
+        if (header != null && header.type != null) {
+            return header.type == nodeType
         }
+
+        def lexer = context.lexer
+        def isStart = false
+
+        isStart = CHECK_MATCHER.matches(context, header)
 
         return isStart
     }
@@ -80,6 +82,7 @@ class SectionParser extends BlockParserPlugin {
 
         log.trace '=== next token = {}', lexer.peek()
 
+        /*
         def (markToken, wsToken, titleToken) = lexer.peek(3)
 
         if (markToken == null) {
@@ -97,6 +100,9 @@ class SectionParser extends BlockParserPlugin {
             // report warning
         }
         lexer.next()
+         */
+
+        def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
 
         // TODO: parse the title as inlines
         def title = lexer.combineTo(type(Token.Type.EOL))
@@ -105,6 +111,7 @@ class SectionParser extends BlockParserPlugin {
         // check the parsed level and the expected level
         def expectedLevel = context.expectedSectionLevel
         if (expectedLevel != null && level != expectedLevel) {
+            def markToken = header.properties[HEADER_PROPERTY_MARK_TOKEN]
             log.error('{},{}: Wrong section level {}, expected level is {}',
                       markToken.row, markToken.col, level, expectedLevel)
 
