@@ -82,7 +82,7 @@ class ParagraphParser extends BlockParserPlugin {
         context.blockHeader = null
         context.keepHeader = true
 
-        parseInlines(context, para, END_MATCHER)
+        Parser.parseInlines(context, para, END_MATCHER)
 
         if (true) {
             return para
