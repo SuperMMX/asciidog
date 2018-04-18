@@ -46,16 +46,8 @@ $
     static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
 
     static final TokenMatcher CHECK_MATCHER = sequence([
-        optional(type(Token.Type.WHITE_SPACES,
-                      { ParserContext context, BlockHeader header, boolean matched ->
-                def lead = ''
-                if (matched) {
-                    def tokens = context.lexer.tokensFromMark
-                    lead = tokens[0].value
-                }
-                header.properties[LIST_LEAD] = lead
-            })),
-        match({ context, header, valueObj ->
+        optional('lead', type(Token.Type.WHITE_SPACES)),
+        match('mark', { context, header, valueObj ->
             def token = context.lexer.next()
             log.trace '==== matcher token = {}', token
             def value = token.value
@@ -69,17 +61,34 @@ $
             }
 
             return false
-        },
-              { ParserContext context, BlockHeader header, boolean matched ->
-                if (matched) {
-                    def marker = context.lexer.tokensFromMark.collect { it.value }.join()
-                    header.properties[LIST_MARKER_LEVEL] = marker.length()
-                    header.properties[LIST_MARKER] = marker[0]
-                }
-            }),
+        }),
         type(Token.Type.WHITE_SPACES),
         not(type(Token.Type.EOL))
     ])
+
+    static final Closure CHECK_ACTION = { String name, ParserContext context, Map<String, Object> props, boolean matched ->
+        if (!matched) {
+            return
+        }
+
+        def header = props.header
+        def tokens = context.lexer.tokensFromMark
+
+        if (name == 'lead') {
+            // lead
+            def lead = ''
+
+            if (tokens.size() > 0) {
+                lead = tokens[0].value
+            }
+
+            header.properties[LIST_LEAD] = lead
+        } else if (name == 'mark') {
+            def marker = context.lexer.joinTokensFromMark();
+            header.properties[LIST_MARKER_LEVEL] = marker.length()
+            header.properties[LIST_MARKER] = marker[0]
+        }
+    }
 
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
@@ -93,7 +102,8 @@ $
             return true
         }
 
-        def isStart = CHECK_MATCHER.matches(context, header)
+        def isStart = CHECK_MATCHER.matches(context, false, ["header": header], CHECK_ACTION)
+
         if (!isStart) {
             return false
         }
@@ -178,7 +188,7 @@ $
     }
 
     public static TokenMatcher LIST_CONTINUATION_MATCHER =
-        sequence([ optional(type(Token.Type.WHITE_SPACES)), literal('+')])
+        sequence([ optional(type(Token.Type.WHITE_SPACES)), literal('+') ])
 
     @Override
     protected boolean doToEndParagraph(ParserContext context) {
@@ -186,7 +196,7 @@ $
 
         log.debug '==== list parer plugin: end paragraph, next token = {}', context.lexer.peek()
         context.lexer.mark()
-        def matched = LIST_CONTINUATION_MATCHER.matches(context, null)
+        def matched = LIST_CONTINUATION_MATCHER.matches(context)
         context.lexer.reset()
 
         if (matched) {

@@ -32,7 +32,7 @@ class ParagraphParser extends BlockParserPlugin {
      */
     static final TokenMatcher CHECK_MATCHER = sequence([
         optional(type(Token.Type.WHITE_SPACES)),
-        match({ context, header, valueObj ->
+        match({ context, props, valueObj ->
             def token = context.lexer.peek()
             token.type != Token.Type.WHITE_SPACES &&
                 token.type != Token.Type.EOL &&
@@ -44,7 +44,7 @@ class ParagraphParser extends BlockParserPlugin {
      * The paragraph end matcher, which is either determined by parents
      * or by the paragraph itself (like new line after the paragraph)
      */
-    static final TokenMatcher END_MATCHER = match({ context, header, valueObj ->
+    static final TokenMatcher END_MATCHER = match({ context, props, valueObj ->
         def token = context.lexer.peek()
         def isEnd = (token.type == Token.Type.EOL || token.type == Token.Type.EOF)
         if (isEnd) {
@@ -69,7 +69,7 @@ class ParagraphParser extends BlockParserPlugin {
 
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
-        return CHECK_MATCHER.matches(context, header)
+        return CHECK_MATCHER.matches(context)
     }
 
     @Override

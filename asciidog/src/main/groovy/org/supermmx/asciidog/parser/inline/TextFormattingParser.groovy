@@ -25,7 +25,7 @@ abstract class TextFormattingParser extends InlineParserPlugin {
         if (matcher == null) {
             matcher = literal(tag)
         }
-        return matcher.matches(context, null)
+        return matcher.matches(context)
     }
 
     @Override
@@ -36,7 +36,7 @@ abstract class TextFormattingParser extends InlineParserPlugin {
         if (matcher == null) {
             matcher = literal(tag)
         }
-        return matcher.matches(context, null)
+        return matcher.matches(context)
     }
 
     @Override
