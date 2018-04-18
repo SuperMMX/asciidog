@@ -2,6 +2,7 @@ package org.supermmx.asciidog.parser.action
 
 import static org.supermmx.asciidog.parser.TokenMatcher.*
 
+import org.supermmx.asciidog.Parser
 import org.supermmx.asciidog.ast.AttributeEntry
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
@@ -35,6 +36,35 @@ class AttributeEntryParser extends BlockParserPlugin {
 
     static final String ID = 'plugin:parser:action:define_attribute'
 
+    static final TokenMatcher ATTRIBUTE_NAME_MATCHER =
+        // FIXME: tokens with consecutive same punctuation characters
+        oneOrMore('name', firstOf([
+        literal('_'),
+        literal('-'),
+        type(Token.Type.TEXT),
+        type(Token.Type.DIGITS)
+    ]))
+
+    static final TokenMatcher CHECK_MATCHER = sequence([
+        literal(':'),
+        // name
+        sequence('fullName', [
+            optional(literal('!')),
+            ATTRIBUTE_NAME_MATCHER,
+        ]),
+        literal(':'),
+        optional(type(Token.Type.WHITE_SPACES))
+    ])
+
+    // TODO: multi-line value
+    /**
+     * Always match the next token, but will NOT consume it.
+     * This will be called when EOL occurs when parsing the value as inlines
+     */
+    static final TokenMatcher VALUE_END_MATCHER = match { context, props, valueObj ->
+        true
+    }
+
     AttributeEntryParser() {
         nodeType = Node.Type.DEFINE_ATTRIBUTE
         id = ID
@@ -42,37 +72,32 @@ class AttributeEntryParser extends BlockParserPlugin {
 
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
-        def lexer = context.lexer
+        def isStart = CHECK_MATCHER.matches(context, false, ['header': header],
+                                            { name, matcherContext, props, matched ->
+                if (!matched) {
+                    return
+                }
 
-        // TODO: parse with tokens
-        def line = lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
+                if (name == 'fullName') {
+                    def matcherHeader = props.header
+                    matcherHeader.properties[HEADER_PROPERTY_ATTRIBUTE_NAME] = matcherContext.lexer.joinTokensFromMark()
+                }
+            })
 
-        def (name, value) = isAttribute(line)
-
-        if (name == null) {
-            return false
-        }
-
-        if (header != null) {
-            header.type = Node.Type.DEFINE_ATTRIBUTE
-            header.properties[HEADER_PROPERTY_ATTRIBUTE_NAME] = name
-            header.properties[HEADER_PROPERTY_ATTRIBUTE_FIRST_LINE] = value
-        }
-
-        return true
+        return isStart
     }
 
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
-        // TODO: parse tokens
         def lexer = context.lexer
-        def line = lexer.combineTo(TokenMatcher.type(Token.Type.EOL))
 
         def name = header?.properties[HEADER_PROPERTY_ATTRIBUTE_NAME]
-        def value = header?.properties[HEADER_PROPERTY_ATTRIBUTE_FIRST_LINE]
 
-        // FIXME: value of multiple lines
-        AttributeEntry attr = new AttributeEntry(name: name, value: value)
+        // TODO: value of multiple lines
+        AttributeEntry attr = new AttributeEntry(name: name)
+
+        // parse value
+        Parser.parseInlines(context, attr, VALUE_END_MATCHER)
 
         context.attributes << attr
 

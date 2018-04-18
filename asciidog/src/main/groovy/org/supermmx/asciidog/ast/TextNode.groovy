@@ -21,4 +21,9 @@ class TextNode extends Inline {
 
         this.text = text
     }
+
+    @Override
+    void asText(StringBuilder buf) {
+        buf.append(text)
+    }
 }

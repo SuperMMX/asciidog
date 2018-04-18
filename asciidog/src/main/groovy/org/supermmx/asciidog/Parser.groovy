@@ -27,6 +27,7 @@ import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.TokenMatcher
 import org.supermmx.asciidog.parser.ParserContext
 import org.supermmx.asciidog.parser.block.DocumentParser
+import org.supermmx.asciidog.parser.block.ParagraphParser
 
 import org.supermmx.asciidog.plugin.Plugin
 import org.supermmx.asciidog.plugin.PluginRegistry
@@ -231,6 +232,28 @@ class Parser {
     ]
 
     /**
+     * Parse the text as a paragraph and get the children as inline nodes.
+     *
+     * @param value the string
+     *
+     * @return a list of inline nodes
+     */
+    public static List<Inline> parseInlines(String value) {
+        def context = new ParserContext()
+        def reader = Reader.createFromString(value)
+        def lexer = new Lexer(reader)
+        context.reader = reader
+        context.lexer = lexer
+
+        context.parserId = ParagraphParser.ID
+
+        def para = PluginRegistry.instance.getPlugin(ParagraphParser.ID).parse(context)
+
+        // FIXME: handle parent and document references correctly
+        return para.children as List<Inline>
+    }
+
+    /**
      * Parse inline nodes
      *
      * @param context the parser context
@@ -263,7 +286,7 @@ class Parser {
             } else if (token.type == Token.Type.EOL) {
                 lexer.next()
 
-                def isEnd = endMatcher.matches(context, null)
+                def isEnd = endMatcher?.matches(context)
                 log.trace '==== To end whole inline parsing: {}, next token = {}', isEnd, lexer.peek()
                 if (isEnd) {
                     break

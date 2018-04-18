@@ -12,4 +12,8 @@ import groovy.transform.TupleConstructor
 @TupleConstructor
 abstract class Inline extends Node implements InlineContainer {
     boolean escaped
+
+    void asText(StringBuilder buf) {
+        children.each { inline.asText(bu) }
+    }
 }
