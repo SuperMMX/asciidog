@@ -39,7 +39,8 @@ class ListParserPluginSpec extends AsciidogSpec {
 
     def 'checkStart: false'() {
         expect:
-        isStart == parser.checkStart(line, header, false)
+        def context = parserContext(line)
+        isStart == parser.checkStart(context, header, false)
 
         where:
         isStart | line       | header

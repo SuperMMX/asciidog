@@ -17,64 +17,38 @@ class InlineSpec extends AsciidogSpec {
 
     /* === Node: Strong Unconstrained === */
 
-    def 'single-line unconstrained strong chars'() {
+    def 'single-line strong chars'() {
         given:
-        def text = '**Git**Hub'
-        def nodes = [
-            builder.strong {
-                builder.text('Git')
-            },
-            builder.text('Hub')
-        ]
+        def context = parserContext('**Git**Hub')
+        context.parserId = parser.id
+        def ePara = builder.para {
+            strong {
+                text 'Git'
+            }
+            text 'Hub'
+        }
 
         expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+        parser.parse(context) == ePara
     }
 
-    def 'escaped single-line unconstrained strong chars'() {
+    def 'multi-line strong chars'() {
         given:
-        def text = '\\**Git**Hub'
-        def nodes = [
-            builder.strong(escaped: true) {
-                builder.text('Git')
-            },
-            builder.text('Hub')
-        ]
+        def context = parserContext('**G\ni\nt\n**Hub')
+        context.parserId = parser.id
+        def ePara = builder.para {
+            strong {
+                text 'G\ni\nt\n'
+            }
+            text 'Hub'
+        }
 
         expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
-    }
-
-    def 'multi-line unconstrained strong chars'() {
-        given:
-        def text = '**G\ni\nt\n**Hub'
-        def nodes = [
-            builder.strong {
-                builder.text('G\ni\nt\n')
-            },
-            builder.text('Hub')
-        ]
-
-        expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
-    }
-
-    def 'unconstrained strong chars with inline asterisk'() {
-        given:
-        def text = '**bl*ck**-eye'
-        def nodes = [
-            builder.strong {
-                builder.text('bl*ck')
-            },
-            builder.text('-eye')
-        ]
-
-        expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
+        parser.parse(context) == ePara
     }
 
     @Ignore
-    def 'unconstrained strong chars with role'() {
+    def 'strong chars with role'() {
         given:
         def text = 'Git[blue]**Hub**'
         def nodes = [
@@ -89,29 +63,7 @@ class InlineSpec extends AsciidogSpec {
     }
 
     @Ignore
-    def 'mixed unconstrained and constrained strong inlines'() {
-        given:
-        def text = '中**文段**落 with o**th**er words\n*abc*'
-        def nodes = [
-            builder.text('中'),
-            builder.strong {
-                builder.text('文段')
-            },
-            builder.text('落 with o'),
-            builder.strong {
-                builder.text('th')
-            },
-            builder.text('er words\n'),
-            builder.strong {
-                builder.text('abc')
-            },
-        ]
-
-        expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
-    }
-
-    def 'escaped unconstrained strong chars with role'() {
+    def 'escaped strong chars with role'() {
         given:
         def text = 'Git\\[blue]**Hub**'
         def nodes = [
@@ -122,89 +74,6 @@ class InlineSpec extends AsciidogSpec {
         ]
 
         // FIXME: escaped
-    }
-
-    /* === Strong Constrained === */
-    def 'single-line constrained strong string'() {
-        given:
-        def content = 'a few strong words'
-        def text = "*$content*"
-        def nodes = [
-            builder.strong {
-                builder.text(content)
-            }
-        ]
-
-        expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
-    }
-
-    def 'escaped single-line constrained strong string'() {
-        given:
-        def content = 'a few strong words'
-        def text = "\\*$content*"
-        def nodes = [
-            builder.strong(escaped: true) {
-                builder.text(content)
-            }
-        ]
-
-        expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
-    }
-
-    def 'multi-line constrained strong string'() {
-        given:
-        def content = 'a few\nstrong words'
-        def text = "*$content*"
-        def nodes = [
-            builder.strong {
-                builder.text(content)
-            }
-        ]
-
-        expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
-    }
-
-    def 'constrained strong string containing an asterisk'() {
-        given:
-        def text = '*bl*ck*-eye'
-        def nodes = [
-            builder.strong {
-                builder.text('bl*ck')
-            },
-            builder.text('-eye')
-        ]
-
-        expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
-    }
-
-    def 'constrained strong string containing an asterisk and multibyte word chars'() {
-        given:
-        def text = '*黑*眼圈*'
-        def nodes = [
-            builder.strong {
-                builder.text('黑*眼圈')
-            }
-        ]
-
-        expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
-    }
-
-    def 'constrained strong string with role'() {
-        given:
-        def text = '[blue]*a few strong words*'
-        def nodes = [
-            builder.strong(attributes: [ 'blue':null ]) {
-                builder.text('a few strong words')
-            }
-        ]
-
-        expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == nodes
     }
 
     /* ==== Cross Reference ==== */
@@ -252,21 +121,29 @@ class InlineSpec extends AsciidogSpec {
     }
 
     def 'simple nodes'() {
+        given:
+        def context = parserContext(' text node ')
+        context.parserId = parser.id
+        def ePara = builder.para {
+            text 'text node '
+        }
+
         expect:
-        Parser.parseInlineNodes(new Paragraph(), text) == [ node ]
+        parser.parse(context) == ePara
 
-        where:
-        text << [
-            ' text node ',
-            '*abc中文*'
-        ]
-
-        node << [
-            builder.text(' text node '),
-            builder.strong {
-                builder.text('abc中文')
+        when:
+        context = parserContext(' **abc 中文** ')
+        context.parserId = parser.id
+        ePara = builder.para {
+            strong {
+                text 'abc 中文'
             }
-        ]
+            text ' '
+        }
+
+        then:
+        parser.parse(context) == ePara
+
     }
 
     def 'test'() {
