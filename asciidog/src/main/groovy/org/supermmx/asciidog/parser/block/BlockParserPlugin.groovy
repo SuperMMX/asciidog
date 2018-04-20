@@ -202,24 +202,6 @@ $
         return block
     }
 
-    /**
-     * Check weather the line is the start of the block,
-     * if yes, some necessary information is saved in the header.
-     *
-     * @param line the next line
-     * @param header the new block header to fill
-     * @param expected whether the type of the block of this plugin parses
-     *        is expected by the parent parser, or the parent parser just
-     *        does the wild guess
-     */
-    boolean checkStart(String line, BlockHeader header, boolean expected) {
-        return doCheckStart(line, header, expected)
-    }
-
-    protected boolean doCheckStart(String line, BlockHeader header, boolean expected) {
-        return false
-    }
-
     boolean checkStart(ParserContext context, BlockHeader header, boolean expected) {
         def lexer = context.lexer
 

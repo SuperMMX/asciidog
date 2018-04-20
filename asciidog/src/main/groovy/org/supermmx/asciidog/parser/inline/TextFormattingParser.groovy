@@ -46,34 +46,4 @@ abstract class TextFormattingParser extends InlineParserPlugin {
 
         return inline
     }
-
-    @Override
-    protected List<Inline> createNodes(Matcher m, List<String> groups) {
-        FormattingNode inline = createFormattingNode()
-
-        return [ inline ]
-    }
-
-    @Override
-    protected boolean fillNodes(List<InlineInfo> infoList, Matcher m, List<String> groups) {
-        infoList[0].with {
-            contentStart = m.start(3)
-            contentEnd = m.end(3)
-
-            inlineNode.with {
-                escaped = (groups[1] != '')
-
-                def attrsStr = groups[2]
-                if (attrsStr != null) {
-                    def attrs = parseAttributes(attrsStr)
-                    attributes.putAll(attrs)
-                }
-            }
-        }
-
-        return true
-    }
-
-    abstract FormattingNode createFormattingNode()
 }
-
