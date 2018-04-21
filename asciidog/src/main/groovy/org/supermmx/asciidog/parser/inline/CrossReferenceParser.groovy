@@ -35,17 +35,15 @@ class CrossReferenceParser extends InlineParserPlugin {
     CrossReferenceParser() {
         id = ID
         nodeType = Node.Type.CROSS_REFERENCE
-
-        pattern = CROSS_REFERENCE_PATTERN
     }
 
     @Override
-    protected boolean doCheckStart(ParserContext context) {
+    protected boolean doCheckStart(ParserContext context, InlineContainer parent) {
         return START_MATCHER.matches(context, false, [:], null)
     }
 
     @Override
-    protected boolean doCheckEnd(ParserContext context) {
+    protected boolean doCheckEnd(ParserContext context, InlineContainer parent) {
         return END_MATCHER.matches(context, false, [:], null)
 
         return true

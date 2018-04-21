@@ -18,7 +18,7 @@ abstract class TextFormattingParser extends InlineParserPlugin {
     TokenMatcher matcher
 
     @Override
-    protected boolean doCheckStart(ParserContext context) {
+    protected boolean doCheckStart(ParserContext context, InlineContainer parent) {
         if (tag == null) {
             return false
         }
@@ -29,7 +29,7 @@ abstract class TextFormattingParser extends InlineParserPlugin {
     }
 
     @Override
-    protected boolean doCheckEnd(ParserContext context) {
+    protected boolean doCheckEnd(ParserContext context, InlineContainer parent) {
         if (tag == null) {
             return false
         }

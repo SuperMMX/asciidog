@@ -168,7 +168,7 @@ class Parser {
         while (lexer.hasNext()) {
             def token = lexer.peek()
             log.trace ''
-            log.trace '==== next token = {}', token
+            log.debug '==== next token = {}', token
 
             // whether to stop the inline parsing
             if (token.type == Token.Type.EOF) {
@@ -193,7 +193,7 @@ class Parser {
             if (lastParser != null) {
                 // check the end matcher of the current parent
                 // TODO: check ends of all parents?
-                def isEnd = lastParser.checkEnd(context)
+                def isEnd = lastParser.checkEnd(context, currentParent.parent)
                 log.trace '==== check inline end = {}, next token = {}', isEnd, lexer.peek()
                 if (isEnd) {
                     if (buf.length() > 0) {
@@ -217,7 +217,7 @@ class Parser {
             log.trace '==== last parser = {}, parent = {}', lastParser?.id, currentParent.type
             def parserFound = false
             for (def plugin: PluginRegistry.instance.getInlineParsers()) {
-                parserFound = plugin.checkStart(context)
+                parserFound = plugin.checkStart(context, currentParent)
                 if (parserFound) {
                     if (lastParser != null) {
                         parserStack.push(lastParser)

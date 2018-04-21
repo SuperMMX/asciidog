@@ -67,12 +67,10 @@ class AttributeReferenceParser extends InlineParserPlugin {
     AttributeReferenceParser() {
         id = ID
         nodeType = Node.Type.ATTRIBUTE_REFERENCE
-
-        pattern = ATTRIBUTE_REFERENCE_PATTERN
     }
 
     @Override
-    protected boolean doCheckStart(ParserContext context) {
+    protected boolean doCheckStart(ParserContext context, InlineContainer parent) {
         if (context.lexer.peek().value != '{') {
             return false
         }
@@ -83,7 +81,7 @@ class AttributeReferenceParser extends InlineParserPlugin {
     }
 
     @Override
-    protected boolean doCheckEnd(ParserContext context) {
+    protected boolean doCheckEnd(ParserContext context, InlineContainer parent) {
         context.inlineContext = null
 
         return true

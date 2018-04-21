@@ -16,30 +16,21 @@ import java.util.regex.Matcher
  * it is interested in
  */
 abstract class InlineParserPlugin extends ParserPlugin {
-    boolean constrained
-    Pattern pattern
-
-    boolean checkStart(ParserContext context) {
-        return doCheckStart(context)
+    boolean checkStart(ParserContext context, InlineContainer parent) {
+        return doCheckStart(context, parent)
     }
 
-    protected boolean doCheckStart(ParserContext context) {
-        return false
+    abstract protected boolean doCheckStart(ParserContext context, InlineContainer parent)
+
+    boolean checkEnd(ParserContext context, InlineContainer parent) {
+        return doCheckEnd(context, parent)
     }
 
-    boolean checkEnd(ParserContext context) {
-        return doCheckEnd(context)
-    }
-
-    protected boolean doCheckEnd(ParserContext context) {
-        return true
-    }
+    abstract protected boolean doCheckEnd(ParserContext context, InlineContainer parent)
 
     public Inline parse(ParserContext context, InlineContainer parent) {
         return doParse(context, parent)
     }
 
-    protected Inline doParse(ParserContext context, InlineContainer parent) {
-        return null
-    }
+    abstract protected Inline doParse(ParserContext context, InlineContainer parent)
 }
