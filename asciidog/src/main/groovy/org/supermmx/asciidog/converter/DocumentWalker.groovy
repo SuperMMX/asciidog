@@ -47,7 +47,7 @@ class DocumentWalker {
             switch (block.type) {
             case Node.Type.DEFINE_ATTRIBUTE:
                 def attr = (AttributeEntry)block
-                context.attrContainer.setAttribute(attr.name, attr.value)
+                context.attrContainer.setAttribute(attr.name, attr.children)
                 break
             }
 

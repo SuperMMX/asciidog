@@ -98,6 +98,7 @@ class AttributeEntryParser extends BlockParserPlugin {
 
         // parse value
         Parser.parseInlines(context, attr, VALUE_END_MATCHER)
+        log.debug '==== Parsed attribute entry: attr = {}', attr
 
         context.attributes << attr
 
