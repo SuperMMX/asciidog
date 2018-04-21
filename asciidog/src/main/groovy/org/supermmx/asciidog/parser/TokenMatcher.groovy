@@ -19,6 +19,11 @@ abstract class TokenMatcher {
      */
     String name
     /**
+     * Reset to the mark always for this matcher.
+     * Normally set to true for the last matcher in order not to consume the tokens
+     */
+    boolean selfReset = false
+    /**
      * Match against this matcher starting from next token.
      * The tokens are consumed if matched and not reset.
      *
@@ -36,7 +41,7 @@ abstract class TokenMatcher {
 
         action?.call(name, context, props, matched)
 
-        if (matched && !reset) {
+        if (matched && !reset && !selfReset) {
             context.lexer.clearMark()
         } else {
             context.lexer.reset()
@@ -48,15 +53,16 @@ abstract class TokenMatcher {
     /**
      * Match the token value
      */
-    static TokenMatcher literal(String value) {
-        return literal(null, value)
+    static TokenMatcher literal(String value, boolean selfReset = false) {
+        return literal(null, value, selfReset)
     }
 
-    static TokenMatcher literal(String name, String value) {
-        return new ClosureMatcher(value: value, condition: { context, props, valueObj ->
-            def token = context.lexer.next()
-            token?.value == valueObj
-        })
+    static TokenMatcher literal(String name, String value, boolean selfReset = false) {
+        return new ClosureMatcher(name: name, value: value, selfReset: selfReset,
+                                  condition: { context, props, valueObj ->
+                def token = context.lexer.next()
+                token?.value == valueObj
+            })
     }
 
     static TokenMatcher regex(String regexStr) {
@@ -106,12 +112,12 @@ abstract class TokenMatcher {
     /**
      * Match a sequence of matchers
      */
-    static TokenMatcher sequence(List<TokenMatcher> matchers) {
-        return sequence(null, matchers)
+    static TokenMatcher sequence(List<TokenMatcher> matchers, boolean selfReset = false) {
+        return sequence(null, matchers, selfReset)
     }
 
-    static TokenMatcher sequence(String name, List<TokenMatcher> matchers) {
-        return new SequenceMatcher(name: name, matchers: matchers)
+    static TokenMatcher sequence(String name, List<TokenMatcher> matchers, boolean selfReset = false) {
+        return new SequenceMatcher(name: name, matchers: matchers, selfReset: selfReset)
     }
 
     static TokenMatcher optional(TokenMatcher matcher) {
