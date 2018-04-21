@@ -34,7 +34,6 @@ _
     ConstrainedEmphasisFormattingParser() {
         id = ID
         nodeType = Node.Type.EMPHASIS
-        pattern = EMPHASIS_CONSTRAINED_PATTERN
     }
 
     FormattingNode createFormattingNode() {

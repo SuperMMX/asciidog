@@ -21,7 +21,6 @@ __
     EmphasisFormattingParser() {
         id = ID
         nodeType = Node.Type.EMPHASIS
-        pattern = EMPHASIS_PATTERN
         tag = '__'
     }
 
