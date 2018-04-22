@@ -50,6 +50,7 @@ class ParagraphParser extends BlockParserPlugin {
         context.blockHeader = null
 
         def token = context.lexer.peek()
+        log.trace '==== paragraph end matcher, next token = {}', token
         def isEnd = (token.type == Token.Type.EOL || token.type == Token.Type.EOF)
         if (isEnd) {
             return isEnd
@@ -61,7 +62,8 @@ class ParagraphParser extends BlockParserPlugin {
 
             isEnd = parser.toEndParagraph(context)
 
-            log.debug '==== paragraph to end paragraph = {}', isEnd
+            log.trace '==== paragraph to end paragraph = {}', isEnd
+
             // just stop here no matter what ??
             if (isEnd) {
                 break

@@ -60,6 +60,7 @@ class ListItemParser extends BlockParserPlugin {
                 def result = false
                 def header = newContext.blockHeader
 
+                log.trace '==== list item next header = {}, next token = {}', header, newContext.lexer.peek()
                 if (header?.type?.isList()) {
                     // whether the list is a child list or a list item of the same level
                     def lead = header.properties[LIST_LEAD]
