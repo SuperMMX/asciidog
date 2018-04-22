@@ -79,7 +79,7 @@ class SectionParser extends BlockParserPlugin {
         def lexer = context.lexer
         def isStart = false
 
-        isStart = CHECK_MATCHER.matches(context, false, ["header": header], CHECK_ACTION)
+        isStart = CHECK_MATCHER.matches(context, ["header": header], false, CHECK_ACTION)
 
         return isStart
     }

@@ -39,12 +39,12 @@ class CrossReferenceParser extends InlineParserPlugin {
 
     @Override
     protected boolean doCheckStart(ParserContext context, InlineContainer parent) {
-        return START_MATCHER.matches(context, false, [:], null)
+        return START_MATCHER.matches(context, [:], false, null)
     }
 
     @Override
     protected boolean doCheckEnd(ParserContext context, InlineContainer parent) {
-        return END_MATCHER.matches(context, false, [:], null)
+        return END_MATCHER.matches(context, [:], false, null)
 
         return true
     }

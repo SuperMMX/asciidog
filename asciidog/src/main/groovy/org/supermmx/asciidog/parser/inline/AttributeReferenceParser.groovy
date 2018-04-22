@@ -77,7 +77,7 @@ class AttributeReferenceParser extends InlineParserPlugin {
 
         context.inlineContext = new InlineContext()
 
-        return CHECK_MATCHER.matches(context, false, [:], CHECK_ACTION)
+        return CHECK_MATCHER.matches(context, [:], false, CHECK_ACTION)
     }
 
     @Override

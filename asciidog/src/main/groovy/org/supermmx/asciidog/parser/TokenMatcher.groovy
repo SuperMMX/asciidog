@@ -34,7 +34,7 @@ abstract class TokenMatcher {
      *
      * @return true if matched, false otherwise
      */
-    boolean matches(ParserContext context, boolean reset = false, Map<String, Object> props = [:], Closure action = null) {
+    boolean matches(ParserContext context, Map<String, Object> props = [:], boolean reset = false, Closure action = null) {
         context.lexer.mark()
 
         def matched = doMatch(context, props, action)
@@ -181,7 +181,7 @@ abstract class TokenMatcher {
 
         @Override
         protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
-            return !matcher.matches(context, false, props, action)
+            return !matcher.matches(context, props, false, action)
         }
     }
 
@@ -192,7 +192,7 @@ abstract class TokenMatcher {
         protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
             def result = true
             for (def matcher: matchers) {
-                if (!matcher.matches(context, false, props, action)) {
+                if (!matcher.matches(context, props, false, action)) {
                     result = false
                     break
                 }
@@ -207,7 +207,7 @@ abstract class TokenMatcher {
 
         @Override
         protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
-            matcher.matches(context, false, props, action)
+            matcher.matches(context, props, false, action)
 
             return true
         }
@@ -218,7 +218,7 @@ abstract class TokenMatcher {
 
         @Override
         protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
-            while (matcher.matches(context, false, props, action)) {
+            while (matcher.matches(context, props, false, action)) {
             }
 
             return true
@@ -231,7 +231,7 @@ abstract class TokenMatcher {
         @Override
         protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
             def count = 0
-            while (matcher.matches(context, false, props, action)) {
+            while (matcher.matches(context, props, false, action)) {
                 count ++
             }
 
@@ -246,7 +246,7 @@ abstract class TokenMatcher {
         protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
             def result = false
             for (def matcher: matchers) {
-                if (matcher.matches(context, false, props, action)) {
+                if (matcher.matches(context, props, false, action)) {
                     result = true
                     break
                 }

@@ -72,7 +72,7 @@ class AttributeEntryParser extends BlockParserPlugin {
 
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
-        def isStart = CHECK_MATCHER.matches(context, false, ['header': header],
+        def isStart = CHECK_MATCHER.matches(context, ['header': header], false,
                                             { name, matcherContext, props, matched ->
                 if (!matched) {
                     return
