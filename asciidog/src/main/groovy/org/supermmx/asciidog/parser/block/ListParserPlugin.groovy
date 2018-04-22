@@ -45,27 +45,6 @@ $
     static final String LIST_MARKER = 'listMarker'
     static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
 
-    static final TokenMatcher CHECK_MATCHER = sequence([
-        optional('lead', type(Token.Type.WHITE_SPACES)),
-        match('mark', { context, header, valueObj ->
-            def token = context.lexer.next()
-            log.trace '==== matcher token = {}', token
-            def value = token.value
-            def marker = value.charAt(0)
-            def length = value.length()
-            if (value == '-'
-                || ((marker == (char)'*'
-                     || marker == (char)'.')
-                    && length >= 1 && length <= 5)) {
-                return true
-            }
-
-            return false
-        }),
-        type(Token.Type.WHITE_SPACES),
-        not(type(Token.Type.EOL))
-    ])
-
     static final Closure CHECK_ACTION = { String name, ParserContext context, Map<String, Object> props, boolean matched ->
         if (!matched) {
             return
@@ -90,6 +69,9 @@ $
         }
     }
 
+    private TokenMatcher checkMatcher
+    protected TokenMatcher markerMatcher
+
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
         log.debug '==== list parser check start: header = {}', header
@@ -102,32 +84,23 @@ $
             return true
         }
 
-        def isStart = CHECK_MATCHER.matches(context, false, ["header": header], CHECK_ACTION)
+        if (checkMatcher == null) {
+            checkMatcher = sequence([
+                optional('lead', type(Token.Type.WHITE_SPACES)),
+                match('mark', { closureContext, props, valueObj ->
+                    return markerMatcher.matches(closureContext, props, false)
+                }),
+                type(Token.Type.WHITE_SPACES),
+                not(type(Token.Type.EOL))
+            ])
+        }
+        def isStart = checkMatcher.matches(context, ["header": header], false, CHECK_ACTION)
 
         if (!isStart) {
             return false
         }
 
-        def marker = header.properties[LIST_MARKER]
-        def listType = null
-        switch (marker) {
-        case '*':
-        case '-':
-            listType = Node.Type.UNORDERED_LIST
-            break
-        case '.':
-            listType = Node.Type.ORDERED_LIST
-            break
-        default:
-            // should not happen
-            break
-        }
-
-        if (listType != nodeType) {
-            return false
-        }
-
-        header?.type = listType
+        header?.type = nodeType
 
         return true
     }
@@ -261,16 +234,16 @@ $
 
         def marker = markers[0]
         switch (marker) {
-        case '*':
-        case '-':
-            type = Node.Type.UNORDERED_LIST
-            break
-        case '.':
-            type = Node.Type.ORDERED_LIST
-            break
-        default:
-            // should not happen
-            break
+            case '*':
+            case '-':
+                type = Node.Type.UNORDERED_LIST
+                break
+            case '.':
+                type = Node.Type.ORDERED_LIST
+                break
+            default:
+                // should not happen
+                break
         }
 
         return [ type, lead, marker, markerLevel, contentStart ]
