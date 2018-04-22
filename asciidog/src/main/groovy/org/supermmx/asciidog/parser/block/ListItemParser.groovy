@@ -47,12 +47,6 @@ class ListItemParser extends BlockParserPlugin {
         fillBlockFromHeader(listItem, header)
 
         def lexer = context.lexer
-        def token = lexer.next()
-        if (token.type == Token.Type.WHITE_SPACES) {
-            lexer.next()
-        }
-
-        lexer.next()
 
         log.trace '==== list item next token = {}', lexer.peek()
         return listItem
@@ -66,6 +60,7 @@ class ListItemParser extends BlockParserPlugin {
                 def result = false
                 def header = newContext.blockHeader
 
+                log.trace '==== list item next header = {}, next token = {}', header, newContext.lexer.peek()
                 if (header?.type?.isList()) {
                     // whether the list is a child list or a list item of the same level
                     def lead = header.properties[LIST_LEAD]

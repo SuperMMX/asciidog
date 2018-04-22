@@ -1,32 +1,26 @@
 package org.supermmx.asciidog.builder.factory
 
 import org.supermmx.asciidog.ast.AttributeEntry
+import org.supermmx.asciidog.ast.TextNode
 
 import groovy.util.logging.Slf4j
 
 @Slf4j
-class AttributeFactory extends AbstractNodeFactory {
+class AttributeFactory extends InlineContainerFactory {
     AttributeFactory() {
         name = 'attribute'
     }
 
     @Override
-    def newInstance(FactoryBuilderSupport builder, nodeName, nodeValue, Map attributes) {
-        def name = null
-        def value = null
+    def newInstance(FactoryBuilderSupport builder, nodeName, args, Map attributes) {
+        AttributeEntry attr = new AttributeEntry()
 
-        if (nodeValue instanceof List) {
-            if (nodeValue.size() > 0) {
-                name = nodeValue[0]
-            }
-            if (nodeValue.size() > 1) {
-                value = nodeValue[1]
-            }
-        } else {
-            name = nodeValue
+        if (args?.size() >= 1) {
+            attr.name = args[0]
         }
-
-        AttributeEntry attr = new AttributeEntry(name: name, value: value)
+        if (args?.size() >= 2) {
+            attr << new TextNode(args[1])
+        }
 
         return attr
     }

@@ -31,7 +31,14 @@ class AttributeEntryParserSpec extends AsciidogSpec {
         given:
         def content = ':frog: Tanglefoot'
         def eDoc = builder.document {
+            // simple attribute creation
             attribute 'frog', 'Tanglefoot'
+            /*
+            // the formal way to create the attribute
+            attribute(name: 'frog') {
+                text 'Tanglefoot'
+            }
+             */
         }
 
         when:
@@ -41,8 +48,7 @@ class AttributeEntryParserSpec extends AsciidogSpec {
         doc == eDoc
         doc.attrs['frog'] == 'Tanglefoot'
         doc.attrs.frog == 'Tanglefoot'
-        doc.attrs.getAttribute('frog') == new Attribute(name: 'frog', type: Attribute.ValueType.INLINES,
-                                                        value: [ new TextNode(text: 'Tanglefoot') ],
-                                                        valueString: 'Tanglefoot')
+        doc.attrs.getAttribute('frog') == new Attribute(name: 'frog', type: Attribute.ValueType.STRING,
+                                                        value: 'Tanglefoot')
     }
 }

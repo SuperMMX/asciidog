@@ -45,40 +45,32 @@ $
     static final String LIST_MARKER = 'listMarker'
     static final String LIST_MARKER_LEVEL = 'listMarkerLevel'
 
-    static final TokenMatcher CHECK_MATCHER = sequence([
-        optional(type(Token.Type.WHITE_SPACES,
-                      { ParserContext context, BlockHeader header, boolean matched ->
-                def lead = ''
-                if (matched) {
-                    def tokens = context.lexer.tokensFromMark
-                    lead = tokens[0].value
-                }
-                header.properties[LIST_LEAD] = lead
-            })),
-        match({ token, valueObj ->
-            log.trace '==== matcher token = {}', token
-            def value = token.value
-            def marker = value.charAt(0)
-            def length = value.length()
-            if (value == '-'
-                || ((marker == (char)'*'
-                     || marker == (char)'.')
-                    && length >= 1 && length <= 5)) {
-                return true
+    static final Closure CHECK_ACTION = { String name, ParserContext context, Map<String, Object> props, boolean matched ->
+        if (!matched) {
+            return
+        }
+
+        def header = props.header
+        def tokens = context.lexer.tokensFromMark
+
+        if (name == 'lead') {
+            // lead
+            def lead = ''
+
+            if (tokens.size() > 0) {
+                lead = tokens[0].value
             }
 
-            return false
-        },
-              { ParserContext context, BlockHeader header, boolean matched ->
-                if (matched) {
-                    def marker = context.lexer.tokensFromMark.collect { it.value }.join()
-                    header.properties[LIST_MARKER_LEVEL] = marker.length()
-                    header.properties[LIST_MARKER] = marker[0]
-                }
-            }),
-        type(Token.Type.WHITE_SPACES),
-        not(type(Token.Type.EOL))
-    ])
+            header.properties[LIST_LEAD] = lead
+        } else if (name == 'mark') {
+            def marker = context.lexer.joinTokensFromMark();
+            header.properties[LIST_MARKER_LEVEL] = marker.length()
+            header.properties[LIST_MARKER] = marker[0]
+        }
+    }
+
+    private TokenMatcher checkMatcher
+    protected TokenMatcher markerMatcher
 
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
@@ -92,31 +84,23 @@ $
             return true
         }
 
-        def isStart = CHECK_MATCHER.matches(context, header)
+        if (checkMatcher == null) {
+            checkMatcher = sequence([
+                optional('lead', type(Token.Type.WHITE_SPACES)),
+                match('mark', { closureContext, props, valueObj ->
+                    return markerMatcher.matches(closureContext, props, false)
+                }),
+                type(Token.Type.WHITE_SPACES),
+                not(type(Token.Type.EOL))
+            ])
+        }
+        def isStart = checkMatcher.matches(context, ["header": header], false, CHECK_ACTION)
+
         if (!isStart) {
             return false
         }
 
-        def marker = header.properties[LIST_MARKER]
-        def listType = null
-        switch (marker) {
-        case '*':
-        case '-':
-            listType = Node.Type.UNORDERED_LIST
-            break
-        case '.':
-            listType = Node.Type.ORDERED_LIST
-            break
-        default:
-            // should not happen
-            break
-        }
-
-        if (listType != nodeType) {
-            return false
-        }
-
-        header?.type = listType
+        header?.type = nodeType
 
         return true
     }
@@ -176,17 +160,31 @@ $
         ]
     }
 
-    public static TokenMatcher LIST_CONTINUATION_MATCHER =
-        sequence([ optional(type(Token.Type.WHITE_SPACES)), literal('+')])
+    static LIST_CONTINUATION_LEAD_MATCHER_NAME = 'listContinuationLead'
+    static TokenMatcher LIST_CONTINUATION_MATCHER = sequence([
+        optional(LIST_CONTINUATION_LEAD_MATCHER_NAME, type(Token.Type.WHITE_SPACES)),
+        literal('+'),
+        type(Token.Type.EOL)
+    ])
 
     @Override
     protected boolean doToEndParagraph(ParserContext context) {
         def end = false
 
-        log.debug '==== list parer plugin: end paragraph, next token = {}', context.lexer.peek()
-        context.lexer.mark()
-        def matched = LIST_CONTINUATION_MATCHER.matches(context, null)
-        context.lexer.reset()
+        log.trace '==== list parer plugin: end paragraph, next token = {}', context.lexer.peek()
+
+        def matched = LIST_CONTINUATION_MATCHER.matches(context, [:], false, { name, actionContext, props, matched ->
+            if (!matched) {
+                // no list continuation
+                context.permProperties.listContinuationLead = null
+                return
+            }
+            if (name == LIST_CONTINUATION_LEAD_MATCHER_NAME) {
+                context.permProperties.listContinuationLead = actionContext.lexer.joinTokensFromMark()
+            }
+        })
+
+        log.trace  '==== continuation match result = {}', matched
 
         if (matched) {
             // is list continuation
@@ -196,16 +194,11 @@ $
              * next list paragraph
              */
             end = true
-
-            def token = context.lexer.peek()
-            if (token.type == Token.Type.WHITE_SPACES) {
-                context.permProperties.listContinuationLead = token.value
-            }
         } else {
             // check block header for every line
             def header = nextBlockHeader(context)
 
-            log.debug '==== list parser plugin: check header = {}', header
+            log.trace '==== list parser plugin: check header = {}', header
             /**
              * . first list paragraph
              * * next list paragraph
@@ -250,16 +243,16 @@ $
 
         def marker = markers[0]
         switch (marker) {
-        case '*':
-        case '-':
-            type = Node.Type.UNORDERED_LIST
-            break
-        case '.':
-            type = Node.Type.ORDERED_LIST
-            break
-        default:
-            // should not happen
-            break
+            case '*':
+            case '-':
+                type = Node.Type.UNORDERED_LIST
+                break
+            case '.':
+                type = Node.Type.ORDERED_LIST
+                break
+            default:
+                // should not happen
+                break
         }
 
         return [ type, lead, marker, markerLevel, contentStart ]

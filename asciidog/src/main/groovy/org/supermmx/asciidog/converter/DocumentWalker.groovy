@@ -47,7 +47,7 @@ class DocumentWalker {
             switch (block.type) {
             case Node.Type.DEFINE_ATTRIBUTE:
                 def attr = (AttributeEntry)block
-                context.attrContainer.setAttribute(attr.name, attr.value)
+                context.attrContainer.setAttribute(attr.name, attr.children)
                 break
             }
 
@@ -109,7 +109,7 @@ class DocumentWalker {
         log.debug "Pre rendering inline: type: ${inline.type}"
         renderer?.pre(context, inline)
 
-        if (inline in InlineContainer) {
+        if (inline.children.size() > 0) {
             traverseInlineContainer(context, inline)
         } else {
             log.debug "Rendering inline: type: ${inline.type}"

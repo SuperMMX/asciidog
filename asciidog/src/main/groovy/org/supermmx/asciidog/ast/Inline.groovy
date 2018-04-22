@@ -10,6 +10,10 @@ import groovy.transform.TupleConstructor
  */
 @EqualsAndHashCode(callSuper=true)
 @TupleConstructor
-abstract class Inline extends Node {
+abstract class Inline extends Node implements InlineContainer {
     boolean escaped
+
+    void asText(StringBuilder buf) {
+        children.each { inline.asText(bu) }
+    }
 }

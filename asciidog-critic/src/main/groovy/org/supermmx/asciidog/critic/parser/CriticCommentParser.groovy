@@ -9,10 +9,5 @@ class CriticCommentParser extends AbstractCriticParser {
         id = ID
 
         criticType = CriticNode.CriticType.COMMENT
-        pattern = ~"""(?Usxm)
-\\{>>
-(.+)    # 1, content
-<<\\}
-"""
     }
 }

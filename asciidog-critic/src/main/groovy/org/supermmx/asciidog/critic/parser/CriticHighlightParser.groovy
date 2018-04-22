@@ -9,10 +9,5 @@ class CriticHighlightParser extends AbstractCriticParser {
         id = ID
 
         criticType = CriticNode.CriticType.HIGHLIGHT
-        pattern = ~"""(?Usxm)
-\\{==
-(.+)    # 1, content
-==\\}
-"""
     }
 }

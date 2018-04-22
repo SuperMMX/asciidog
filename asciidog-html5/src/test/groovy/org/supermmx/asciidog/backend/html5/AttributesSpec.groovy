@@ -6,7 +6,10 @@ class AttributesSpec extends Html5Spec {
         def doc = builder.document(title: 'Document Title') {
             header {
                 attribute 'big', 'big'
-                attribute 'bigfoot', '{big}foot'
+                attribute(name: 'bigfoot') {
+                    aref 'big'
+                    text 'foot'
+                }
             }
 
             preamble {

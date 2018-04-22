@@ -218,6 +218,7 @@ class ListItemParserSpec extends AsciidogSpec {
         context.blockHeader.parserId = OrderedListParser.ID
 
         when:
+        context.lexer.next(2)
         def listItem = Parser.parse(context)
 
         then:

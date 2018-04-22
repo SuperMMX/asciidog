@@ -7,6 +7,7 @@ import org.supermmx.asciidog.ast.AttributeReferenceNode
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.InlineContainer
+import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.TextNode
 
@@ -35,7 +36,19 @@ class AttributeContainer {
     Map<String, Attribute> attributes = [:]
 
     AttributeContainer leftShift(AttributeEntry entry) {
-        setAttribute(entry.name, entry.value)
+        def nodes = entry.children
+
+        def type = Attribute.ValueType.INLINES
+        def value = nodes
+        // if there is only one child and it is text, treat it as string value
+        if (nodes.size() == 1) {
+            def node = nodes[0]
+            if (node.type == Node.Type.TEXT) {
+                type = Attribute.ValueType.STRING
+                value = node.text
+            }
+        }
+        setAttribute(entry.name, type, value)
 
         return this
     }
@@ -50,14 +63,14 @@ class AttributeContainer {
     /**
      * Set the value, like attrs[name] = value
      */
-    void putAt(String name, String value) {
+    void putAt(String name, Object value) {
         setAttribute(name, value)
     }
 
     /**
      * Set the value via field, like attrs.name = value
      */
-    def propertyMissing(String name, String value) {
+    def propertyMissing(String name, Object value) {
         if (value == null) {
             removeAttribute(name)
         } else {
@@ -69,14 +82,14 @@ class AttributeContainer {
      * Get the raw value string via field, like attrs.name
      */
     def propertyMissing(String name) {
-        return getAttribute(name)?.valueString
+        return getAttribute(name)?.value
     }
 
-    Attribute setSystemAttribute(String name, String value) {
+    Attribute setSystemAttribute(String name, Object value) {
         setAttribute(name, null, value, true)
     }
 
-    Attribute setAttribute(String name, String value) {
+    Attribute setAttribute(String name, Object value) {
         setAttribute(name, null, value, false)
     }
 
@@ -84,7 +97,7 @@ class AttributeContainer {
         removeAttribute(name, false)
     }
 
-    Attribute setSystemAttribute(String name, Attribute.ValueType type, String value) {
+    Attribute setSystemAttribute(String name, Attribute.ValueType type, Object value) {
         setAttribute(name, type, value, true)
     }
 
@@ -96,11 +109,11 @@ class AttributeContainer {
         removeAttributes(true)
     }
 
-    Attribute setAttribute(String name, Attribute.ValueType type, String value) {
+    Attribute setAttribute(String name, Attribute.ValueType type, Object value) {
         setAttribute(name, type, value, false)
     }
 
-    Attribute setAttribute(String name, Attribute.ValueType type, String value, boolean isSystem) {
+    Attribute setAttribute(String name, Attribute.ValueType type, Object value, boolean isSystem) {
         def unset = false
 
         // get the name
@@ -132,12 +145,42 @@ class AttributeContainer {
             type = Attribute.ValueType.INLINES
         }
 
+        if (value == null) {
+            value = defValue;
+        }
+        def finalValue = value
+
+        if (value in String) {
+            finalValue = getValueFromString(value, type)
+        }
+        // delete the attribute if the value is null
+        if (finalValue == null) {
+            systemAttributes.remove(name)
+            attributes.remove(name)
+
+            return null
+        }
+
+        def attr = new Attribute([ name: name,
+                                   type: type,
+                                   value: finalValue,
+                                   valueString: null ])
+
+        // put the attribute into correct map
+        if (isSystem) {
+            systemAttributes[name] = attr
+        } else {
+            attributes[name] = attr
+        }
+
+        return getAttribute(name)
+    }
+
+    protected Object getValueFromString(String value, Attribute.ValueType type) {
         def finalValue = null
 
         // determine the value
         if (value == null || value.length() == 0) {
-            // use default value if null or blank
-            finalValue = defValue
         } else {
             // get the value with correct type
             switch (type) {
@@ -152,38 +195,16 @@ class AttributeContainer {
                 break
             default:
                 // parse the attribute as a list of inline nodes
-                def para = new Paragraph()
-                def inlines = Parser.parseInlineNodes(para, value)
+                def inlines = Parser.parseInlines(value)
 
                 inlines = replaceAttributeReferences(inlines)
-                type = Attribute.ValueType.INLINES
                 finalValue = inlines
 
                 break
             }
         }
 
-        // delete the attribute if the value is null
-        if (value == null) {
-            systemAttributes.remove(name)
-            attributes.remove(name)
-
-            return null
-        }
-
-        def attr = new Attribute([ name: name,
-                                   type: type,
-                                   value: finalValue,
-                                   valueString: value])
-
-        // put the attribute into correct map
-        if (isSystem) {
-            systemAttributes[name] = attr
-        } else {
-            attributes[name] = attr
-        }
-
-        return getAttribute(name)
+        return finalValue
     }
 
     Attribute getAttribute(String name) {
@@ -228,11 +249,7 @@ class AttributeContainer {
     public List<Inline> replaceAttributeReferences(List<Inline> inlines) {
         def result = []
         inlines.each { inline ->
-            if (inline instanceof InlineContainer) {
-                // replace recursively
-                inline.inlineNodes = replaceAttributeReferences(inline.inlineNodes)
-                result << inline
-            } else if (inline instanceof AttributeReferenceNode) {
+            if (inline in AttributeReferenceNode) {
                 // replace the reference
                 def attr = getAttribute(inline.name)
                 if (attr.type == Attribute.ValueType.INLINES) {
@@ -242,6 +259,10 @@ class AttributeContainer {
                     // normal value
                     result << new TextNode(attr.value, 0)
                 }
+            } else if (inline in InlineContainer) {
+                // replace recursively
+                inline.children = replaceAttributeReferences(inline.children)
+                result << inline
             } else {
                 // other inlines
                 result << inline

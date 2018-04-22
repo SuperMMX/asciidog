@@ -4,14 +4,13 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.TupleConstructor
 
 /**
- * A inline node with simple text.
+ * The cross reference inline node.
  */
 @EqualsAndHashCode(callSuper=true)
 @TupleConstructor
 class CrossReferenceNode extends Inline {
+    // id
     String xrefId
-    // id, text (title or caption), number, page
-    String xrefText
 
     CrossReferenceNode() {
         type = Node.Type.CROSS_REFERENCE

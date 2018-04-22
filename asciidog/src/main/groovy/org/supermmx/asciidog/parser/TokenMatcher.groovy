@@ -10,25 +10,38 @@ import java.util.regex.Pattern
  * Match tokens
  */
 abstract class TokenMatcher {
-    protected abstract boolean doMatch(ParserContext context, BlockHeader header = null)
+    static final TokenMatcher EOL_MATCHER = type(Token.Type.EOL)
+
+    protected abstract boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null)
 
     /**
-     * Closure called when the matching is finished { matched -> code }
+     * The matcher name, could be used in the action to check the result
      */
-    Closure action
-
+    String name
+    /**
+     * Reset to the mark always for this matcher.
+     * Normally set to true for the last matcher in order not to consume the tokens
+     */
+    boolean selfReset = false
     /**
      * Match against this matcher starting from next token.
-     * The tokens are consumed if matched
+     * The tokens are consumed if matched and not reset.
+     *
+     * @param context the parser context
+     * @param reset whether to reset the lexer even matched
+     * @param props properties passed to the matcher and action
+     * @param action the action to call after the matching, the parameters are name, context, props, matched
+     *
+     * @return true if matched, false otherwise
      */
-    boolean matches(ParserContext context, BlockHeader header = null) {
+    boolean matches(ParserContext context, Map<String, Object> props = [:], boolean reset = false, Closure action = null) {
         context.lexer.mark()
 
-        def matched = doMatch(context, header)
+        def matched = doMatch(context, props, action)
 
-        action?.call(context, header, matched)
+        action?.call(name, context, props, matched)
 
-        if (matched) {
+        if (matched && !reset && !selfReset) {
             context.lexer.clearMark()
         } else {
             context.lexer.reset()
@@ -40,55 +53,111 @@ abstract class TokenMatcher {
     /**
      * Match the token value
      */
-    static TokenMatcher literal(String value, Closure action = null) {
-        return new ClosureMatcher(value: value, condition: { token, valueObj ->
-            token?.value == valueObj
-        }, action: action)
+    static TokenMatcher literal(String value, boolean selfReset = false) {
+        return literal(null, value, selfReset)
     }
 
-    static TokenMatcher regex(String regex, Closure action = null) {
-        return regexPattern(~regex, action)
+    static TokenMatcher literal(String name, String value, boolean selfReset = false) {
+        return new ClosureMatcher(name: name, value: value, selfReset: selfReset,
+                                  condition: { context, props, valueObj ->
+                def token = context.lexer.next()
+                token?.value == valueObj
+            })
     }
 
-    static TokenMatcher regexPattern(Pattern pattern, Closure action = null) {
-        return new ClosureMatcher(value: pattern, condition: { token, valueObj ->
+    static TokenMatcher regex(String regexStr) {
+        return regex(null, regexStr)
+    }
+
+    static TokenMatcher regex(String name, String regexStr) {
+        return regexPattern(name, ~regexStr)
+    }
+
+    static TokenMatcher regexPattern(Pattern pattern) {
+        return regexPattern(null, pattern)
+    }
+
+    static TokenMatcher regexPattern(String name, Pattern pattern) {
+        return new ClosureMatcher(value: pattern, condition: { context, props, valueObj ->
+            def token = context.lexer.next()
             pattern.matcher(token?.value).matches()
-        }, action: action)
+        })
     }
 
     /**
      * Match the token type
      */
-    static TokenMatcher type(Token.Type type, Closure action = null) {
-        return new ClosureMatcher(value: type, condition: { token, typeObj ->
+    static TokenMatcher type(Token.Type type) {
+        return TokenMatcher.type(null, type)
+    }
+
+    static TokenMatcher type(String name, Token.Type type) {
+        return new ClosureMatcher(name: name, value: type, condition: { context, props, typeObj ->
+            def token = context.lexer.next()
             token?.type == typeObj
-        }, action: action)
+        })
     }
 
     /**
      * Match the token with custom closure
      */
-    static TokenMatcher match(Closure closure, Closure action = null) {
-        return new ClosureMatcher(condition: closure, action: action)
+    static TokenMatcher match(Closure closure) {
+        return match(null, closure)
+    }
+
+    static TokenMatcher match(String name, Closure closure) {
+        return new ClosureMatcher(name: name, condition: closure)
     }
 
     /**
      * Match a sequence of matchers
      */
-    static TokenMatcher sequence(List<TokenMatcher> matchers, Closure action = null) {
-        return new SequenceMatcher(matchers: matchers, action: action)
+    static TokenMatcher sequence(List<TokenMatcher> matchers, boolean selfReset = false) {
+        return sequence(null, matchers, selfReset)
     }
 
-    static TokenMatcher optional(TokenMatcher matcher, Closure action = null) {
-        return new OptionalMatcher(matcher: matcher, action: action)
+    static TokenMatcher sequence(String name, List<TokenMatcher> matchers, boolean selfReset = false) {
+        return new SequenceMatcher(name: name, matchers: matchers, selfReset: selfReset)
     }
 
-    static TokenMatcher not(TokenMatcher matcher, Closure action = null) {
-        return new NotMatcher(matcher: matcher, action: action)
+    static TokenMatcher optional(TokenMatcher matcher) {
+        return optional(null, matcher)
     }
 
-    static TokenMatcher zeroOrMore(TokenMatcher matcher, Closure action = null) {
-        return new ZeroOrMoreMatcher(matcher: matcher, action: action)
+    static TokenMatcher optional(String name, TokenMatcher matcher) {
+        return new OptionalMatcher(name: name, matcher: matcher)
+    }
+
+    static TokenMatcher not(TokenMatcher matcher) {
+        return not(null, matcher)
+    }
+
+    static TokenMatcher not(String name, TokenMatcher matcher) {
+        return new NotMatcher(name: name, matcher: matcher)
+    }
+
+    static TokenMatcher zeroOrMore(TokenMatcher matcher) {
+        return zeroOrMore(null, matcher)
+    }
+
+    static TokenMatcher zeroOrMore(String name, TokenMatcher matcher) {
+        return new ZeroOrMoreMatcher(name: name, matcher: matcher)
+    }
+
+    static TokenMatcher oneOrMore(TokenMatcher matcher) {
+        return oneOrMore(null, matcher)
+    }
+
+    static TokenMatcher oneOrMore(String name, TokenMatcher matcher) {
+        return new OneOrMoreMatcher(name: name, matcher: matcher)
+    }
+
+    static TokenMatcher firstOf(List<TokenMatcher> matchers) {
+        return firstOf(null, matchers)
+    }
+
+    static TokenMatcher firstOf(String name, List<TokenMatcher> matchers) {
+        return new FirstOfMatcher(name: name, matchers: matchers)
     }
 
     /**
@@ -102,10 +171,8 @@ abstract class TokenMatcher {
         Closure condition
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
-            def token = context.lexer.next()
-
-            return condition(token, value)
+        protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
+            return condition(context, props, value)
         }
     }
 
@@ -113,8 +180,8 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
-            return !matcher.matches(context, header)
+        protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
+            return !matcher.matches(context, props, false, action)
         }
     }
 
@@ -122,10 +189,10 @@ abstract class TokenMatcher {
         List<TokenMatcher> matchers = []
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header) {
+        protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
             def result = true
             for (def matcher: matchers) {
-                if (!matcher.matches(context, header)) {
+                if (!matcher.matches(context, props, false, action)) {
                     result = false
                     break
                 }
@@ -139,8 +206,8 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
-            matcher.matches(context, header)
+        protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
+            matcher.matches(context, props, false, action)
 
             return true
         }
@@ -150,8 +217,8 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
-            while (matcher.matches(context, header)) {
+        protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
+            while (matcher.matches(context, props, false, action)) {
             }
 
             return true
@@ -162,13 +229,31 @@ abstract class TokenMatcher {
         TokenMatcher matcher
 
         @Override
-        protected boolean doMatch(ParserContext context, BlockHeader header = null) {
+        protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
             def count = 0
-            while (matcher.matches(context, header)) {
+            while (matcher.matches(context, props, false, action)) {
                 count ++
             }
 
             return count > 0
         }
     }
+
+    static class FirstOfMatcher extends TokenMatcher {
+        List<TokenMatcher> matchers = []
+
+        @Override
+        protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
+            def result = false
+            for (def matcher: matchers) {
+                if (matcher.matches(context, props, false, action)) {
+                    result = true
+                    break
+                }
+            }
+
+            return result
+        }
+    }
+
 }

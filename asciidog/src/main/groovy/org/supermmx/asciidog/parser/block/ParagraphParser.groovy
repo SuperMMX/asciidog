@@ -27,101 +27,68 @@ class ParagraphParser extends BlockParserPlugin {
         id = ID
     }
 
-    static final TokenMatcher MATCHER = sequence([
+    /**
+     * The paragraph start matcher
+     */
+    static final TokenMatcher CHECK_MATCHER = sequence([
         optional(type(Token.Type.WHITE_SPACES)),
-        match({ token, valueObj ->
+        match({ context, props, valueObj ->
+            def token = context.lexer.peek()
             token.type != Token.Type.WHITE_SPACES &&
                 token.type != Token.Type.EOL &&
                 token.type != Token.Type.EOF
         })
     ])
 
+    /**
+     * The paragraph end matcher, which is either determined by parents
+     * or by the paragraph itself (like new line after the paragraph)
+     */
+    static final TokenMatcher END_MATCHER = match({ context, props, valueObj ->
+        // always set the current block header to null
+        // as last paragraph end checking will try to set some value that may not be correct
+        context.blockHeader = null
+
+        def token = context.lexer.peek()
+        log.trace '==== paragraph end matcher, next token = {}', token
+        def isEnd = (token.type == Token.Type.EOL || token.type == Token.Type.EOF)
+        if (isEnd) {
+            return isEnd
+        }
+
+        def checkers = context.paragraphEndingCheckers
+        for (def i = checkers.size() - 1; i >= 0; i--) {
+            def parser = checkers[i]
+
+            isEnd = parser.toEndParagraph(context)
+
+            log.trace '==== paragraph to end paragraph = {}', isEnd
+
+            // just stop here no matter what ??
+            if (isEnd) {
+                break
+            }
+        }
+
+        return isEnd
+    })
+
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
-        return MATCHER.matches(context, header)
+        return CHECK_MATCHER.matches(context)
     }
 
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
         def lexer = context.lexer
 
-        Paragraph para = null
+        def para = new Paragraph()
+        fillBlockFromHeader(para, header)
 
-        def lines = []
+        context.blockHeader = null
+        context.keepHeader = true
 
-        def buf = new StringBuilder()
-        while (lexer.hasNext()) {
-            if (para == null) {
-                para = new Paragraph()
-                fillBlockFromHeader(para, header)
-
-                context.blockHeader = null
-                context.keepHeader = true
-            }
-
-            def token = lexer.peek()
-            log.trace '==== paragraph token = {}', token
-            if (token.type == Token.Type.EOF) {
-                break
-            }
-
-            lexer.next()
-            if (token.type != Token.Type.EOL) {
-                log.trace '==== paragraph append to line: {}', token
-                buf.append(token.value)
-            } else {
-                if (buf.length() == 0) {
-                    // blank in a new line
-                    context.blockHeader = null
-                    break
-                } else {
-                    // end of current line
-                    def line = buf.toString()
-                    log.debug '==== paragraph add new line: {}', line
-                    lines << line
-
-                    buf = new StringBuilder()
-
-                    // paragraph ends
-                    if (lexer.peek().type == Token.Type.EOL) {
-                        break
-                    }
-
-                    def isEnd = false
-                    def checkers = context.paragraphEndingCheckers
-                    for (def i = checkers.size() - 1; i >= 0; i--) {
-                        def parser = checkers[i]
-
-                        isEnd = parser.toEndParagraph(context)
-
-                        log.debug '==== paragraph to end paragraph = {}', isEnd
-                        // just stop here no matter what ??
-                        if (isEnd) {
-                            break
-                        }
-                    }
-
-                    if (isEnd) {
-                        break
-                    } else {
-                        if (context.blockHeader?.lines) {
-                            lines.addAll(context.blockHeader?.lines)
-                        }
-                        context.blockHeader = null
-                    }
-
-                }
-            }
-        }
-
-        if (para != null) {
-            // parse the inline nodes
-            // the children has been added in the paragraph when parsing
-            log.debug '==== paragraph lines = {}, next token = {}', lines, lexer.peek()
-            Parser.parseInlineNodes(para, lines.join('\n'))
-        }
-
-        log.debug('End parsing paragraph, parent type: {}', parent?.type)
+        Parser.parseInlines(context, para, END_MATCHER)
 
         return para
     }

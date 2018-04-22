@@ -151,6 +151,7 @@ class Lexer {
      *
      * @return the combined result
      */
+    // TODO: rename to joinTokensTo
     String combineTo(TokenMatcher matcher, boolean consume = true, boolean ignore = true) {
         def buf = new StringBuilder()
 
@@ -161,7 +162,7 @@ class Lexer {
             // mark for every matching
             mark()
 
-            def matched = matcher.matches(new ParserContext(lexer: this), null)
+            def matched = matcher.matches(new ParserContext(lexer: this))
             if (matched) {
                 // consume the tokens
                 if (consume) {
@@ -226,6 +227,15 @@ class Lexer {
 
         // take the tokens from the marked position to the end
         return markTokens.takeRight(markTokens.size() - marks.last())
+    }
+
+    /**
+     * Join tokens from the latest mark to current position as string
+     *
+     * @return the joined string result
+     */
+    String joinTokensFromMark() {
+        return tokensFromMark?.collect { it.value }.join()
     }
 
     /**

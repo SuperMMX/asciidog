@@ -21,7 +21,7 @@ class StrongFormattingParser extends TextFormattingParser {
     StrongFormattingParser() {
         id = ID
         nodeType = Node.Type.STRONG
-        pattern = STRONG_PATTERN
+        tag = '**'
     }
 
     FormattingNode createFormattingNode() {

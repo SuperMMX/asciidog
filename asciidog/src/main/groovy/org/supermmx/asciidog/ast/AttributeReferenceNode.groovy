@@ -8,9 +8,15 @@ import groovy.transform.ToString
 @EqualsAndHashCode(callSuper=true)
 @ToString(includeSuper=true, includePackage=false, includeNames=true)
 /**
- * A inline node for attribute reference.
+ * The attribute reference inline node.
  */
+// TODO: split this node by action
 class AttributeReferenceNode extends Inline {
+    static enum Action {
+        REFERENCE, SET, COUNTER, COUNTER2
+    }
+
+    Action action = Action.REFERENCE
     String name
 
     AttributeReferenceNode() {
