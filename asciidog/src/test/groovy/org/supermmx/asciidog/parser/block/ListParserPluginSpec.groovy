@@ -23,51 +23,6 @@ class ListParserPluginSpec extends AsciidogSpec {
         parser.nodeType = Node.Type.ORDERED_LIST
     }
 
-    def 'static: is list'() {
-        expect:
-        result == ListParserPlugin.isListLine((String)line)
-
-        where:
-        line               | result
-        null               | [ null, null, null, -1, null ]
-        ''                 | [ null, null, null, -1, null ]
-        '  == abc '        | [ null, null, null, -1, null ]
-        '*  line  '        | [ Node.Type.UNORDERED_LIST, '', '*', 1, 3 ]
-        '   ...  line  '   | [ Node.Type.ORDERED_LIST, '   ', '.', 3, 8 ]
-        '  -  line  '      | [ Node.Type.UNORDERED_LIST, '  ', '-', 1, 5 ]
-    }
-
-    def 'checkStart: false'() {
-        expect:
-        def context = parserContext(line)
-        isStart == parser.checkStart(context, header, false)
-
-        where:
-        isStart | line       | header
-        false   | 'abc'      | new BlockHeader(type: Node.Type.PARAGRAPH)
-        false   | '* abc'    | new BlockHeader(type: Node.Type.UNORDERED_LIST)
-        false   | 'abc'      | new BlockHeader()
-        false   | '* abc'    | new BlockHeader()
-    }
-
-    def 'checkStart: true'() {
-        given:
-        def line = '  ..  abc   '
-        def header = new BlockHeader()
-
-        when:
-        def isStart = parser.checkStart(parserContext(line), header, false)
-
-        then:
-        isStart
-        header == new BlockHeader(type: Node.Type.ORDERED_LIST,
-                                  properties: [
-                                      (LIST_LEAD): '  ',
-                                      (LIST_MARKER): '.',
-                                      (LIST_MARKER_LEVEL): 2,
-                                  ])
-    }
-
     def 'createBlock: level 1'() {
         given:
         def context = parserContext('')
@@ -234,6 +189,78 @@ class ListParserPluginSpec extends AsciidogSpec {
 
         expect:
         !parser.toEndParagraph(context)
+    }
+
+    def 'document: dot elements without blank lines'() {
+        given:
+        def content = '''
+. Foo
+. Boo
+. Blech
+'''
+        def eDoc = builder.document {
+            ol(lead: '', level: 1, marker: '.', markerLevel: 1) {
+                item {
+                    para {
+                        text 'Foo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Boo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Blech'
+                    }
+                }
+            }
+        }
+
+        when:
+        def doc = parse(content)
+
+        then:
+        doc == eDoc
+    }
+
+    def 'document: dot elements with multiple lines'() {
+        given:
+        def content = '''
+. Foo
+123
+
+. Boo
+456
+. Blech
+
+'''
+        def eDoc = builder.document {
+            ol(lead: '', level: 1, marker: '.', markerLevel: 1) {
+                item {
+                    para {
+                        text 'Foo\n123'
+                    }
+                }
+                item {
+                    para {
+                        text 'Boo\n456'
+                    }
+                }
+                item {
+                    para {
+                        text 'Blech'
+                    }
+                }
+            }
+        }
+
+        when:
+        def doc = parse(content)
+
+        then:
+        doc == eDoc
     }
 
     def 'document: dash elements with no blank lines'() {
