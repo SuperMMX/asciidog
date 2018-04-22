@@ -191,6 +191,51 @@ class ListParserPluginSpec extends AsciidogSpec {
         !parser.toEndParagraph(context)
     }
 
+    def 'document: star elements with continuation'() {
+        given:
+        def content = '''
+* Foo
+123
++
+456
+
+* Boo
++
+789
+
+outside list
+'''
+        def eDoc = builder.document {
+            ul(lead: '', level: 1, marker: '*', markerLevel: 1) {
+                item {
+                    para {
+                        text 'Foo\n123'
+                    }
+                    para {
+                        text '456'
+                    }
+                }
+                item {
+                    para {
+                        text 'Boo'
+                    }
+                    para {
+                        text '789'
+                    }
+                }
+            }
+            para {
+                text 'outside list'
+            }
+        }
+
+        when:
+        def doc = parse(content)
+
+        then:
+        doc == eDoc
+    }
+
     def 'document: dot elements without blank lines'() {
         given:
         def content = '''
@@ -233,8 +278,8 @@ class ListParserPluginSpec extends AsciidogSpec {
 
 . Boo
 456
-. Blech
 
+abc def
 '''
         def eDoc = builder.document {
             ol(lead: '', level: 1, marker: '.', markerLevel: 1) {
@@ -248,11 +293,10 @@ class ListParserPluginSpec extends AsciidogSpec {
                         text 'Boo\n456'
                     }
                 }
-                item {
-                    para {
-                        text 'Blech'
-                    }
-                }
+            }
+
+            para {
+                text 'abc def'
             }
         }
 

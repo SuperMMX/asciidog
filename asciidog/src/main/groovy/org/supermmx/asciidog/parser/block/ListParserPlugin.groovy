@@ -160,17 +160,31 @@ $
         ]
     }
 
-    public static TokenMatcher LIST_CONTINUATION_MATCHER =
-        sequence([ optional(type(Token.Type.WHITE_SPACES)), literal('+') ])
+    static LIST_CONTINUATION_LEAD_MATCHER_NAME = 'listContinuationLead'
+    static TokenMatcher LIST_CONTINUATION_MATCHER = sequence([
+        optional(LIST_CONTINUATION_LEAD_MATCHER_NAME, type(Token.Type.WHITE_SPACES)),
+        literal('+'),
+        type(Token.Type.EOL)
+    ])
 
     @Override
     protected boolean doToEndParagraph(ParserContext context) {
         def end = false
 
-        log.debug '==== list parer plugin: end paragraph, next token = {}', context.lexer.peek()
-        context.lexer.mark()
-        def matched = LIST_CONTINUATION_MATCHER.matches(context)
-        context.lexer.reset()
+        log.trace '==== list parer plugin: end paragraph, next token = {}', context.lexer.peek()
+
+        def matched = LIST_CONTINUATION_MATCHER.matches(context, [:], false, { name, actionContext, props, matched ->
+            if (!matched) {
+                // no list continuation
+                context.permProperties.listContinuationLead = null
+                return
+            }
+            if (name == LIST_CONTINUATION_LEAD_MATCHER_NAME) {
+                context.permProperties.listContinuationLead = actionContext.lexer.joinTokensFromMark()
+            }
+        })
+
+        log.trace  '==== continuation match result = {}', matched
 
         if (matched) {
             // is list continuation
@@ -180,16 +194,11 @@ $
              * next list paragraph
              */
             end = true
-
-            def token = context.lexer.peek()
-            if (token.type == Token.Type.WHITE_SPACES) {
-                context.permProperties.listContinuationLead = token.value
-            }
         } else {
             // check block header for every line
             def header = nextBlockHeader(context)
 
-            log.debug '==== list parser plugin: check header = {}', header
+            log.trace '==== list parser plugin: check header = {}', header
             /**
              * . first list paragraph
              * * next list paragraph
