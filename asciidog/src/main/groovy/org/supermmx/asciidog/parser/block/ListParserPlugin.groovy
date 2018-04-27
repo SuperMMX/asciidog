@@ -91,7 +91,7 @@ $
                     return markerMatcher.matches(closureContext, props, false)
                 }),
                 type(Token.Type.WHITE_SPACES),
-                not(type(Token.Type.EOL))
+                not(type(Token.Type.EOL), true)
             ])
         }
         def isStart = checkMatcher.matches(context, ["header": header], false, CHECK_ACTION)
