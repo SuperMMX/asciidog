@@ -18,6 +18,7 @@ asciidog {
         // block parser
         AttributeEntryParser,
         AuthorParser,
+        BlockMacroParser,
         DocumentParser,
         HeaderParser,
         ListItemParser,
