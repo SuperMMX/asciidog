@@ -11,7 +11,6 @@ class Block extends Node {
     }
 
     String title
-    List<String> lines = []
 
     /**
      * Conditionally walk all this block recursively
