@@ -4,7 +4,7 @@ import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.converter.DocumentContext
 
 /**
- * Abstract nod renderer
+ * Abstract node renderer
  */
 abstract class AbstractNodeRenderer implements NodeRenderer {
     Node.Type nodeType

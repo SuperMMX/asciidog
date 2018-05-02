@@ -11,6 +11,10 @@ class NullNodeRenderer implements LeafNodeRenderer {
         return null
     }
 
+    Node.Type getNodeType() {
+        return null
+    }
+
     boolean accept(Node node) {
         return true
     }
@@ -20,7 +24,7 @@ class NullNodeRenderer implements LeafNodeRenderer {
 
     void render(DocumentContext context, Node node) {
     }
-    
+
     void post(DocumentContext context, Node node) {
     }
 }
