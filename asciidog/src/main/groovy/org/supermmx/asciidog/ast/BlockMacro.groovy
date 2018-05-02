@@ -7,6 +7,9 @@ import groovy.transform.TupleConstructor
 @TupleConstructor
 class BlockMacro extends Block implements Macro {
     BlockMacro() {
-        type = Node.Type.MACRO
+        type = Node.Type.BLOCK_MACRO
+
+        // subtype is the same as the target
+        excludes = [ 'subtype' ]
     }
 }

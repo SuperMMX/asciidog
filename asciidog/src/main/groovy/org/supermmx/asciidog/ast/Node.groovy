@@ -33,10 +33,10 @@ class Node {
 
         static final AUTHORS = new Type(parent: BLOCK, name: 'authors')
         static final BLANK = new Type(parent: BLOCK, name: 'blank')
+        static final BLOCK_MACRO = new Type(parent: BLOCK, name: 'macro')
         static final COMMENT_LINE = new Type(parent: BLOCK, name: 'comment_line')
         static final LIST = new Type(parent: BLOCK, name: 'list', isAbstract: true)
         static final LIST_ITEM = new Type(parent: BLOCK, name: 'list_item')
-        static final MACRO = new Type(parent: BLOCK, name: 'macro')
         static final PARAGRAPH = new Type(parent: BLOCK, name: 'paragraph')
         static final TABLE = new Type(parent: BLOCK, name: 'table')
 

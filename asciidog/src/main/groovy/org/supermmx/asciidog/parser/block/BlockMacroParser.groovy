@@ -56,7 +56,7 @@ class BlockMacroParser extends BlockParserPlugin {
     static final String HEADER_PROPERTY_MACRO_TARGET = 'macroTarget'
 
     BlockMacroParser() {
-        nodeType = Node.Type.MACRO
+        nodeType = Node.Type.BLOCK_MACRO
         id = ID
     }
 
