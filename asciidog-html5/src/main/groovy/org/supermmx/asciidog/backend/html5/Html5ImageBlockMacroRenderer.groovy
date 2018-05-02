@@ -18,7 +18,18 @@ class Html5ImageBlockMacroRenderer extends AbstractBlockMacroRenderer {
         BlockMacro macroNode = (BlockMacro)node
 
         context.writer.writeStartElement('img')
-        context.writer.writeAttribute('src', macroNode.target)
+
+        def path = ''
+
+        // consider attribute "imagesdir"
+        def imagesdir = context.attrContainer['imagesdir']
+        if (imagesdir != null) {
+            path = "${imagesdir}/"
+        }
+
+        // TODO: consider absolute path and URI
+        context.writer.writeAttribute('src', "${path}${macroNode.target}")
+
         context.writer.writeEndElement()
     }
 }
