@@ -15,6 +15,7 @@ import org.supermmx.asciidog.ast.InlineContainer
 import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.ListItem
 import org.supermmx.asciidog.backend.Backend
+import org.supermmx.asciidog.backend.LeafNodeRenderer
 
 import groovy.util.logging.Slf4j
 
@@ -55,13 +56,18 @@ class DocumentWalker {
         }
 
         // get the renderer
-        def renderer = backend.getRenderer(block.type)
+        def renderer = backend.getRenderer(block)
 
         // pre
-        log.debug "Pre rendering block: type: ${block.type}, title: ${block.title}"
+        log.debug "Pre rendering block: type: ${block.type}, title: ${block.title}, renderer = ${renderer}"
         renderer?.pre(context, block)
 
-        // tranverse the child blocks or inlines
+        if (renderer in LeafNodeRenderer) {
+            log.debug 'Rendering block: type: {}, title: {}, renderer = {}', block.type, block.title, renderer
+            renderer?.render(context, block)
+        }
+
+        // transverse the child blocks or inlines
 
         if (block in InlineContainer) {
             // inline container
@@ -104,7 +110,7 @@ class DocumentWalker {
 
         // all inlines should be handled by the renderer plugin
 
-        def renderer = backend.getRenderer(inline.type)
+        def renderer = backend.getRenderer(inline)
 
         log.debug "Pre rendering inline: type: ${inline.type}"
         renderer?.pre(context, inline)
@@ -114,7 +120,7 @@ class DocumentWalker {
         } else {
             log.debug "Rendering inline: type: ${inline.type}"
 
-            renderer = backend.getInlineRenderer(inline.type)
+            renderer = backend.getInlineRenderer(inline)
             renderer?.render(context, inline)
         }
 

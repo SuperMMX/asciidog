@@ -41,18 +41,17 @@ class Html5Backend extends AbstractBackend {
         id = 'html5'
         ext = '.html'
 
-        //registerRenderer(Node.Type.DOCUMENT, new Html5DocumentRenderer())
-        registerRenderer(Node.Type.HEADER, new Html5HeaderRenderer())
-        registerRenderer(Node.Type.PREAMBLE, new NullNodeRenderer())
-        registerRenderer(Node.Type.SECTION, new Html5SectionRenderer())
-        registerRenderer(Node.Type.PARAGRAPH, new Html5ParagraphRenderer())
-        registerRenderer(Node.Type.LIST, new Html5ListRenderer())
-        registerRenderer(Node.Type.LIST_ITEM, new Html5ListItemRenderer())
+        registerRenderer(new Html5HeaderRenderer())
+        registerRenderer(new Html5SectionRenderer())
+        registerRenderer(new Html5ParagraphRenderer())
+        registerRenderer(new Html5ListRenderer())
+        registerRenderer(new Html5ListItemRenderer())
+        registerRenderer(new Html5ImageBlockMacroRenderer())
 
-        registerRenderer(Node.Type.TEXT, new Html5InlineTextRenderer())
-        registerRenderer(Node.Type.STRONG, new Html5StrongRenderer())
-        registerRenderer(Node.Type.EMPHASIS, new Html5EmphasisRenderer())
-        registerRenderer(Node.Type.CROSS_REFERENCE, new Html5InlineXrefRenderer())
+        registerRenderer(new Html5InlineTextRenderer())
+        registerRenderer(new Html5StrongRenderer())
+        registerRenderer(new Html5EmphasisRenderer())
+        registerRenderer(new Html5InlineXrefRenderer())
 
         chunkRenderer = new Html5ChunkRenderer()
     }

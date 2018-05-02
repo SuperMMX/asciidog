@@ -112,7 +112,7 @@ class PluginRegistry {
                     def id = renderer.backendId
                     def backend = getBackend(id)
                     if (backend != null) {
-                        backend.registerRenderer(renderer.nodeType, renderer)
+                        backend.registerRenderer(renderer)
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.backend
 
+import org.supermmx.asciidog.Subtype
 import org.supermmx.asciidog.backend.Backend
 import org.supermmx.asciidog.backend.AbstractBackend
 import org.supermmx.asciidog.ast.AdocList
@@ -44,30 +45,34 @@ abstract class AbstractBackend implements Backend {
         return null
     }
 
-    NodeRenderer getRenderer(Node.Type nodeType) {
+    NodeRenderer getRenderer(Node node) {
         def renderer = null
 
-        def type = nodeType
+        def type = node.type
+        def subtype = (node in Subtype) ? node.subtype : null
+
         while (renderer == null && type != null) {
-            renderer = renderers[(type)]
+            renderer = findRenderer(type, subtype)
             type = type.parent
         }
 
         if (renderer == null) {
             def parentBackend = PluginRegistry.instance.getBackend(parentId)
             if (parentBackend != null) {
-                renderer = parentBackend.getRenderer(nodeType)
+                renderer = parentBackend.getRenderer(node)
             }
         }
         return renderer
     }
 
-    LeafNodeRenderer getInlineRenderer(Node.Type nodeType) {
+    LeafNodeRenderer getInlineRenderer(Node node) {
+        def nodeType = node.type
+
         if (!nodeType.isInline()) {
             throw new IllegalArgumentException("Node type \"${nodeType}\" is not an inline type")
         }
 
-        def renderer = getRenderer(nodeType)
+        def renderer = getRenderer(node)
         if (!(renderer in LeafNodeRenderer)) {
             renderer = null
         }
@@ -75,8 +80,21 @@ abstract class AbstractBackend implements Backend {
         return renderer
     }
 
-    void registerRenderer(Node.Type nodeType, NodeRenderer renderer) {
-        renderers[(nodeType)] = renderer
+    @Override
+
+    void registerRenderer(NodeRenderer renderer) {
+        def nodeType = renderer.nodeType
+        def subtype = null
+        if (renderer in Subtype) {
+            subtype = renderer.subtype
+        }
+
+        def submap = renderers[nodeType]
+        if (submap == null) {
+            submap = [:]
+            renderers[nodeType] = submap
+        }
+        submap[subtype] = renderer
     }
 
     void startRendering(DocumentContext context) {
@@ -92,4 +110,23 @@ abstract class AbstractBackend implements Backend {
 
     void doEndRendering(DocumentContext context) {
     }
+
+    protected NodeRenderer findRenderer(Node node) {
+        def subtype = null
+        if (node in Subtype) {
+            subtype = node.subtype
+        }
+
+        return findRenderer(node.type, subtype)
+    }
+
+    protected NodeRenderer findRenderer(Node.Type type, String subtype) {
+        def submap = renderers[type]
+        if (submap == null) {
+            return null
+        }
+
+        return submap[subtype]
+    }
+
 }
