@@ -88,6 +88,10 @@ class Node {
             return (type != null)
         }
 
+        boolean isType(Type type) {
+            return isCase(this, type)
+        }
+
         boolean isBlock() {
             return isCase(this, BLOCK)
         }
@@ -161,6 +165,30 @@ class Node {
         children << node
 
         return this
+    }
+
+    List<Node> find(Node.Type type) {
+        return find { node ->
+            node.type.isType(type)
+        }
+    }
+
+    List<Node> find(Closure closure) {
+        def result = []
+
+        find(result, closure)
+
+        return result
+    }
+
+    protected void find(List<Node> result, Closure closure) {
+        if (closure.call(this)) {
+            result << this
+        }
+
+        children.each { child ->
+            child.find(result, closure)
+        }
     }
 
     /**
