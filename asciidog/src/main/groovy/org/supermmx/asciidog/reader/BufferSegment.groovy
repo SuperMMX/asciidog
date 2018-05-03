@@ -219,7 +219,8 @@ $
         // process include directive
 
         // create the new segment for included uri
-        def includeReader = SingleReader.createFromFile(uri)
+        // FIXME: URI or absolute path
+        def includeReader = SingleReader.createFromFile(new File(new File(reader.uri).parentFile.toString(), uri).toString())
         def includeSegment = new BufferSegment(includeReader)
 
         // create the segment for the same file

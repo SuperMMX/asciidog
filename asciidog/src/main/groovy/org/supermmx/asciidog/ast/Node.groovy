@@ -33,10 +33,10 @@ class Node {
 
         static final AUTHORS = new Type(parent: BLOCK, name: 'authors')
         static final BLANK = new Type(parent: BLOCK, name: 'blank')
+        static final BLOCK_MACRO = new Type(parent: BLOCK, name: 'macro')
         static final COMMENT_LINE = new Type(parent: BLOCK, name: 'comment_line')
         static final LIST = new Type(parent: BLOCK, name: 'list', isAbstract: true)
         static final LIST_ITEM = new Type(parent: BLOCK, name: 'list_item')
-        static final MACRO = new Type(parent: BLOCK, name: 'macro')
         static final PARAGRAPH = new Type(parent: BLOCK, name: 'paragraph')
         static final TABLE = new Type(parent: BLOCK, name: 'table')
 
@@ -86,6 +86,10 @@ class Node {
                 type = type.parent
             }
             return (type != null)
+        }
+
+        boolean isType(Type type) {
+            return isCase(this, type)
         }
 
         boolean isBlock() {
@@ -161,6 +165,30 @@ class Node {
         children << node
 
         return this
+    }
+
+    List<Node> find(Node.Type type) {
+        return find { node ->
+            node.type.isType(type)
+        }
+    }
+
+    List<Node> find(Closure closure) {
+        def result = []
+
+        find(result, closure)
+
+        return result
+    }
+
+    protected void find(List<Node> result, Closure closure) {
+        if (closure.call(this)) {
+            result << this
+        }
+
+        children.each { child ->
+            child.find(result, closure)
+        }
     }
 
     /**

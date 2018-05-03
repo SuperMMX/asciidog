@@ -65,6 +65,20 @@ abstract class TokenMatcher {
             })
     }
 
+    /**
+     * Match the token type
+     */
+    static TokenMatcher type(Token.Type type) {
+        return TokenMatcher.type(null, type)
+    }
+
+    static TokenMatcher type(String name, Token.Type type) {
+        return new ClosureMatcher(name: name, value: type, condition: { context, props, typeObj ->
+            def token = context.lexer.next()
+            token?.type == typeObj
+        })
+    }
+
     static TokenMatcher regex(String regexStr) {
         return regex(null, regexStr)
     }
@@ -81,20 +95,6 @@ abstract class TokenMatcher {
         return new ClosureMatcher(value: pattern, condition: { context, props, valueObj ->
             def token = context.lexer.next()
             pattern.matcher(token?.value).matches()
-        })
-    }
-
-    /**
-     * Match the token type
-     */
-    static TokenMatcher type(Token.Type type) {
-        return TokenMatcher.type(null, type)
-    }
-
-    static TokenMatcher type(String name, Token.Type type) {
-        return new ClosureMatcher(name: name, value: type, condition: { context, props, typeObj ->
-            def token = context.lexer.next()
-            token?.type == typeObj
         })
     }
 
@@ -128,12 +128,28 @@ abstract class TokenMatcher {
         return new OptionalMatcher(name: name, matcher: matcher)
     }
 
-    static TokenMatcher not(TokenMatcher matcher) {
-        return not(null, matcher)
+    static TokenMatcher not(TokenMatcher matcher, boolean selfReset = false) {
+        return not([ matcher ], selfReset)
     }
 
-    static TokenMatcher not(String name, TokenMatcher matcher) {
-        return new NotMatcher(name: name, matcher: matcher)
+    static TokenMatcher not(String name, TokenMatcher matcher, boolean selfReset = false) {
+        return not(name, [ matcher ], selfReset)
+    }
+
+    static TokenMatcher not(List<TokenMatcher> matchers, boolean selfReset = false) {
+        return not(null, matchers, selfReset)
+    }
+
+    static TokenMatcher not(String name, List<TokenMatcher> matchers, boolean selfReset = false) {
+        return new NotMatcher(name: name, matchers: matchers, selfReset: selfReset)
+    }
+
+    static TokenMatcher and(List<TokenMatcher> matchers) {
+        return and(null, matchers)
+    }
+
+    static TokenMatcher and(String name, List<TokenMatcher> matchers) {
+        return new AndMatcher(name: name, matchers: matchers);
     }
 
     static TokenMatcher zeroOrMore(TokenMatcher matcher) {
@@ -177,11 +193,56 @@ abstract class TokenMatcher {
     }
 
     static class NotMatcher extends TokenMatcher {
-        TokenMatcher matcher
+        List<TokenMatcher> matchers = []
 
         @Override
         protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
-            return !matcher.matches(context, props, false, action)
+            def result = false
+
+            def lexer = context.lexer
+
+            for (TokenMatcher matcher: matchers) {
+                lexer.mark()
+
+                result = matcher.matches(context, props, false, action)
+
+                lexer.reset()
+
+                if (result) {
+                    break
+                }
+            }
+
+            if (!result) {
+                lexer.next()
+            }
+
+            return !result;
+        }
+    }
+
+    static class AndMatcher extends TokenMatcher {
+        List<TokenMatcher> matchers = []
+
+        @Override
+        protected boolean doMatch(ParserContext context, Map<String, Object> props = [:], Closure action = null) {
+            def result = true
+
+            def lexer = context.lexer
+
+            for (def matcher: matchers) {
+                lexer.mark()
+                if (!matcher.matches(context, props, false, action)) {
+                    result = false
+
+                    lexer.reset()
+                    break
+                } else {
+                    lexer.clearMark()
+                }
+            }
+
+            return result
         }
     }
 

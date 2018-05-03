@@ -10,6 +10,8 @@ import org.slf4j.Logger
 
 @Slf4j
 class Reader {
+    File inputFile
+
     private BufferSegment segment
 
     static Reader createFromFile(String filename) {
@@ -31,6 +33,8 @@ class Reader {
     }
 
     private initFromFile(String file) {
+        inputFile = new File(file)
+
         init(SingleReader.createFromFile(file))
     }
 

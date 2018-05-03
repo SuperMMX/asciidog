@@ -60,7 +60,7 @@ class CrossReferenceParser extends InlineParserPlugin {
         ]), false)
 
         if (lexer.peek().value == ',') {
-            lexter.next()
+            lexer.next()
         }
 
         def inline = new CrossReferenceNode(xrefId: id)

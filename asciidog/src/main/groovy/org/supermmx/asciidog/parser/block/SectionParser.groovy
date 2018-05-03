@@ -48,7 +48,7 @@ class SectionParser extends BlockParserPlugin {
             value.charAt(0) == '=' && size >= 1 && size <= 5
         }),
         type(Token.Type.WHITE_SPACES),
-        not(type(Token.Type.EOL))
+        not(type(Token.Type.EOL), true)
     ])
 
     static final Closure CHECK_ACTION = { String name, ParserContext context, Map<String, Object> props, boolean matched ->
@@ -89,26 +89,6 @@ class SectionParser extends BlockParserPlugin {
         def lexer = context.lexer
 
         log.trace '=== next token = {}', lexer.peek()
-
-        /*
-        def (markToken, wsToken, titleToken) = lexer.peek(3)
-
-        if (markToken == null) {
-            return null
-        }
-
-        if (markToken.value.charAt(0) != (char)'=') {
-            return null
-        }
-
-        def level = markToken.value.length() - 1
-        lexer.next()
-
-        if (wsToken?.type != Token.Type.WHITE_SPACES) {
-            // report warning
-        }
-        lexer.next()
-         */
 
         def level = header.properties[HEADER_PROPERTY_SECTION_LEVEL]
 

@@ -45,22 +45,20 @@ interface Backend {
 
     /**
      * Register the renderer to this backend.
-     * FIXME: how to handle rendering based the subtype or other attributes?
      *
-     * @param nodeType to render the node with the specified type
      * @param renderer the renderer to render the node
      */
-    void registerRenderer(Node.Type nodeType, NodeRenderer renderer)
+    void registerRenderer(NodeRenderer renderer)
 
     /**
      * Get the renderer for the node type
      */
-    NodeRenderer getRenderer(Node.Type nodeType)
+    NodeRenderer getRenderer(Node node)
 
     /**
      * Get the inline renderer for the node type
      */
-    LeafNodeRenderer getInlineRenderer(Node.Type nodeType)
+    LeafNodeRenderer getInlineRenderer(Node node)
 
     ChunkRenderer getChunkRenderer()
 

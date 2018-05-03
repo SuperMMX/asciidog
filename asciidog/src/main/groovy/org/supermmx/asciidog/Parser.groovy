@@ -60,6 +60,7 @@ class Parser {
     Document parseDocument(ParserContext context) {
         Document doc = (Document)parse(context)
         doc.attrs = context.attributes
+        doc.attrs.inputFile = context.reader.inputFile
 
         return doc
     }

@@ -22,6 +22,8 @@ class AsciidogCoreBuilderPlugin extends BuilderPlugin {
         factories << new ListItemFactory()
         factories << new ParagraphFactory()
         factories << new CommentFactory()
+        factories << new BlockMacroFactory()
+        factories << new ImageBlockMacroFactory()
 
         factories << new TextFactory()
         factories << new StrongFormattingFactory()

@@ -13,6 +13,11 @@ interface NodeRenderer {
     String getBackendId()
 
     /**
+     * Get the node type that this node renderer renders
+     */
+    Node.Type getNodeType()
+
+    /**
      * Whether this renderer can render this node
      */
     boolean accept(Node node)
