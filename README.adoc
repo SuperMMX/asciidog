@@ -50,6 +50,8 @@ cd asciidog
 * List
 ** Ordered list
 ** Unordered list
+* Block Macro
+** Image
 * Inline
 ** Formatting
 *** Strong
