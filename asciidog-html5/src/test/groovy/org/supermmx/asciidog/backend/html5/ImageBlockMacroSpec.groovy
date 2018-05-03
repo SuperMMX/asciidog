@@ -1,5 +1,7 @@
 package org.supermmx.asciidog.backend.html5
 
+import org.supermmx.asciidog.ast.Node
+
 class ImageBlockMacroSpec extends Html5Spec {
     def 'simple image block macro'() {
         given:

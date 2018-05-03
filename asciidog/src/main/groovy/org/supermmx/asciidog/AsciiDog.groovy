@@ -80,6 +80,8 @@ class AsciiDog {
 
         log.debug('Parsed document = \n{}', doc)
 
+        // TODO: post tree processor
+
         // render
         Converter converter = new Converter()
 
