@@ -72,6 +72,8 @@ class TemplateManager {
             }
         }
 
+        // TODO: search parent backend
+
         if (templateContent == null) {
             log.trace '==== Template {} not found', templateName
             // make sure null value is added

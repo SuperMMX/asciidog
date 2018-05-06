@@ -19,13 +19,15 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 class EpubBackend extends Html5Backend {
-    EpubBackend() {
-        super()
+    static final String EPUB_BACKEND_ID = 'epub'
+    static final String EPUB_EXT = '.epub'
 
-        parentId = id
+    @Override
+    protected void initialize() {
+        parentId = HTML5_BACKEND_ID
 
-        id = 'epub'
-        ext = '.epub'
+        id = EPUB_BACKEND_ID
+        ext = EPUB_EXT
     }
 
     @Override
