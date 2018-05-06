@@ -220,7 +220,11 @@ $
 
         // create the new segment for included uri
         // FIXME: URI or absolute path
-        def includeReader = SingleReader.createFromFile(new File(new File(reader.uri).parentFile.toString(), uri).toString())
+        def includeUri = uri
+        if (reader.uri != null && reader.uri.length() > 0) {
+            includeUri = new File(new File(reader.uri).parentFile.toString(), uri).toString()
+        }
+        def includeReader = SingleReader.createFromFile(includeUri)
         def includeSegment = new BufferSegment(includeReader)
 
         // create the segment for the same file

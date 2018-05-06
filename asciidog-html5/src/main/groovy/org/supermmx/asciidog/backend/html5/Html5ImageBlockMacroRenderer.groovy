@@ -43,7 +43,7 @@ class Html5ImageBlockMacroRenderer extends AbstractBlockMacroRenderer {
 
         // copy the image to the destination, can't do this after rendering
         // because the AST itself may not have the correct imagesdir value
-        def inputDir = context.document.attrs.inputFile?.parentFile
+        def inputDir = context.document.attrs?.inputFile?.parentFile
         if (inputDir != null) {
             def imageFile = new File(context.outputDir, path)
             if (!imageFile.parentFile.exists()) {
