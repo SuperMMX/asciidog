@@ -37,6 +37,16 @@ abstract class AbstractBackend implements Backend {
 
     ChunkRenderer chunkRenderer
 
+    public AbstractBackend() {
+        initialize()
+    }
+
+    /**
+     * Initialize the necessary properties
+     */
+    protected void initialize() {
+    }
+
     /**
      * No default chunk path
      */
@@ -45,6 +55,7 @@ abstract class AbstractBackend implements Backend {
         return null
     }
 
+    @Override
     NodeRenderer getRenderer(Node node) {
         def renderer = null
 
@@ -65,6 +76,7 @@ abstract class AbstractBackend implements Backend {
         return renderer
     }
 
+    @Override
     LeafNodeRenderer getInlineRenderer(Node node) {
         def nodeType = node.type
 
@@ -81,7 +93,6 @@ abstract class AbstractBackend implements Backend {
     }
 
     @Override
-
     void registerRenderer(NodeRenderer renderer) {
         def nodeType = renderer.nodeType
         def subtype = null
