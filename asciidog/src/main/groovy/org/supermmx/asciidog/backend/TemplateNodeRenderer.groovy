@@ -3,9 +3,12 @@ package org.supermmx.asciidog.backend
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.converter.DocumentContext
 
+import groovy.util.logging.Slf4j
+
 /**
  * The template-based node renderer
  */
+@Slf4j
 class TemplateNodeRenderer extends AbstractLeafNodeRenderer {
     @Override
     boolean accept(Node node) {

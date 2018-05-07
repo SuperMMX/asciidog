@@ -1,6 +1,8 @@
 package org.supermmx.asciidog.backend
 
 import org.supermmx.asciidog.Subtype
+import org.supermmx.asciidog.ast.Inline
+import org.supermmx.asciidog.ast.InlineContainer
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.converter.DocumentContext
 
@@ -81,6 +83,19 @@ class TemplateManager {
             return null
         }
 
+        // remove the leading newlines for inline nodes
+        if ((node in Inline)
+            && suffix == 'pre'
+            && templateContent[0] == (char)'\n') {
+            templateContent = templateContent.substring(1)
+        }
+
+        // remove tailing newlines for inlines and inline contains with pre
+        if ((node in Inline
+             || (node in InlineContainer && suffix == 'pre'))
+            && templateContent[templateContent.length() - 1] == (char)'\n') {
+            templateContent = templateContent.substring(0, templateContent.length() - 1)
+        }
         template = templateEngine.createTemplate(templateContent)
 
         templateMap[key] = template
