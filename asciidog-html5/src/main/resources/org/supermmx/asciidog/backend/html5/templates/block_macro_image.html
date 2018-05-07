@@ -1,0 +1,10 @@
+<%
+def path = node.target
+
+// consider attribute "imagesdir"
+def imagesdir = context.attrContainer['imagesdir']
+if (imagesdir != null) {
+    path = "${imagesdir}/${node.target}"
+}
+%>
+<img src="${path}" />
