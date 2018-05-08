@@ -6,5 +6,8 @@ def imagesdir = context.attrContainer['imagesdir']
 if (imagesdir != null) {
     path = "${imagesdir}/${node.target}"
 }
+
+// add to resource
+context.document.resources << new org.supermmx.asciidog.ast.Resource(type: org.supermmx.asciidog.ast.Resource.Type.IMAGE, path: path, node: node)
 %>
 <img src="${path}" />

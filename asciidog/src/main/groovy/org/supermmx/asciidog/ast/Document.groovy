@@ -61,6 +61,8 @@ class Document extends Block {
     // references in this document
     Map<String, Node> references = [:]
 
+    List<Resource> resources = []
+
     Document() {
         type = Node.Type.DOCUMENT
 
