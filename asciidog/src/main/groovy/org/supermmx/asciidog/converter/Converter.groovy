@@ -3,6 +3,10 @@ package org.supermmx.asciidog.converter
 import org.supermmx.asciidog.ast.Document
 import org.supermmx.asciidog.plugin.PluginRegistry
 
+import java.nio.file.StandardCopyOption
+import java.nio.file.Files
+import java.nio.file.Paths
+
 import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger
@@ -63,6 +67,22 @@ class Converter {
 
         def walker = new DocumentWalker()
         walker.traverse(doc, backend, context)
+
+        // copy resources to output directory
+        def inputDir = doc.attrs?.inputFile?.parentFile
+
+        if (inputDir != null) {
+            doc.resources.each { res ->
+                def imageFile = new File(context.outputDir, res.path)
+                if (!imageFile.parentFile.exists()) {
+                    imageFile.parentFile.mkdirs()
+                }
+
+                Files.copy(inputDir.toPath().resolve(res.path),
+                           imageFile.toPath(),
+                           StandardCopyOption.REPLACE_EXISTING)
+            }
+        }
     }
 
     void convertToHtml(Document doc, Writer writer) {
