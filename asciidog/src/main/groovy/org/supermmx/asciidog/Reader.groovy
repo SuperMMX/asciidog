@@ -33,7 +33,7 @@ class Reader {
     }
 
     private initFromFile(String file) {
-        inputFile = new File(file)
+        inputFile = new File(file).absoluteFile
 
         init(SingleReader.createFromFile(file))
     }
