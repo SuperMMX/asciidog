@@ -83,23 +83,47 @@ class TemplateManager {
             return null
         }
 
-        // remove the leading newlines for inline nodes
-        if ((node in Inline)
-            && suffix == 'pre'
-            && templateContent[0] == (char)'\n') {
-            templateContent = templateContent.substring(1)
-        }
-
-        // remove tailing newlines for inlines and inline contains with pre
-        if ((node in Inline
-             || (node in InlineContainer && suffix == 'pre'))
-            && templateContent[templateContent.length() - 1] == (char)'\n') {
-            templateContent = templateContent.substring(0, templateContent.length() - 1)
-        }
         template = templateEngine.createTemplate(templateContent)
 
         templateMap[key] = template
 
         return template
+    }
+
+    /**
+     * Trim the leading and trailing new lines for the rendering result
+     * of all inline nodes and training new lines for pre inline containers
+     *
+     * @param content the content of the rendering result
+     * @param node the node rendered
+     * @param suffix the suffix of the template
+     *
+     * @return the trimmed result
+     */
+    static String trim(String content, Node node, String suffix) {
+        int length = content.length()
+
+        int startIndex = 0
+        // remove the leading newlines for inline nodes
+        if (node in Inline) {
+            while (startIndex < length
+                   && content[startIndex] == ('\n' as char)) {
+                startIndex ++
+            }
+        }
+
+        int endIndex = length
+        // remove tailing newlines for inlines and inline contains with pre
+        if ((node in Inline)
+            || (node in InlineContainer && suffix == 'pre')) {
+            while (endIndex > startIndex
+                   && content[endIndex - 1] == ('\n' as char)) {
+                endIndex --
+            }
+        }
+
+        content = content.substring(startIndex, endIndex)
+
+        return content
     }
 }

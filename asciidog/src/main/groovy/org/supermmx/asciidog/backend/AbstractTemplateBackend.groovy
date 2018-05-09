@@ -51,15 +51,22 @@ class AbstractTemplateBackend extends AbstractBackend {
     }
 
     /**
-     * Get the template for the node and the suffix
+     * Render the node
      *
      * @param context the document context
+     * @param templateNode the node to get the template
      * @param node the node to render
      * @param suffix the suffix for pre/post rendering
-     *
-     * @return the template to render the node, null if not found
      */
-    protected Template getTemplate(DocumentContext context, Node node, String suffix) {
-        return TemplateManager.instance.getTemplate(context, node, suffix, templateExt)
+    protected void renderNode(DocumentContext context, Node templateNode, Node node, String suffix) {
+        def template = TemplateManager.instance.getTemplate(context, templateNode, suffix, templateExt)
+        if (template == null) {
+            return
+        }
+
+        def content = template.make([ context: context, node: node]).toString()
+        content = TemplateManager.trim(content, node, suffix)
+
+        context.writer.write(content)
     }
 }
