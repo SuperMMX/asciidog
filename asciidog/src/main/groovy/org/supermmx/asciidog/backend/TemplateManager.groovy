@@ -12,6 +12,9 @@ import groovy.text.GStringTemplateEngine
 
 import groovy.util.logging.Slf4j
 
+/**
+ * The template manager manages the templates
+ */
 @Slf4j
 @Singleton
 class TemplateManager {

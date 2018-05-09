@@ -1,5 +1,8 @@
 package org.supermmx.asciidog.ast
 
+/**
+ * Local resources referenced in the document
+ */
 class Resource {
     static enum Type {
         IMAGE
