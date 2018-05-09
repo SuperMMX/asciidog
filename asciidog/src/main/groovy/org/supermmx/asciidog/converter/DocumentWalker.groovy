@@ -158,7 +158,6 @@ class DocumentWalker {
             log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
 
             context.outputStream = chunkFile.newOutputStream()
-            context.writer = new OutputStreamWriter(context.outputStream, 'UTF-8')
         }
 
         // render the chunk
@@ -177,7 +176,6 @@ class DocumentWalker {
             renderer?.post(context, chunk.block)
 
             if (!context.attrContainer.getAttribute(Document.OUTPUT_STREAM).value) {
-                context.writer.close()
                 context.outputStream.close()
             }
         }
