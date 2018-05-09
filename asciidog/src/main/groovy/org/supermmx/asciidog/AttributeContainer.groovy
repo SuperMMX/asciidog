@@ -139,10 +139,12 @@ class AttributeContainer {
 
             type = defAttr.type
             defValue = defValue
-        } else {
+        }
+
+        if (type == null) {
             switch (value) {
                 case String:
-                    type = Attribute.ValueType.STRING
+                    type = Attribute.ValueType.INLINES
                     break
                 case Boolean:
                     type = Attribute.ValueType.BOOLEAN
