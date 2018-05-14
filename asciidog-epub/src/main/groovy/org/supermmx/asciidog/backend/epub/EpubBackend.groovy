@@ -98,6 +98,12 @@ class EpubBackend extends Html5Backend {
             epubCreator.addSpineItem(chunkFile.absolutePath, htmlPath + chunk.fileName, chunk.block.id, chunk.block.title)
         }
 
+        // add resources
+        doc.resources.each { res ->
+            def imageFile = new File(outputDir, htmlPath + res.path)
+            epubCreator.addItem(imageFile.absolutePath, htmlPath + res.path, null)
+        }
+
         // add epub toc item
         Navigation tocNav = createToc(context)
         epubCreator.addNavigation(tocNav)
