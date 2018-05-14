@@ -20,6 +20,9 @@ import org.supermmx.asciidog.backend.LeafNodeRenderer
 import groovy.util.logging.Slf4j
 
 import java.io.OutputStreamWriter
+import java.nio.file.StandardCopyOption
+import java.nio.file.Files
+import java.nio.file.Paths
 
 @Slf4j
 class DocumentWalker {
@@ -36,7 +39,39 @@ class DocumentWalker {
         // end the last chunk
         endChunk(context)
 
+        copyResources(context)
+
         backend.endRendering(context)
+    }
+
+    protected void copyResources(DocumentContext context) {
+        def backend = context.backend
+        def doc = context.document
+
+        // copy resources to output directory
+        def inputDir = doc.attrs?.inputFile?.parentFile
+
+        if (inputDir != null) {
+            // chunk path inside the output dir
+            def chunkPath = backend.getChunkPath(context)
+            def chunkDir = null
+            if (chunkPath == null || chunkPath.length() == 0) {
+                chunkDir = context.outputDir
+            } else {
+                chunkDir = new File(context.outputDir, chunkPath)
+            }
+
+            doc.resources.each { res ->
+                def imageFile = new File(chunkDir, res.path)
+                if (!imageFile.parentFile.exists()) {
+                    imageFile.parentFile.mkdirs()
+                }
+
+                Files.copy(inputDir.toPath().resolve(res.path),
+                           imageFile.toPath(),
+                           StandardCopyOption.REPLACE_EXISTING)
+            }
+        }
     }
 
     protected void traverseBlock(DocumentContext context, Block block) {
