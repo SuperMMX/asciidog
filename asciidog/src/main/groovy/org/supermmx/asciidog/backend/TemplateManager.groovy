@@ -5,6 +5,7 @@ import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.InlineContainer
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.converter.DocumentContext
+import org.supermmx.asciidog.plugin.PluginRegistry
 
 import groovy.text.Template
 import groovy.text.TemplateEngine
@@ -37,9 +38,14 @@ class TemplateManager {
         paths.add(0, path)
     }
 
-    Template getTemplate(DocumentContext context, Node node, String suffix, String ext) {
-        def backend = context.backend
+    Template getTemplate(DocumentContext context, Node node, String suffix) {
+        def template = getTemplate(context, context.backend, node, suffix, context.backend.templateExt)
 
+        return template
+    }
+
+    protected Template getTemplate(DocumentContext context, AbstractTemplateBackend backend,
+                                   Node node, String suffix, String ext) {
         def type = node.type
         def subtype = ''
 
@@ -51,8 +57,7 @@ class TemplateManager {
             suffix = ''
         }
 
-        def key = "${backend.id}.${type}.${subtype}.${suffix}"
-        log.trace '==== Get template with key = {}', key
+        def key = "${backend.id}.${type}.${subtype}.${suffix}".toString()
 
         def template = templateMap[key]
         if (template != null || templateMap.containsKey(key)) {
@@ -70,20 +75,27 @@ class TemplateManager {
         for (def path: pathList) {
             def url = this.class.getResource("${path}${templateName}")
             if (url != null) {
-                log.trace '==== Template {} found at {}', templateName, url
+                log.trace '==== Backend: {}, template {} found at {}', backend.id, templateName, url
 
                 templateContent = url.text
                 break
             }
         }
 
-        // TODO: search parent backend
-
+        // search the parent backend
         if (templateContent == null) {
-            log.trace '==== Template {} not found', templateName
-            // make sure null value is added
-            templateMap.put(key, null)
-            return null
+            log.trace '==== Backend: {}, template {} not found', backend.id, templateName
+
+            if (backend.parentId != null) {
+                log.trace '==== Backend: {}, try to find template {} from parent {}', backend.id, templateName, backend.parentId
+                def parentBackend = PluginRegistry.instance.getBackend(backend.parentId)
+                template = getTemplate(context, parentBackend, node, suffix, parentBackend.templateExt)
+            }
+
+            log.trace '==== Backend: {}, template {} found from parent {}: {}, key = {}', backend.id, templateName, backend.parentId, template, key
+            templateMap.put(key, template)
+
+            return template
         }
 
         template = templateEngine.createTemplate(templateContent)

@@ -20,7 +20,7 @@ class AbstractTemplateBackend extends AbstractBackend {
     /**
      * Template file extension for this backend
      */
-    protected String templateExt
+    String templateExt
 
     /**
      * The universal node renderer to render all nodes
@@ -59,8 +59,10 @@ class AbstractTemplateBackend extends AbstractBackend {
      * @param suffix the suffix for pre/post rendering
      */
     protected void renderNode(DocumentContext context, Node templateNode, Node node, String suffix) {
-        def template = TemplateManager.instance.getTemplate(context, templateNode, suffix, templateExt)
+        def template = TemplateManager.instance.getTemplate(context, templateNode, suffix)
+
         if (template == null) {
+            log.debug '==== template not found for node: {}, suffix: {}', templateNode.type, suffix
             return
         }
 
