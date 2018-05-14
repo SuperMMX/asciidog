@@ -72,8 +72,17 @@ class Converter {
         def inputDir = doc.attrs?.inputFile?.parentFile
 
         if (inputDir != null) {
+            // chunk path inside the output dir
+            def chunkPath = backend.getChunkPath(context)
+            def chunkDir = null
+            if (chunkPath == null || chunkPath.length() == 0) {
+                chunkDir = context.outputDir
+            } else {
+                chunkDir = new File(context.outputDir, chunkPath)
+            }
+
             doc.resources.each { res ->
-                def imageFile = new File(context.outputDir, res.path)
+                def imageFile = new File(chunkDir, res.path)
                 if (!imageFile.parentFile.exists()) {
                     imageFile.parentFile.mkdirs()
                 }
