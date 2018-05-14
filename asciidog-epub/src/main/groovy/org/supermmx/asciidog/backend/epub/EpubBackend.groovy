@@ -21,6 +21,7 @@ import groovy.util.logging.Slf4j
 class EpubBackend extends Html5Backend {
     static final String EPUB_BACKEND_ID = 'epub'
     static final String EPUB_EXT = '.epub'
+    static final String EXT_XHTML = '.xhtml'
 
     @Override
     protected void initialize() {
@@ -28,6 +29,7 @@ class EpubBackend extends Html5Backend {
 
         id = EPUB_BACKEND_ID
         ext = EPUB_EXT
+        templateExt = EXT_XHTML
     }
 
     @Override
@@ -40,7 +42,7 @@ class EpubBackend extends Html5Backend {
         context.attrContainer.setAttribute(CSS_DIR, 'css')
 
         // set the chunk extension
-        context.chunkExt = '.xhtml'
+        context.chunkExt = EXT_XHTML
     }
 
     @Override

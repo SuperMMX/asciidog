@@ -4,9 +4,12 @@ import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.converter.DocumentContext
 
+import groovy.util.logging.Slf4j
+
 /**
  * The template-based chunk renderer
  */
+@Slf4j
 class TemplateChunkRenderer implements ChunkRenderer {
     private static final Node CHUNK_NODE =  new Node(type: Node.Type.CHUNK)
 
