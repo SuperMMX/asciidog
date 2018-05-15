@@ -61,6 +61,9 @@ class Document extends Block {
     // references in this document
     Map<String, Node> references = [:]
 
+    /**
+     * Local resources referenced in the document
+     */
     List<Resource> resources = []
 
     Document() {

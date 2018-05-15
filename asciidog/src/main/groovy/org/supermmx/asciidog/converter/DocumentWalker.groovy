@@ -39,11 +39,15 @@ class DocumentWalker {
         // end the last chunk
         endChunk(context)
 
+        // copy local resources before ending rendering
         copyResources(context)
 
         backend.endRendering(context)
     }
 
+    /**
+     * Copy local resources to the destination directory
+     */
     protected void copyResources(DocumentContext context) {
         def backend = context.backend
         def doc = context.document

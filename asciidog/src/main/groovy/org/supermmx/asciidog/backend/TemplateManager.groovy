@@ -19,11 +19,27 @@ import groovy.util.logging.Slf4j
 @Slf4j
 @Singleton
 class TemplateManager {
+    /**
+     * Template paths for backends
+     */
     private Map<String, List<String>> templatePaths = [:]
 
+    /**
+     * The template engine
+     */
     private GStringTemplateEngine templateEngine = new GStringTemplateEngine()
+    /**
+     * The template cache
+     */
     private Map<String, Template> templateMap = [:]
 
+    /**
+     * Register the template path for a backend
+     *
+     * @param backendId the backend id
+     * @param path the path that contains the templates
+     * @param isClasspath whether the path is in the classpath or is a directory
+     */
     void registerTemplateDirectory(String backendId, String path, boolean isClasspath) {
         def paths = templatePaths[backendId]
         if (paths == null) {
@@ -38,12 +54,24 @@ class TemplateManager {
         paths.add(0, path)
     }
 
+    /**
+     * Recursively get the template of current backend for the specified node
+     *
+     * @param context current document context
+     * @param node the node to get the template for
+     * @param suffix pre, post or blank
+     *
+     * @return the template
+     */
     Template getTemplate(DocumentContext context, Node node, String suffix) {
         def template = getTemplate(context, context.backend, node, suffix, context.backend.templateExt)
 
         return template
     }
 
+    /**
+     * Get the template of the specified backend for the specified node
+     */
     protected Template getTemplate(DocumentContext context, AbstractTemplateBackend backend,
                                    Node node, String suffix, String ext) {
         def type = node.type

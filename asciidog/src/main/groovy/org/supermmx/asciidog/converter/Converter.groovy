@@ -63,7 +63,6 @@ class Converter {
 
         def walker = new DocumentWalker()
         walker.traverse(doc, backend, context)
-
     }
 
     void convertToHtml(Document doc, Writer writer) {

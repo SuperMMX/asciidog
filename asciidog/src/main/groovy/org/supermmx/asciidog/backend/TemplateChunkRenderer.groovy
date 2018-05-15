@@ -11,6 +11,9 @@ import groovy.util.logging.Slf4j
  */
 @Slf4j
 class TemplateChunkRenderer implements ChunkRenderer {
+    /**
+     * Used to get the chunk templates
+     */
     private static final Node CHUNK_NODE =  new Node(type: Node.Type.CHUNK)
 
     @Override
