@@ -5,6 +5,7 @@ import org.supermmx.asciidog.critic.parser.*
 import org.supermmx.asciidog.critic.renderer.CriticRendererPlugin
 
 import org.supermmx.asciidog.plugin.PluginSuite
+import org.supermmx.asciidog.backend.TemplateManager
 
 class CriticPluginSuite extends PluginSuite {
     CriticPluginSuite() {
@@ -19,6 +20,6 @@ class CriticPluginSuite extends PluginSuite {
         plugins << new CriticBuilderPlugin()
 
         // renderers
-        plugins << new CriticRendererPlugin()
+        TemplateManager.instance.registerTemplateDirectory('html5', '/org/supermmx/asciidog/critic/html5/', true)
     }
 }
