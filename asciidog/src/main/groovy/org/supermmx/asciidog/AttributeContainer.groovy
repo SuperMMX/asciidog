@@ -149,8 +149,11 @@ class AttributeContainer {
                 case Boolean:
                     type = Attribute.ValueType.BOOLEAN
                     break
-                case BigInteger:
+                case Integer:
                     type = Attribute.ValueType.INTEGER
+                    break
+                case BigDecimal:
+                    type = Attribute.ValueType.DECIMAL
                     break
                 case List:
                     type = Attribute.ValueType.INLINES

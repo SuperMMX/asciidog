@@ -298,4 +298,34 @@ class AttributeContainerSpec extends Specification {
         then:
         container.getAttribute('release') == attr
     }
+
+    def 'Raw values'() {
+        given:
+        def date = new Date()
+        def container = new AttributeContainer()
+        def boolAttr = new Attribute(name: 'boolAttr',
+                                     type: Attribute.ValueType.BOOLEAN,
+                                     value: true)
+        def intAttr = new Attribute(name: 'intAttr',
+                                    type: Attribute.ValueType.INTEGER,
+                                    value: 25)
+        def decimalAttr = new Attribute(name: 'decimalAttr',
+                                        type: Attribute.ValueType.DECIMAL,
+                                        value: 25.5)
+        def objAttr = new Attribute(name: 'objAttr',
+                                    type: Attribute.ValueType.OBJECT,
+                                    value: date)
+
+        when:
+        container.setAttribute('boolAttr', true)
+        container.setAttribute('intAttr', 25)
+        container.setAttribute('decimalAttr', 25.5)
+        container.setAttribute('objAttr', date)
+
+        then:
+        container.getAttribute('boolAttr') == boolAttr
+        container.getAttribute('intAttr') == intAttr
+        container.getAttribute('decimalAttr') == decimalAttr
+        container.getAttribute('objAttr') == objAttr
+    }
 }

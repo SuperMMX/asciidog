@@ -16,7 +16,7 @@ import groovy.util.logging.Slf4j
 @Slf4j
 class Attribute {
     static enum ValueType {
-        STRING, BOOLEAN, INTEGER, INLINES, OBJECT
+        STRING, BOOLEAN, INTEGER, DECIMAL, INLINES, OBJECT
     }
 
     /**
