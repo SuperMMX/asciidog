@@ -2,7 +2,6 @@ package org.supermmx.asciidog.critic
 
 import org.supermmx.asciidog.critic.builder.CriticBuilderPlugin
 import org.supermmx.asciidog.critic.parser.*
-import org.supermmx.asciidog.critic.renderer.CriticRendererPlugin
 
 import org.supermmx.asciidog.plugin.PluginSuite
 import org.supermmx.asciidog.backend.TemplateManager
