@@ -3,6 +3,8 @@ package org.supermmx.asciidog.critic
 import org.supermmx.asciidog.critic.builder.CriticBuilderPlugin
 import org.supermmx.asciidog.critic.parser.*
 
+import org.supermmx.asciidog.backend.html5.Html5Backend
+
 import org.supermmx.asciidog.plugin.PluginSuite
 import org.supermmx.asciidog.backend.TemplateManager
 
@@ -19,6 +21,8 @@ class CriticPluginSuite extends PluginSuite {
         plugins << new CriticBuilderPlugin()
 
         // renderers
-        TemplateManager.instance.registerTemplateDirectory('html5', '/org/supermmx/asciidog/critic/html5/', true)
+        TemplateManager.instance.registerTemplateDirectory(Html5Backend.HTML5_BACKEND_ID,
+                                                           '/org/supermmx/asciidog/critic/html5/',
+                                                           true)
     }
 }
