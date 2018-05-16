@@ -1,3 +1,9 @@
+configurations {
+    testOutput
+}
+
 dependencies {
     compile project(':asciidog-core')
+
+    testOutput sourceSets.test.output
 }
