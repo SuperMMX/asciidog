@@ -10,7 +10,7 @@ import org.supermmx.asciidog.plugin.PluginRegistry
 import groovy.text.Template
 import groovy.text.TemplateEngine
 import groovy.text.GStringTemplateEngine
-
+import groovy.transform.Canonical
 import groovy.util.logging.Slf4j
 
 /**
@@ -19,10 +19,16 @@ import groovy.util.logging.Slf4j
 @Slf4j
 @Singleton
 class TemplateManager {
+    @Canonical
+    static class TemplatePath {
+        String path
+        boolean isClasspath = false
+    }
+
     /**
      * Template paths for backends
      */
-    private Map<String, List<String>> templatePaths = [:]
+    private Map<String, List<TemplatePath>> templatePaths = [:]
 
     /**
      * The template engine
@@ -51,7 +57,8 @@ class TemplateManager {
             path = '/' + path
         }
 
-        paths.add(0, path)
+        // insert to the first place
+        paths.add(0, new TemplatePath(path, isClasspath))
     }
 
     /**
@@ -99,13 +106,32 @@ class TemplateManager {
         // find the template file from registered directory or classpath
         // TODO: user defined template directories
         def templateContent = null
-        def pathList = templatePaths[backend.id]
-        for (def path: pathList) {
-            def url = this.class.getResource("${path}${templateName}")
-            if (url != null) {
-                log.trace '==== Backend: {}, template {} found at {}', backend.id, templateName, url
+        def templatePathList = templatePaths[backend.id]
 
-                templateContent = url.text
+        // custom template dir from attribute <backendId>-template-dir
+        def customTemplateDir = context.attrContainer[backend.id + '-template-dir']
+        if (customTemplateDir != null) {
+            templatePathList = [ new TemplatePath(customTemplateDir, false) ].plus(templatePathList)
+        }
+
+        for (def templatePath: templatePathList) {
+            if (templatePath.isClasspath) {
+                // from classpath
+                def url = this.class.getResource("${templatePath.path}${templateName}")
+                if (url != null) {
+                    templateContent = url.text
+                    log.trace '==== Backend: {}, template {} found at {}', backend.id, templateName, url
+                }
+            } else {
+                // from custom directory
+                def templateFile = new File(templatePath.path, templateName)
+                if (templateFile.exists()) {
+                    templateContent = templateFile.text
+                    log.trace '==== Backend: {}, template {} found at {}', backend.id, templateName, templatePath.path
+                }
+            }
+
+            if (templateContent != null) {
                 break
             }
         }
