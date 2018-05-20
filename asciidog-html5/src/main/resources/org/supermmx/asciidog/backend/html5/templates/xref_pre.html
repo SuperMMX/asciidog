@@ -1,0 +1,19 @@
+<%
+def id = org.supermmx.asciidog.Utils.normalizeId(node.xrefId)
+
+// find out the target chunk file
+def file = ''
+if (context.attrContainer.getAttribute(org.supermmx.asciidog.ast.Document.OUTPUT_CHUNKED)) {
+    def targetNode = context.document.references[(id)]
+
+    if (targetNode != null) {
+        def targetChunk = context.chunkingStrategy.findChunk(targetNode)
+
+        def chunk = context.chunk
+        if (chunk != targetChunk) {
+            file = context.chunkingStrategy.getChunkFileName(targetChunk)
+        }
+    }
+}
+%>
+<a href="${file}#${id}">

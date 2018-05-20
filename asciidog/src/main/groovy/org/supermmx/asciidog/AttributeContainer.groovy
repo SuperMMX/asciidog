@@ -142,6 +142,29 @@ class AttributeContainer {
         }
 
         if (type == null) {
+            switch (value) {
+                case String:
+                    type = Attribute.ValueType.INLINES
+                    break
+                case Boolean:
+                    type = Attribute.ValueType.BOOLEAN
+                    break
+                case Integer:
+                    type = Attribute.ValueType.INTEGER
+                    break
+                case BigDecimal:
+                    type = Attribute.ValueType.DECIMAL
+                    break
+                case List:
+                    type = Attribute.ValueType.INLINES
+                    break
+                default:
+                    type = Attribute.ValueType.OBJECT
+                    break
+            }
+        }
+
+        if (type == null) {
             type = Attribute.ValueType.INLINES
         }
 

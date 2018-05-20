@@ -11,12 +11,12 @@ import groovy.util.logging.Slf4j
  * If an attribute is not set, the value from the default attribute
  * will be used.
  */
-@EqualsAndHashCode(includeFields=true, excludes=["valueString"])
-@ToString(includeSuper=false, includePackage=false, includeNames=true)
+@EqualsAndHashCode(includeFields=true, excludes=['valueString'])
+@ToString(includeSuper=false, includePackage=false, includeNames=true, excludes=['valueString'])
 @Slf4j
 class Attribute {
     static enum ValueType {
-        STRING, BOOLEAN, INTEGER, INLINES
+        STRING, BOOLEAN, INTEGER, DECIMAL, INLINES, OBJECT
     }
 
     /**

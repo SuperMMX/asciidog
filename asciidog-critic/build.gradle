@@ -1,5 +1,7 @@
 dependencies {
     compile project(':asciidog-core')
+    compile project(':asciidog-html5')
 
     testCompile project(path: ':asciidog-core', configuration: 'testOutput')
+    testCompile project(path: ':asciidog-html5', configuration: 'testOutput')
 }

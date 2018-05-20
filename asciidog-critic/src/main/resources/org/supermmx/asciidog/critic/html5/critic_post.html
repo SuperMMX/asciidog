@@ -1,0 +1,18 @@
+<%
+switch (node.criticType) {
+case org.supermmx.asciidog.critic.CriticNode.CriticType.ADDITION:
+    out << '</ins>'
+    break
+case org.supermmx.asciidog.critic.CriticNode.CriticType.DELETION:
+    out << '</del>'
+    break
+case org.supermmx.asciidog.critic.CriticNode.CriticType.COMMENT:
+    out << '</span>'
+    break
+case org.supermmx.asciidog.critic.CriticNode.CriticType.HIGHLIGHT:
+    out << '</mark>'
+    break
+default:
+    break
+}
+%>

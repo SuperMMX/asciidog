@@ -66,6 +66,7 @@ cd asciidog
 
 === Backend & Renderer
 
+* Template-based backend
 * Basic HTML5 backend
 * Basic ePub3 backend
 
@@ -90,9 +91,11 @@ There are different types of plugins:
 
 Sample plugin suite:
 
-* CriticMarkup
+* CriticMarkup, including parsers, builders and templates for html5 backend
 
 == TODO
+
+* Table
 * Link
 * Delimited block
 * Create include node instead of hiding it in reader
@@ -100,8 +103,4 @@ Sample plugin suite:
 == Issues
 
 === Rendering
-
-* Inline
-** Extra new lines before and after the inline elements in html5
-   backend
 

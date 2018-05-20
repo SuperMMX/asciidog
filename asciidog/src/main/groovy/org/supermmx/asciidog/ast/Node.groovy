@@ -19,8 +19,10 @@ class Node {
     static class Type {
         static final NODE = new Type(name: 'node', isAbstract: true)
 
+
         static final ABSTRACT_BLOCK = new Type(parent: NODE, name: 'abstract_block', isAbstract: true)
         static final STRUCTURE_BLOCK = new Type(parent: ABSTRACT_BLOCK, name: 'structure_block', isAbstract: true)
+        static final Type CHUNK = new Type(parent: STRUCTURE_BLOCK, name: 'CHUNK')
         static final BLOCK = new Type(parent: ABSTRACT_BLOCK, name: 'block', isAbstract: true)
         static final ACTION = new Type(parent: BLOCK, name: 'action', isAbstract: true, isAction: true)
         static final INLINE = new Type(parent: NODE, name: 'inline', isAbstract: true)
@@ -33,7 +35,7 @@ class Node {
 
         static final AUTHORS = new Type(parent: BLOCK, name: 'authors')
         static final BLANK = new Type(parent: BLOCK, name: 'blank')
-        static final BLOCK_MACRO = new Type(parent: BLOCK, name: 'macro')
+        static final BLOCK_MACRO = new Type(parent: BLOCK, name: 'block_macro')
         static final COMMENT_LINE = new Type(parent: BLOCK, name: 'comment_line')
         static final LIST = new Type(parent: BLOCK, name: 'list', isAbstract: true)
         static final LIST_ITEM = new Type(parent: BLOCK, name: 'list_item')

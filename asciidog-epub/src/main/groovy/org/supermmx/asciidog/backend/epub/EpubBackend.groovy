@@ -19,13 +19,17 @@ import groovy.util.logging.Slf4j
 
 @Slf4j
 class EpubBackend extends Html5Backend {
-    EpubBackend() {
-        super()
+    static final String EPUB_BACKEND_ID = 'epub'
+    static final String EPUB_EXT = '.epub'
+    static final String EXT_XHTML = '.xhtml'
 
-        parentId = id
+    @Override
+    protected void initialize() {
+        parentId = HTML5_BACKEND_ID
 
-        id = 'epub'
-        ext = '.epub'
+        id = EPUB_BACKEND_ID
+        ext = EPUB_EXT
+        templateExt = EXT_XHTML
     }
 
     @Override
@@ -38,7 +42,7 @@ class EpubBackend extends Html5Backend {
         context.attrContainer.setAttribute(CSS_DIR, 'css')
 
         // set the chunk extension
-        context.chunkExt = '.xhtml'
+        context.chunkExt = EXT_XHTML
     }
 
     @Override
@@ -92,6 +96,12 @@ class EpubBackend extends Html5Backend {
             def chunkFile = new File(outputDir, htmlPath + chunk.fileName)
 
             epubCreator.addSpineItem(chunkFile.absolutePath, htmlPath + chunk.fileName, chunk.block.id, chunk.block.title)
+        }
+
+        // add resources
+        doc.resources.each { res ->
+            def imageFile = new File(outputDir, htmlPath + res.path)
+            epubCreator.addItem(imageFile.absolutePath, htmlPath + res.path, null)
         }
 
         // add epub toc item
