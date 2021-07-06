@@ -32,19 +32,19 @@ subprojects {
     apply plugin: 'maven-publish'
 
 
-    targetCompatibility = 1.6
+    //targetCompatibility = 1.6
 
     dependencies {
-        compile 'org.codehaus.groovy:groovy-all:2.4.3'
-        compile 'org.slf4j:slf4j-api:1.7.10'
+        implementation 'org.codehaus.groovy:groovy-all:3.0.8'
+        implementation 'org.slf4j:slf4j-api:1.7.10'
 
-        testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
+        testImplementation('org.spockframework:spock-core:2.0-groovy-3.0') {
             exclude group:'org.codehaus.groovy'
         }
 
-        runtime 'ch.qos.logback:logback-classic:1.1.7'
+        runtimeOnly 'ch.qos.logback:logback-classic:1.1.7'
 
-        testRuntime 'cglib:cglib-nodep:3.2.4'
+        testRuntimeOnly 'cglib:cglib-nodep:3.2.4'
     }
 
     compileGroovy {
@@ -67,16 +67,18 @@ subprojects {
     rootProject.publishToLocal.dependsOn tasks.matching { it.name == 'publishToMavenLocal' }
 }
 
+/*
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
 }
+ */
 
 dependencies {
-    runtime project(':asciidog-core')
-    runtime project(':asciidog-html5')
-    runtime project(':asciidog-epub')
+    runtimeOnly project(':asciidog-core')
+    runtimeOnly project(':asciidog-html5')
+    runtimeOnly project(':asciidog-epub')
     //runtime project(':asciidog-pdf')
-    runtime project(':asciidog-critic')
+    runtimeOnly project(':asciidog-critic')
 }
 
 mainClassName = 'org.supermmx.asciidog.AsciiDog'
