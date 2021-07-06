@@ -5,7 +5,7 @@ import org.supermmx.asciidog.AttributeContainer
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.TupleConstructor
 
-@EqualsAndHashCode(callSuper=true, excludes=['references', 'header', 'preamble', 'docType', 'attrs'])
+@EqualsAndHashCode(callSuper=true, excludes=['references', 'attrs'])
 @TupleConstructor
 class Document extends Block {
     static enum DocType {

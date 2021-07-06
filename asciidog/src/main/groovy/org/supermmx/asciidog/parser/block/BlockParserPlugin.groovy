@@ -677,13 +677,13 @@ $
         Closure action
 
         ChildParserInfo expected() {
-            expect = true
+            expected = true
 
             return this
         }
 
         ChildParserInfo notExpected() {
-            expect = false
+            expected = false
 
             return this
         }

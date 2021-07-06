@@ -6,6 +6,7 @@ import org.supermmx.asciidog.plugin.PluginRegistry
 
 import org.apache.commons.cli.Option
 
+import groovy.cli.picocli.CliBuilder
 import groovy.util.logging.Slf4j
 
 import org.slf4j.Logger

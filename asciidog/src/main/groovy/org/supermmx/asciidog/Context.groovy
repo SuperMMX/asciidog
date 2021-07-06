@@ -7,7 +7,7 @@ import org.slf4j.Logger
 @Slf4j
 @Slf4j(value='userLog', category="AsciiDog")
 trait Context {
-    protected boolean copyLast = false
+    public boolean copyLast = false
 
     def stack = []
 
