@@ -1,0 +1,11 @@
+<%
+if (node.attributes.size() > 0) {
+%>
+<span class="${node.attributes.find { true }.key}">
+<%
+} else {
+%>
+<mark>
+<%
+}
+%>

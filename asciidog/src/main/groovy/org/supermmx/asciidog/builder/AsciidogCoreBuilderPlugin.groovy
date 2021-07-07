@@ -28,6 +28,7 @@ class AsciidogCoreBuilderPlugin extends BuilderPlugin {
         factories << new TextFactory()
         factories << new StrongFormattingFactory()
         factories << new EmphasisFormattingFactory()
+        factories << new MarkFormattingFactory()
         factories << new AttributeReferenceFactory()
         factories << new CrossReferenceFactory()
     }

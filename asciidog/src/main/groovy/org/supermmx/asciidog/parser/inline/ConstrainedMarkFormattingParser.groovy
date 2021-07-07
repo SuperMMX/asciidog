@@ -2,10 +2,10 @@ package org.supermmx.asciidog.parser.inline
 
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.FormattingNode
-import org.supermmx.asciidog.ast.StrongFormattingNode
+import org.supermmx.asciidog.ast.MarkFormattingNode
 
-class ConstrainedStrongFormattingParser extends TextFormattingParser {
-    static final def STRONG_CONSTRAINED_PATTERN = ~'''(?Usxm)
+class ConstrainedMarkFormattingParser extends TextFormattingParser {
+    static final def MARK_CONSTRAINED_PATTERN = ~'''(?Usxm)
 (?<=
   ^ | [^\\w;:}]
 )
@@ -18,27 +18,26 @@ class ConstrainedStrongFormattingParser extends TextFormattingParser {
 (?<!
   [\\w*]
 )
-\\*
+#
 (                   # 3, text
   [\\S&&[^*]]
   |
   [\\S&&[^*]] .*? [\\S&&[^*]]
 )
-\\*
+#
 (?!
   [\\w\\*]
 )
 '''
-    static final String ID = 'plugin:parser:inline:formatting:strong:constrained'
+    static final String ID = 'plugin:parser:inline:formatting:mark:constrained'
 
-    ConstrainedStrongFormattingParser() {
+    ConstrainedMarkFormattingParser() {
         id = ID
-        nodeType = Node.Type.STRONG
-
-        tag = '*'
+        nodeType = Node.Type.MARK
+        tag = '#'
     }
 
     FormattingNode createFormattingNode() {
-        return new StrongFormattingNode(constrained: true)
+        return new MarkFormattingNode(constrained: true)
     }
 }

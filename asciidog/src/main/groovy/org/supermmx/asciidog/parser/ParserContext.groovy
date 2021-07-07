@@ -87,5 +87,10 @@ class ParserContext implements Context {
      */
     // parentParserProps
 
+    /**
+     * Node attributes
+     */
+    // nodeAttributes
+
     // other custom properties
 }

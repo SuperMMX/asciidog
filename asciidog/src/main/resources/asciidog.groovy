@@ -32,9 +32,11 @@ asciidog {
         AttributeReferenceParser,
         CrossReferenceParser,
         ConstrainedEmphasisFormattingParser,
+        ConstrainedMarkFormattingParser,
         ConstrainedStrongFormattingParser,
         EmphasisFormattingParser,
         StrongFormattingParser,
+        MarkFormattingParser,
     ]
 
     builders = [
