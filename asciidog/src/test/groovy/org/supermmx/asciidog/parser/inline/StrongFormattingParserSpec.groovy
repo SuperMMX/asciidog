@@ -1,8 +1,11 @@
 package org.supermmx.asciidog.parser.inline
 
 import org.supermmx.asciidog.AsciidogSpec
+import org.supermmx.asciidog.parser.block.ParagraphParser
 
 class StrongFormattingParserSpec extends AsciidogSpec {
+    def parser = new ParagraphParser()
+
     /* === Strong Unconstrained === */
     def 'regex: single-line unconstrained strong chars'() {
         given:
@@ -51,4 +54,24 @@ class StrongFormattingParserSpec extends AsciidogSpec {
         expect:
         StrongFormattingParser.STRONG_PATTERN.matcher(text).find() == true
     }
+
+    def 'strong with attributes'() {
+        given:
+        def content = '[blue]*Hub*'
+        def context = parserContext(content)
+        context.parserId = parser.id
+
+        def expectedPara = builder.para {
+            builder.strong(attributes: ['blue': null]) {
+                builder.text('Hub')
+            }
+        }
+
+        when:
+        def para = parser.parse(context)
+
+        then:
+        para == expectedPara
+    }
+
 }
