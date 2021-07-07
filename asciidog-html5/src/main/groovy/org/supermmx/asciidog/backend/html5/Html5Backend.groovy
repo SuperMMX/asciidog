@@ -1,5 +1,6 @@
 package org.supermmx.asciidog.backend.html5
 
+import org.supermmx.asciidog.ast.Resource
 import org.supermmx.asciidog.backend.AbstractTemplateBackend
 import org.supermmx.asciidog.backend.TemplateManager
 import org.supermmx.asciidog.converter.DocumentContext
@@ -20,12 +21,31 @@ class Html5Backend extends AbstractTemplateBackend {
     static final String HTML5_BACKEND_ID = 'html5'
     static final String HTML5_EXT = '.html'
 
+    static final String DEFAULT_HTML5_CSS = 'html5.css'
+
     @Override
     protected void initialize() {
         id = HTML5_BACKEND_ID
         ext = HTML5_EXT
 
         templateExt = ext
+    }
+
+    @Override
+    void doStartRendering(DocumentContext context) {
+        super.doStartRendering(context)
+
+        // add html5 stylesheet
+        def pkgPath = Html5Backend.class.package.name.replaceAll('\\.', '/')
+        def cssFilePath = "/${pkgPath}/${DEFAULT_HTML5_CSS}"
+
+        def destCssDir = context.attrContainer[Html5Backend.CSS_DIR]
+        def destCssPath = (destCssDir == null) ? '' : (destCssDir + '/')
+
+        context.document.resources << new Resource(source: Resource.Source.CLASSPATH,
+                                                   type: Resource.Type.STYLESHEET,
+                                                   path: cssFilePath,
+                                                   destPath: "${destCssPath}${DEFAULT_HTML5_CSS}")
     }
 
     /**

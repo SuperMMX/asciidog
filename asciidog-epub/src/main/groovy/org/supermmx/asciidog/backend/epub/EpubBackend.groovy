@@ -43,6 +43,10 @@ class EpubBackend extends Html5Backend {
 
         // set the chunk extension
         context.chunkExt = EXT_XHTML
+
+        // TODO: add epub stylesheet
+
+        super.doStartRendering(context)
     }
 
     @Override
@@ -72,14 +76,16 @@ class EpubBackend extends Html5Backend {
         // modified
         epubCreator.addMetaModified(new Date())
 
+        // stylesheets
+        def cssDir = context.attrContainer[Html5Backend.CSS_DIR]
+        def cssPath = (cssDir == null) ? '' : (cssDir + '/')
+
         // primary writing mode
         def writingMode = context.attrContainer[Document.OUTPUT_WRITING_MODE]
         if (writingMode == Document.WritingMode.vrl.toString()) {
 
             rendition.spine.ppd = 'rtl'
 
-            def cssDir = context.attrContainer[Html5Backend.CSS_DIR]
-            def cssPath = (cssDir == null) ? '' : (cssDir + '/')
             def vrlCss = new File(context.outputDir, cssPath + 'vrl.css')
             epubCreator.addItem(vrlCss.absolutePath, cssPath + 'vrl.css', 'vrl.css')
 
@@ -100,8 +106,8 @@ class EpubBackend extends Html5Backend {
 
         // add resources
         doc.resources.each { res ->
-            def imageFile = new File(outputDir, htmlPath + res.path)
-            epubCreator.addItem(imageFile.absolutePath, htmlPath + res.path, null)
+            def resFile = new File(outputDir, htmlPath + res.destPath)
+            epubCreator.addItem(resFile.absolutePath, htmlPath + res.destPath, null)
         }
 
         // add epub toc item

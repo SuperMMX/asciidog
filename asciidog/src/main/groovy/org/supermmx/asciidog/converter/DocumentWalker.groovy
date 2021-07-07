@@ -14,6 +14,7 @@ import org.supermmx.asciidog.ast.Preamble
 import org.supermmx.asciidog.ast.InlineContainer
 import org.supermmx.asciidog.ast.Inline
 import org.supermmx.asciidog.ast.ListItem
+import org.supermmx.asciidog.ast.Resource
 import org.supermmx.asciidog.backend.Backend
 import org.supermmx.asciidog.backend.LeafNodeRenderer
 
@@ -66,14 +67,24 @@ class DocumentWalker {
             }
 
             doc.resources.each { res ->
-                def imageFile = new File(chunkDir, res.path)
-                if (!imageFile.parentFile.exists()) {
-                    imageFile.parentFile.mkdirs()
+                def is = null
+                if (res.source == Resource.Source.CLASSPATH) {
+                    log.info "resource path = ${res.path}"
+                    is = this.class.getResourceAsStream(res.path)
+                } else {
+                    is = new File(inputDir.toPath().resolve(res.path)).newInputStream()
                 }
 
-                Files.copy(inputDir.toPath().resolve(res.path),
-                           imageFile.toPath(),
+                def destFile = new File(chunkDir, res.destPath)
+                if (!destFile.parentFile.exists()) {
+                    destFile.parentFile.mkdirs()
+                }
+
+                Files.copy(is,
+                           destFile.toPath(),
                            StandardCopyOption.REPLACE_EXISTING)
+
+                is.close()
             }
         }
     }
