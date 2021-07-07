@@ -45,6 +45,7 @@ class Node {
         static final FORMATTING = new Type(parent: INLINE, name: 'formatting', isAbstract: true)
         static final STRONG = new Type(parent: FORMATTING, name: 'strong')
         static final EMPHASIS = new Type(parent: FORMATTING, name: 'emphasis')
+        static final MARK = new Type(parent: FORMATTING, name: 'mark')
 
         static final ATTRIBUTE_REFERENCE = new Type(parent: INLINE, name: 'attribute_reference')
         static final AUTHOR = new Type(parent: INLINE, name: 'author')

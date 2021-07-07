@@ -5,8 +5,10 @@ import org.supermmx.asciidog.ast.InlineContainer
 import org.supermmx.asciidog.ast.InlineInfo
 import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.TextNode
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
 import org.supermmx.asciidog.plugin.ParserPlugin
+import org.supermmx.asciidog.parser.TokenMatcher
 
 import java.util.regex.Pattern
 import java.util.regex.Matcher
@@ -16,7 +18,30 @@ import java.util.regex.Matcher
  * it is interested in
  */
 abstract class InlineParserPlugin extends ParserPlugin {
+    /**
+     * [style, key="value" new-key='new value' ]
+     */
+    static final def INLINE_ATTRIBUTES_PATTERN = ~'''(?x)
+\\[                   # start with [
+(                     # 1, atrribute line
+  \\p{Blank}*
+  [\\w{},.\\#"'%].*   # '
+)
+\\]                   # end with ]
+'''
+
     boolean checkStart(ParserContext context, InlineContainer parent) {
+        // parse attributes
+        def lexer = context.lexer
+        def token = lexer.peek()
+        if (token.type == Token.Type.PUNCTS
+            && token.value == '[') {
+            lexer.next()
+            def attributesText = lexer.joinTokensTo(TokenMatcher.literal(']'));
+
+            context.nodeAttributes = parseAttributes(attributesText)
+        }
+
         return doCheckStart(context, parent)
     }
 
@@ -29,7 +54,12 @@ abstract class InlineParserPlugin extends ParserPlugin {
     abstract protected boolean doCheckEnd(ParserContext context, InlineContainer parent)
 
     public Inline parse(ParserContext context, InlineContainer parent) {
-        return doParse(context, parent)
+        def inlineNode = doParse(context, parent)
+        if (context.nodeAttributes != null) {
+            inlineNode.attributes.putAll(context.nodeAttributes)
+        }
+
+        return inlineNode
     }
 
     abstract protected Inline doParse(ParserContext context, InlineContainer parent)
