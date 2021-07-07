@@ -270,6 +270,40 @@ outside list
         doc == eDoc
     }
 
+    def 'document: dot elements with number prefix'() {
+        given:
+        def content = '''
+2. Foo
+3. Boo
+4. Blech
+'''
+        def eDoc = builder.document {
+            ol(lead: '', level: 1, marker: '.', markerLevel: 1) {
+                item {
+                    para {
+                        text 'Foo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Boo'
+                    }
+                }
+                item {
+                    para {
+                        text 'Blech'
+                    }
+                }
+            }
+        }
+
+        when:
+        def doc = parse(content)
+
+        then:
+        doc == eDoc
+    }
+
     def 'document: dot elements with multiple lines'() {
         given:
         def content = '''
