@@ -151,8 +151,20 @@ class Lexer {
      *
      * @return the combined result
      */
-    // TODO: rename to joinTokensTo
     String combineTo(TokenMatcher matcher, boolean consume = true, boolean ignore = true) {
+        return joinTokensTo(matcher, consume, ignore)
+    }
+
+    /**
+     * Join the value of the remaining tokens till the matcher matches.
+     *
+     * @consume whether to consume the matched tokens. The default value is true.
+     * @ignore whether to ignore or include the consumed tokens. Only valid
+     *         when consume is true. The default value is true.
+     *
+     * @return the combined result
+     */
+    String joinTokensTo(TokenMatcher matcher, boolean consume = true, boolean ignore = true) {
         def buf = new StringBuilder()
 
         while (hasNext()) {
