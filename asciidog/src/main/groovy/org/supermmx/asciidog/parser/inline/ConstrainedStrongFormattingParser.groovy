@@ -34,6 +34,8 @@ class ConstrainedStrongFormattingParser extends TextFormattingParser {
     ConstrainedStrongFormattingParser() {
         id = ID
         nodeType = Node.Type.STRONG
+
+        tag = '*'
     }
 
     FormattingNode createFormattingNode() {

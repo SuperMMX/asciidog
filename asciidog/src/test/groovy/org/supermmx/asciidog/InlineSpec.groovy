@@ -47,9 +47,24 @@ class InlineSpec extends AsciidogSpec {
         parser.parse(context) == ePara
     }
 
-    def 'strong chars with role'() {
+    def 'unconstrained strong chars with role'() {
         given:
         def context = parserContext('Git[blue]**Hub**')
+        context.parserId = parser.id
+        def ePara = builder.para {
+            text 'Git'
+            builder.strong(attributes: ['blue': null]) {
+                text 'Hub'
+            }
+        }
+
+        expect:
+        parser.parse(context) == ePara
+    }
+
+    def 'strong chars with role'() {
+        given:
+        def context = parserContext('Git[blue]*Hub*')
         context.parserId = parser.id
         def ePara = builder.para {
             text 'Git'
@@ -125,6 +140,21 @@ class InlineSpec extends AsciidogSpec {
     def 'mark with role'() {
         given:
         def context = parserContext('Git[blue]#Hub#')
+        context.parserId = parser.id
+        def ePara = builder.para {
+            text 'Git'
+            builder.mark(attributes: ['blue': null]) {
+                text 'Hub'
+            }
+        }
+
+        expect:
+        parser.parse(context) == ePara
+    }
+
+    def 'unconstrained mark with role'() {
+        given:
+        def context = parserContext('Git[blue]##Hub##')
         context.parserId = parser.id
         def ePara = builder.para {
             text 'Git'
