@@ -63,9 +63,12 @@ $
 
             header.properties[LIST_LEAD] = lead
         } else if (name == 'mark') {
-            def marker = context.lexer.joinTokensFromMark();
-            header.properties[LIST_MARKER_LEVEL] = marker.length()
-            header.properties[LIST_MARKER] = marker[0]
+            def marker = context.lexer.joinTokensFromMark()
+            def markerToken = context.lexer.tokensFromMark.last()
+
+            // FIXME: handle start number for ordered list
+            header.properties[LIST_MARKER] = markerToken.value[-1]
+            header.properties[LIST_MARKER_LEVEL] = markerToken.value.length()
         }
     }
 
