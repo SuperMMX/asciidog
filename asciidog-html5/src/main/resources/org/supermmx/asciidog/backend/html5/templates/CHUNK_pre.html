@@ -15,3 +15,10 @@ context.document.resources
 %>
     </head>
     <body>
+<%
+if (node.type == org.supermmx.asciidog.ast.Node.Type.DOCUMENT) {
+%>
+      <h1 class="title-center">${node.title}</h1>
+<%
+}
+%>
