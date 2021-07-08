@@ -28,6 +28,11 @@ asciidog {
         SectionParser,
         UnOrderedListParser,
 
+        // styled block parser
+        OpenBlockParser,
+        QuoteParser,
+        VerseParser,
+
         // inline parsers
         AttributeReferenceParser,
         CrossReferenceParser,
