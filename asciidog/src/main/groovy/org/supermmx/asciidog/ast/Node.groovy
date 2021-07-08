@@ -42,6 +42,13 @@ class Node {
         static final PARAGRAPH = new Type(parent: BLOCK, name: 'paragraph')
         static final TABLE = new Type(parent: BLOCK, name: 'table')
 
+        // styled block
+        static final STYLED_BLOCK = new Type(parent: BLOCK, name: 'styled_block', isAbstract: true)
+        // pure open block
+        static final OPEN_BLOCK = new Type(parent: STYLED_BLOCK, name: 'open_block')
+        static final QUOTE_BLOCK = new Type(parent: STYLED_BLOCK, name: 'quote')
+        static final VERSE_BLOCK = new Type(parent: STYLED_BLOCK, name: 'verse')
+
         static final FORMATTING = new Type(parent: INLINE, name: 'formatting', isAbstract: true)
         static final STRONG = new Type(parent: FORMATTING, name: 'strong')
         static final EMPHASIS = new Type(parent: FORMATTING, name: 'emphasis')
