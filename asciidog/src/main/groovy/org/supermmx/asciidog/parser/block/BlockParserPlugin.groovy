@@ -99,7 +99,7 @@ $
 
         def childParserId = getNextChildParser(context)
         while (childParserId != null) {
-            log.debug("Child parser is ${childParserId}");
+            log.debug("Child parser is {}", childParserId);
 
             lastParserId = childParserId
             lastCursor = context.reader.cursor.clone()
