@@ -1,6 +1,7 @@
 package org.supermmx.asciidog.builder.factory
 
 import org.supermmx.asciidog.Utils
+import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Section
 import org.supermmx.asciidog.ast.Paragraph
 import org.supermmx.asciidog.ast.AdocList
@@ -14,8 +15,6 @@ import org.slf4j.Logger
 class SectionFactory extends AbstractBlockFactory {
     SectionFactory() {
         name = 'section'
-
-        childClasses = SECTION_CLASSES
     }
 
     @Override
@@ -35,5 +34,10 @@ class SectionFactory extends AbstractBlockFactory {
         }
 
         return true
+    }
+
+    @Override
+    boolean accept(FactoryBuilderSupport builder, parent, child) {
+        return child in Block
     }
 }

@@ -49,4 +49,9 @@ class DocumentFactory extends AbstractBlockFactory {
             super.doSetChild(builder, parent, child)
         }
     }
+
+    @Override
+    boolean accept(FactoryBuilderSupport builder, parent, child) {
+        return child in Block
+    }
 }
