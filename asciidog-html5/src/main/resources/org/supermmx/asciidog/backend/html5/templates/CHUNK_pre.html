@@ -16,7 +16,7 @@ context.document.resources
     </head>
     <body>
 <%
-if (node.type == org.supermmx.asciidog.ast.Node.Type.DOCUMENT && context.attrContainer['doctype'] == 'book') {
+if (node.type == org.supermmx.asciidog.ast.Node.Type.DOCUMENT && node.attrs['doctype'] == org.supermmx.asciidog.ast.Document.DocType.book.toString()) {
 %>
       <h1 class="title-center">${node.title}</h1>
 <%
