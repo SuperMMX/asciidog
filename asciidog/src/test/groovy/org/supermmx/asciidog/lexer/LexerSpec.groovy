@@ -384,4 +384,22 @@ image::test.jpeg[Test,300,200]
         lexer.tokensFromMark == null
 
     }
+
+    def 'lexer: unicode puncts'() {
+        def reader = Reader.createFromString('中abc文，，--测试。！！')
+        def lexer = new Lexer(reader)
+
+        when:
+        def tokens = lexer.next(6)
+
+        then:
+        tokens == [
+            new Token(0, Token.Type.TEXT, '中abc文', '', 0, 0),
+            new Token(1, Token.Type.OTHER_PUNCTS, '，，', '', 0, 5),
+            new Token(2, Token.Type.PUNCTS, '--', '', 0, 7),
+            new Token(3, Token.Type.TEXT, '测试', '', 0, 9),
+            new Token(4, Token.Type.OTHER_PUNCTS, '。', '', 0, 11),
+            new Token(5, Token.Type.OTHER_PUNCTS, '！！', '', 0, 12)
+        ]
+    }
 }

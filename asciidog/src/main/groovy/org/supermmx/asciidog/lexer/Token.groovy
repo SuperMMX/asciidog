@@ -4,6 +4,8 @@ import org.supermmx.asciidog.reader.Cursor
 
 import groovy.transform.Canonical
 
+import java.util.regex.Pattern
+
 /**
  * A token from the file or stream, consecutive same characters are combined
  * in the same token, and WHITE_SPACE and TEXT are always combined
@@ -22,14 +24,17 @@ class Token {
         EOF(false),
         // ASCII punctuation
         PUNCTS('!\"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~', false),
+        // Unicode punctuation
+        OTHER_PUNCTS(~/(?U)\p{IsPunctuation}/, false),
         // all other
         TEXT
 
         /**
          * Types that need to match against characters classes
          */
-        static List<Type> MATCHING_TYPES = [ WHITE_SPACES, DIGITS, PUNCTS ]
+        static List<Type> MATCHING_TYPES = [ WHITE_SPACES, DIGITS, PUNCTS, OTHER_PUNCTS ]
 
+        Pattern regex
         /**
          * The character classes to match for the type
          */
@@ -43,7 +48,7 @@ class Token {
         }
 
         Type(boolean combining) {
-            this(null, combining)
+            this.combining = combining
         }
 
         Type(String characterClasses) {
@@ -55,15 +60,24 @@ class Token {
             this.combining = combining
         }
 
+        Type(Pattern regex, boolean combining) {
+            this.regex = regex
+            this.combining = combining
+        }
+
         /**
          * Whether the character matches the character classes
          */
         boolean matches(char ch) {
-            if (characterClasses == null) {
-                return false
+            if (characterClasses != null) {
+                return characterClasses.indexOf((int)ch) >= 0
             }
 
-            return characterClasses.indexOf((int)ch) >= 0
+            if (regex != null) {
+                return regex.matcher(ch.toString()).matches()
+            }
+
+            return false
         }
     }
 
@@ -96,6 +110,6 @@ class Token {
     String toString() {
         def valueStr = value == '\n' ? '\\n' : value
         valueStr = value ? "\"${valueStr}\"" : null
-        return "Token: [ $index: ($row, $col): $type, ${valueStr} ]"
+        return "Token: [ $index: ($row, $col): $type, ${valueStr}, uri: ${uri} ]"
     }
 }

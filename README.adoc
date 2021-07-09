@@ -64,6 +64,7 @@ cd asciidog
 *** Mark
 ** Attribute reference
 ** Cross reference
+** Link
 
 === Converter
 
@@ -102,7 +103,6 @@ Sample plugin suite:
 == TODO
 
 * Table
-* Link
 * Create include node instead of hiding it in reader
 
 == Issues
