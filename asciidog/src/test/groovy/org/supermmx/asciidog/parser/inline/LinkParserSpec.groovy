@@ -142,4 +142,25 @@ visit http://test.com[Test *Site*] please
         then:
         para == ePara
     }
+
+    def 'link: unicode tokens'() {
+        given:
+        def content = '''
+网站：https://test.com[测试]'''
+        def context = parserContext(content)
+        context.parserId = parser.id
+
+        def ePara = builder.para {
+            text '网站：'
+            link('https://test.com') {
+                text '测试'
+            }
+        }
+
+        when:
+        def para = parser.parse(context)
+
+        then:
+        para == ePara
+    }
 }
