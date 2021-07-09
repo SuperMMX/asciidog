@@ -48,6 +48,29 @@ http://test.com[Test Site]
         para == ePara
     }
 
+    def 'link: with blank text'() {
+        given:
+        def content = '''
+visit http://test.com[] please
+'''
+        def context = parserContext(content)
+        context.parserId = parser.id
+
+        def ePara = builder.para {
+            text 'visit '
+            link('http://test.com') {
+                text 'http://test.com'
+            }
+            text ' please'
+        }
+
+        when:
+        def para = parser.parse(context)
+
+        then:
+        para == ePara
+    }
+
     def 'link: without text'() {
         given:
         def content = '''
@@ -83,6 +106,32 @@ visit http://test.com[Test Site] please
             text 'visit '
             link('http://test.com') {
                 text 'Test Site'
+            }
+            text ' please'
+        }
+
+        when:
+        def para = parser.parse(context)
+
+        then:
+        para == ePara
+    }
+
+    def 'link: with formatted text'() {
+        given:
+        def content = '''
+visit http://test.com[Test *Site*] please
+'''
+        def context = parserContext(content)
+        context.parserId = parser.id
+
+        def ePara = builder.para {
+            text 'visit '
+            link('http://test.com') {
+                text 'Test '
+                strong {
+                    text 'Site'
+                }
             }
             text ' please'
         }

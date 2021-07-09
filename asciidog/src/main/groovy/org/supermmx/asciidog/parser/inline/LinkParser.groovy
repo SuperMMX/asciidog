@@ -57,7 +57,7 @@ class LinkParser extends InlineParserPlugin {
             type(Token.Type.EOL),
             literal('[') ]), false)
 
-        log.info '==== target = "{}", class = {}', target, target.class
+        log.debug 'Link target = "{}"', target
 
         def hasBlankText = false
 
