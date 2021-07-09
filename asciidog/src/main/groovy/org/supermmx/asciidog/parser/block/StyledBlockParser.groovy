@@ -39,7 +39,8 @@ abstract class StyledBlockParser extends BlockParserPlugin {
     protected String style
     protected String delimiter
 
-    private TokenMatcher delimiterMatcher
+    protected TokenMatcher delimiterMatcher
+    protected TokenMatcher endDelimiterMatcher
 
     @Override
     protected boolean doCheckStart(ParserContext context, BlockHeader header, boolean expected) {
@@ -86,6 +87,11 @@ abstract class StyledBlockParser extends BlockParserPlugin {
         if (isStart) {
             header.properties[HEADER_PROPERTY_HAS_DELIMITER] = (headerStyle == null)
             header.properties[HEADER_PROPERTY_IS_OPEN_BLOCK] = isOpenBlock
+
+            endDelimiterMatcher = sequence([
+                literal(headerDelimiter),
+                type(Token.Type.EOL)
+            ])
         }
 
         return isStart
@@ -107,7 +113,7 @@ abstract class StyledBlockParser extends BlockParserPlugin {
 
     @Override
     protected boolean doToEndParagraph(ParserContext context) {
-        return delimiterMatcher.matches(context, null, false)
+        return endDelimiterMatcher.matches(context, null, false)
     }
 
     // TODO: resuse the following to check non-section blocks for parsers like Preamble
