@@ -31,11 +31,12 @@ class AsciidogCoreBuilderPlugin extends BuilderPlugin {
         factories << new OpenBlockFactory()
 
         // inline
-        factories << new TextFactory()
-        factories << new StrongFormattingFactory()
-        factories << new EmphasisFormattingFactory()
-        factories << new MarkFormattingFactory()
         factories << new AttributeReferenceFactory()
         factories << new CrossReferenceFactory()
+        factories << new EmphasisFormattingFactory()
+        factories << new LinkFactory()
+        factories << new MarkFormattingFactory()
+        factories << new StrongFormattingFactory()
+        factories << new TextFactory()
     }
 }

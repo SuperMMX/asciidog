@@ -35,13 +35,14 @@ asciidog {
 
         // inline parsers
         AttributeReferenceParser,
-        CrossReferenceParser,
         ConstrainedEmphasisFormattingParser,
         ConstrainedMarkFormattingParser,
         ConstrainedStrongFormattingParser,
+        CrossReferenceParser,
         EmphasisFormattingParser,
-        StrongFormattingParser,
         MarkFormattingParser,
+        LinkParser,
+        StrongFormattingParser,
     ]
 
     builders = [

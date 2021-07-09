@@ -58,6 +58,7 @@ class Node {
         static final AUTHOR = new Type(parent: INLINE, name: 'author')
         static final CROSS_REFERENCE = new Type(parent: INLINE, name: 'xref')
         static final INLINE_MACRO = new Type(parent: INLINE, name: 'inline_macro')
+        static final LINK = new Type(parent: INLINE, name: 'link')
         static final NULL = new Type(parent: INLINE, name: 'null')
         static final REPLACEMENT = new Type(parent: INLINE, name: 'replacement')
         static final TEXT = new Type(parent: INLINE, name: 'text')
