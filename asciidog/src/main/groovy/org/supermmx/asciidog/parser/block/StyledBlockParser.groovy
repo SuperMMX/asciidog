@@ -113,7 +113,12 @@ abstract class StyledBlockParser extends BlockParserPlugin {
 
     @Override
     protected boolean doToEndParagraph(ParserContext context) {
-        return endDelimiterMatcher.matches(context, null, false)
+        return endDelimiterMatcher.matches(context, null, true)
+    }
+
+    @Override
+    protected boolean doNeedToFindNextChildParser(ParserContext context) {
+        return !endDelimiterMatcher.matches(context, null, false)
     }
 
     // TODO: resuse the following to check non-section blocks for parsers like Preamble

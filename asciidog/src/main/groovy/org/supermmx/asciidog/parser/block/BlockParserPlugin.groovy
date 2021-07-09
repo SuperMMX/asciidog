@@ -241,9 +241,24 @@ $
     }
 
     /**
+     * Whether need to find next child parser
+     */
+    protected boolean needToFindNextChildParser(ParserContext context) {
+        return doNeedToFindNextChildParser(context)
+    }
+
+    protected boolean doNeedToFindNextChildParser(ParserContext context) {
+        return true
+    }
+
+    /**
      * Get the next child parser
      */
     String getNextChildParser(ParserContext context) {
+        if (!needToFindNextChildParser(context)) {
+            return null
+        }
+
         // copy expected child parsers
         if (context.childParsers == null) {
             context.childParsers = getChildParserInfos(context).collect { it }
