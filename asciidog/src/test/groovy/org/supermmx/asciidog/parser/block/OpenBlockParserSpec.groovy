@@ -32,9 +32,9 @@ ${thirdPara}"""
                 para {
                     text secondPara
                 }
-                para {
-                    text thirdPara
-                }
+            }
+            para {
+                text thirdPara
             }
         }
 
