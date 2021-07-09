@@ -41,21 +41,27 @@ cd asciidog
 *** Title
 *** Author
 *** Basic document attribute
-** General block
-*** Attribute
-*** ID
-*** Title
-** Section
+* Directive
 ** Include
+* General block
+** Attribute, ID, Title
+** Section
+* Styled Block
+** Verse
+** Quote
+** Open block
 * List
 ** Ordered list
+*** Markdown style: 1. / 2. etc.
 ** Unordered list
 * Block Macro
 ** Image
 * Inline
+** Attributes: role / class
 ** Formatting
 *** Strong
 *** Emphasis
+*** Mark
 ** Attribute reference
 ** Cross reference
 
@@ -97,7 +103,6 @@ Sample plugin suite:
 
 * Table
 * Link
-* Delimited block
 * Create include node instead of hiding it in reader
 
 == Issues
