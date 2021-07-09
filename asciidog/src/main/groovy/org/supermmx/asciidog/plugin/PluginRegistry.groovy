@@ -52,7 +52,7 @@ class PluginRegistry {
         userLog.info('[BACKEND] Looking up backends...')
         ServiceLoader.load(Backend.class).each { backend ->
             backends[(backend.id)] = backend
-            userLog.info("[BACKEND] Backend ${backend.id} found")
+            userLog.info('[BACKEND] Backend {} found', backend.id)
         }
     }
 
@@ -72,7 +72,7 @@ class PluginRegistry {
             def suiteCls = config.asciidog.suite
             if (suiteCls != null) {
                 // run the suite
-                userLog.info("[PLUGIN] Loading plugins from suite \"{}\"...", suiteCls)
+                userLog.info('[PLUGIN] Loading plugins from suite "{}"...', suiteCls)
                 def suite = suiteCls.newInstance()
                 suite.plugins.each { plugin ->
                     register(plugin)
@@ -82,12 +82,12 @@ class PluginRegistry {
             // plugins
             def pluginClassList = config.asciidog.plugins
             if (pluginClassList != null) {
-                userLog.info("[PLUGIN] Loading configured plugins...")
+                userLog.info('[PLUGIN] Loading configured plugins...')
                 pluginClassList.each { pluginCls ->
                     register(pluginCls.newInstance())
                 }
             }
-            userLog.info("[PLUGIN] Loading plugins from plugin \"{}\"...Done", config.asciidog.name)
+            userLog.info('[PLUGIN] Loading plugins from plugin "{}"...Done', config.asciidog.name)
         }
 
         /*
@@ -100,7 +100,8 @@ class PluginRegistry {
     }
 
     void register(Plugin plugin) {
-        userLog.info("[PLUGIN] Registering plugin ID: \"{}\", Type: {}, Node Type: {}",
+
+        userLog.info('[PLUGIN] Registering plugin ID: "{}", Type: {}, Node Type: {}',
                      plugin.id, plugin.type, plugin.nodeType)
 
         if (plugins.find { it.id == plugin.id } == null) {

@@ -69,10 +69,9 @@ class DocumentWalker {
             doc.resources.each { res ->
                 def is = null
                 if (res.source == Resource.Source.CLASSPATH) {
-                    log.info "resource path = ${res.path}"
                     is = this.class.getResourceAsStream(res.path)
                 } else {
-                    is = new File(inputDir.toPath().resolve(res.path)).newInputStream()
+                    is = new File(inputDir, res.path).newInputStream()
                 }
 
                 def destFile = new File(chunkDir, res.destPath)
@@ -111,7 +110,7 @@ class DocumentWalker {
         def renderer = backend.getRenderer(block)
 
         // pre
-        log.debug "Pre rendering block: type: ${block.type}, title: ${block.title}, renderer = ${renderer}"
+        log.debug 'Pre rendering block: type: {}, title: {}, renderer = {}', block.type, block.title, renderer
         renderer?.pre(context, block)
 
         if (renderer in LeafNodeRenderer) {
@@ -132,7 +131,7 @@ class DocumentWalker {
         }
 
         // post
-        log.debug "Post rendering block: type: ${block.type}, title: ${block.title}"
+        log.debug 'Post rendering block: type: {}, title: {}', block.type, block.title
         renderer?.post(context, block)
     }
 
@@ -164,19 +163,19 @@ class DocumentWalker {
 
         def renderer = backend.getRenderer(inline)
 
-        log.debug "Pre rendering inline: type: ${inline.type}"
+        log.debug 'Pre rendering inline: type: {}', inline.type
         renderer?.pre(context, inline)
 
         if (inline.children.size() > 0) {
             traverseInlineContainer(context, inline)
         } else {
-            log.debug "Rendering inline: type: ${inline.type}"
+            log.debug 'Rendering inline: type: {}', inline.type
 
             renderer = backend.getInlineRenderer(inline)
             renderer?.render(context, inline)
         }
 
-        log.debug "Post rendering inline: type: ${inline.type}"
+        log.debug 'Post rendering inline: type: {}', inline.type
         renderer?.post(context, inline)
     }
 
@@ -205,7 +204,7 @@ class DocumentWalker {
                 chunkFile.parentFile.mkdirs()
             }
 
-            log.info "Create chunk: block type: ${block.type}, file: ${chunkFile}"
+            log.info 'Create chunk: block type: {}, file: {}', block.type, chunkFile
 
             context.outputStream = chunkFile.newOutputStream()
         }
@@ -219,7 +218,7 @@ class DocumentWalker {
     protected void endChunk(DocumentContext context) {
         def chunk = context.chunk
         if (chunk != null) {
-            log.info "End chunk: block type: ${chunk.block.type}"
+            log.info 'End chunk: block type: {}', chunk.block.type
 
             def renderer = context.backend.getChunkRenderer()
 

@@ -5,8 +5,6 @@ import org.supermmx.asciidog.ast.Preamble
 class PreambleFactory extends AbstractBlockFactory {
     PreambleFactory() {
         name = 'preamble'
-
-        childClasses = BLOCKS_CLASSES
     }
 
     @Override

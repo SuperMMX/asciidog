@@ -67,12 +67,12 @@ class AsciiDog {
             }
         }
 
-        log.info("[Converter] AsciiDoc Input File: {}", file)
-        log.info("[Converter] Backends: {}", backends)
-        log.info("[Converter] Converted Output Directory: {}", output)
-        log.info("[Converter] Converted Output Base Name: {}", base)
+        log.info '[Converter] AsciiDoc Input File: {}', file
+        log.info '[Converter] Backends: {}', backends
+        log.info '[Converter] Converted Output Directory: {}', output
+        log.info '[Converter] Converted Output Base Name: {}', base
 
-        log.info("[Converter] Options: ${adOptions}")
+        log.info '[Converter] Options: {}', adOptions
 
         // parse
         Parser parser = new Parser()

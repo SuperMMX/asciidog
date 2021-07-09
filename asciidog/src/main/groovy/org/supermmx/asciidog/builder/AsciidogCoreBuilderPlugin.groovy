@@ -25,6 +25,12 @@ class AsciidogCoreBuilderPlugin extends BuilderPlugin {
         factories << new BlockMacroFactory()
         factories << new ImageBlockMacroFactory()
 
+        // styled block
+        factories << new QuoteFactory()
+        factories << new VerseFactory()
+        factories << new OpenBlockFactory()
+
+        // inline
         factories << new TextFactory()
         factories << new StrongFormattingFactory()
         factories << new EmphasisFormattingFactory()
