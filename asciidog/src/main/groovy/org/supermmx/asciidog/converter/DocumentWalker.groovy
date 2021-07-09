@@ -69,10 +69,9 @@ class DocumentWalker {
             doc.resources.each { res ->
                 def is = null
                 if (res.source == Resource.Source.CLASSPATH) {
-                    log.info "resource path = ${res.path}"
                     is = this.class.getResourceAsStream(res.path)
                 } else {
-                    is = new File(inputDir.toPath().resolve(res.path)).newInputStream()
+                    is = new File(inputDir, res.path).newInputStream()
                 }
 
                 def destFile = new File(chunkDir, res.destPath)
