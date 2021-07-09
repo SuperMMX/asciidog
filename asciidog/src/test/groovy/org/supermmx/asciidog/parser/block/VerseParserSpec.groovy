@@ -6,6 +6,11 @@ import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.parser.ParserContext
 import org.supermmx.asciidog.plugin.PluginRegistry
 
+import groovy.util.logging.Slf4j
+
+import org.slf4j.Logger
+
+@Slf4j
 class VerseParserSpec extends AsciidogSpec {
     def parser = new VerseParser()
 
@@ -26,15 +31,13 @@ ${thirdPara}"""
 
         def eDoc = builder.document {
             verse(hasDelimiter: false, isOpenBlock: false) {
-                para {
-                    text firstPara
-                }
-                para {
-                    text secondPara
-                }
-                para {
-                    text thirdPara
-                }
+                text """${firstPara}
+
+${secondPara}
+"""
+            }
+            para {
+                text thirdPara
             }
         }
 
@@ -62,15 +65,13 @@ ${thirdPara}"""
 
         def eDoc = builder.document {
             verse(hasDelimiter: false, isOpenBlock: true) {
-                para {
-                    text firstPara
-                }
-                para {
-                    text secondPara
-                }
-                para {
-                    text thirdPara
-                }
+                text """${firstPara}
+
+${secondPara}
+"""
+            }
+            para {
+                text thirdPara
             }
         }
 
@@ -84,16 +85,14 @@ ${thirdPara}"""
     def 'verse: with style and single paragraph'() {
         given:
         def firstPara = '''first line
-second line'''
+second line
+'''
         def content = """[verse]
-${firstPara}
-"""
+${firstPara}"""
 
         def eDoc = builder.document {
             verse(hasDelimiter: false, isOpenBlock: false) {
-                para {
-                    text firstPara
-                }
+                text firstPara
             }
         }
 

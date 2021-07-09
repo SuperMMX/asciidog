@@ -4,7 +4,9 @@ import static org.supermmx.asciidog.parser.TokenMatcher.*
 
 import org.supermmx.asciidog.ast.Block
 import org.supermmx.asciidog.ast.Node
+import org.supermmx.asciidog.ast.TextNode
 import org.supermmx.asciidog.ast.Verse
+import org.supermmx.asciidog.lexer.Token
 import org.supermmx.asciidog.parser.ParserContext
 import org.supermmx.asciidog.parser.block.BlockParserPlugin.BlockHeader
 
@@ -29,6 +31,33 @@ class VerseParser extends StyledBlockParser {
 
     @Override
     protected Block doCreateBlock(ParserContext context, Block parent, BlockHeader header) {
-        return new Verse()
+        Verse verse = new Verse()
+
+        def headerDelimiter = header.properties[HEADER_PROPERTY_STYLED_DELIMITER]
+
+        // read until the delimiter
+        String content = context.lexer.joinTokensTo(sequence([
+            type(Token.Type.EOL),
+            literal(headerDelimiter),
+            type(Token.Type.EOL)
+        ]), false)
+
+        def token = context.lexer.peek()
+        if (token != null && token.type == Token.Type.EOL) {
+            content += token.value
+
+            context.lexer.next(3)
+        }
+
+        def textNode = new TextNode(content)
+        textNode.parent = verse
+        verse.children << textNode
+
+        return verse
+    }
+
+    @Override
+    protected List<ChildParserInfo> doGetChildParserInfos(ParserContext context) {
+        return []
     }
 }
