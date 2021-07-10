@@ -15,8 +15,12 @@ class CrossReferenceSpec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                p {
-                    a(href: '#Section', 'Section')
+                div(class: '') {
+                    div(class: 'paragraph') {
+                        p {
+                            a(href: '#Section', 'Section')
+                        }
+                    }
                 }
                 h2(id: 'Section', 'Section')
             }
