@@ -126,7 +126,9 @@ class DocumentWalker {
         } else {
             // normal blocks
             block.children.each { childBlock ->
-                traverseBlock(context, (Block)childBlock)
+                if (childBlock in Block) {
+                    traverseBlock(context, (Block)childBlock)
+                }
             }
         }
 
