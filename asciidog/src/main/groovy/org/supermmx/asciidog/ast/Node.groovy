@@ -26,6 +26,7 @@ class Node {
         static final BLOCK = new Type(parent: ABSTRACT_BLOCK, name: 'block', isAbstract: true)
         static final ACTION = new Type(parent: BLOCK, name: 'action', isAbstract: true, isAction: true)
         static final INLINE = new Type(parent: NODE, name: 'inline', isAbstract: true)
+        static final DATA = new Type(parent: NODE, name: 'data')
 
         static final DOCUMENT = new Type(parent: STRUCTURE_BLOCK, name: 'document')
         static final HEADER = new Type(parent: STRUCTURE_BLOCK, name: 'header')
