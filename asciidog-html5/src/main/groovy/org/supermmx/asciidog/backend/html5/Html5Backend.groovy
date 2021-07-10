@@ -1,5 +1,7 @@
 package org.supermmx.asciidog.backend.html5
 
+import org.supermmx.asciidog.ast.Block
+import org.supermmx.asciidog.ast.Node
 import org.supermmx.asciidog.ast.Resource
 import org.supermmx.asciidog.backend.AbstractTemplateBackend
 import org.supermmx.asciidog.backend.TemplateManager
@@ -22,6 +24,16 @@ class Html5Backend extends AbstractTemplateBackend {
     static final String HTML5_EXT = '.html'
 
     static final String DEFAULT_HTML5_CSS = 'html5.css'
+
+    /**
+     * block element classes
+     */
+    static final Map<Node.Type, String> BLOCK_CLASSES = [
+        (Node.Type.PARAGRAPH) : 'paragraph',
+        (Node.Type.OPEN_BLOCK) : 'openblock',
+        (Node.Type.QUOTE_BLOCK) : 'quoteblock',
+        (Node.Type.VERSE_BLOCK) : 'verseblock',
+    ]
 
     @Override
     protected void initialize() {
@@ -46,6 +58,13 @@ class Html5Backend extends AbstractTemplateBackend {
                                                    type: Resource.Type.STYLESHEET,
                                                    path: cssFilePath,
                                                    destPath: "${destCssPath}${DEFAULT_HTML5_CSS}")
+    }
+
+    protected void doAddNodeRenderingProperties(DocumentContext context, Node node) {
+        if (node.type.isType(Node.Type.BLOCK)) {
+            // add block class
+            context.blockClass = BLOCK_CLASSES[node.type]
+        }
     }
 
     /**

@@ -106,6 +106,8 @@ class DocumentWalker {
             return
         }
 
+        backend.addNodeRenderingProperties(context, block)
+
         // get the renderer
         def renderer = backend.getRenderer(block)
 
@@ -145,6 +147,8 @@ class DocumentWalker {
 
     void traverseInline(DocumentContext context, Inline inline) {
         def backend = context.backend
+
+        backend.addNodeRenderingProperties(context, inline)
 
         // expand the attribute reference
         if (inline.type == Node.Type.ATTRIBUTE_REFERENCE) {

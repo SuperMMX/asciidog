@@ -60,6 +60,8 @@ interface Backend {
      */
     LeafNodeRenderer getInlineRenderer(Node node)
 
+    void addNodeRenderingProperties(DocumentContext context, Node node)
+
     ChunkRenderer getChunkRenderer()
 
     void startRendering(DocumentContext context)
