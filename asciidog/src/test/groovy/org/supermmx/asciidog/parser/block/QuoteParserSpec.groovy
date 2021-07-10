@@ -61,7 +61,7 @@ ____
 ${thirdPara}"""
 
         def eDoc = builder.document {
-            quote(hasDelimiter: false, isOpenBlock: false) {
+            quote(hasDelimiter: false, isOpenBlock: false, attributes: [quote:null]) {
                 para {
                     text firstPara
                 }
@@ -98,7 +98,7 @@ ${secondPara}
 ${thirdPara}"""
 
         def eDoc = builder.document {
-            quote(hasDelimiter: false, isOpenBlock: true) {
+            quote(hasDelimiter: false, isOpenBlock: true, attributes: [quote:null]) {
                 para {
                     text firstPara
                 }
@@ -127,7 +127,7 @@ ${firstPara}
 """
 
         def eDoc = builder.document {
-            quote(hasDelimiter: false, isOpenBlock: false) {
+            quote(hasDelimiter: false, isOpenBlock: false, attributes: [quote:null]) {
                 para {
                     text firstPara
                 }

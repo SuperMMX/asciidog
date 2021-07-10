@@ -108,6 +108,8 @@ abstract class StyledBlockParser extends BlockParserPlugin {
             context.paragraphEndingCheckers << this
         }
 
+        fillBlockFromHeader(styledBlock, header)
+
         return styledBlock
     }
 
