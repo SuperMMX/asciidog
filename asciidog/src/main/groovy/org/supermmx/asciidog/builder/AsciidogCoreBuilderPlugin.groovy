@@ -10,25 +10,26 @@ class AsciidogCoreBuilderPlugin extends BuilderPlugin {
     AsciidogCoreBuilderPlugin() {
         id = 'core_builder'
 
+        factories << new AttributeFactory()
+        factories << new AuthorFactory()
+        factories << new AuthorsFactory()
+        factories << new BlockMacroFactory()
+        factories << new CommentFactory()
+        factories << new CommentLineFactory()
         factories << new DocumentFactory()
         factories << new HeaderFactory()
-        factories << new AuthorsFactory()
-        factories << new AuthorFactory()
-        factories << new PreambleFactory()
-        factories << new AttributeFactory()
-        factories << new SectionFactory()
-        factories << new OrderedListFactory()
-        factories << new UnOrderedListFactory()
-        factories << new ListItemFactory()
-        factories << new ParagraphFactory()
-        factories << new CommentFactory()
-        factories << new BlockMacroFactory()
         factories << new ImageBlockMacroFactory()
+        factories << new ListItemFactory()
+        factories << new OrderedListFactory()
+        factories << new ParagraphFactory()
+        factories << new PreambleFactory()
+        factories << new SectionFactory()
+        factories << new UnOrderedListFactory()
 
         // styled block
+        factories << new OpenBlockFactory()
         factories << new QuoteFactory()
         factories << new VerseFactory()
-        factories << new OpenBlockFactory()
 
         // inline
         factories << new AttributeReferenceFactory()
