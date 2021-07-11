@@ -76,6 +76,21 @@ class EpubBackend extends Html5Backend {
         // modified
         epubCreator.addMetaModified(new Date())
 
+        // author
+        def authorAttr = doc.attrs.getAttribute('author_1')
+        def author = authorAttr ? authorAttr.valueString : null
+        if (author != null) {
+            epubCreator.addDcElement(DcmiTerm.creator, author, null)
+        }
+
+        // contributor
+        def contributorAttr = doc.attrs.getAttribute('contributor')
+        def contributor = contributorAttr ? contributorAttr.valueString : null
+        if (contributor != null) {
+            epubCreator.addDcElement(DcesTerm.contributor, contributor, null)
+        }
+
+
         // stylesheets
         def cssDir = context.attrContainer[Html5Backend.CSS_DIR]
         def cssPath = (cssDir == null) ? '' : (cssDir + '/')
