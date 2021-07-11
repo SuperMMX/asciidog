@@ -18,7 +18,18 @@ context.document.resources
 <%
 if (node.type == org.supermmx.asciidog.ast.Node.Type.DOCUMENT && node.attrs?.doctype == org.supermmx.asciidog.ast.Document.DocType.book.toString()) {
 %>
-      <h1 class="title-center">${node.title}</h1>
+      <div class="title-center">
+        <h1 class="center">${node.title}</h1>
+<%
+      def authorAttr = context.document.attrs.getAttribute('author_1')
+      def author = authorAttr ? authorAttr.valueString : null
+      if (author != null) {
+%>
+        <span class="center">${author}</span>
+<%
+      }
+%>
+      </div>
 <%
 }
 %>
