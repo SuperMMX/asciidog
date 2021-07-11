@@ -49,6 +49,8 @@ class Converter {
 
         def context = new DocumentContext(document: doc,
                                           backend: backend)
+        context.attrContainer.attributes.putAll(doc.attrs.attributes)
+
         // set different for different backends
         context.outputDir = new File(dirObj, backend.id)
         if (!context.outputDir.exists()) {
