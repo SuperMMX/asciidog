@@ -92,4 +92,9 @@ class ParagraphParser extends BlockParserPlugin {
 
         return para
     }
+
+    @Override
+    protected boolean doNeedToFindNextChildParser(ParserContext context) {
+        return false
+    }
 }
