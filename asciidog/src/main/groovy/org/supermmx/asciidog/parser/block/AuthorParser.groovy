@@ -88,11 +88,14 @@ ${AUTHOR_REGEX}
         // TODO: parse with lexer
         def line = header.properties[HEADER_PROPERTY_AUTHOR_LINE]
 
-        line.split(';').each {
+        line.split(';').eachWithIndex { it, index ->
             def author = createAuthor(it)
             author.parent = authors
 
             authors << author
+
+            // add author_n attribute
+            context.attributes["author_${index + 1}"] = author.toString()
         }
 
         return authors
