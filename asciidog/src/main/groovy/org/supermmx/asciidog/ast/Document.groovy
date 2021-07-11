@@ -16,6 +16,7 @@ class Document extends Block {
 
     static final String DOCTYPE = 'doctype'
     static final String TOC = 'toc'
+    static final String PLUS = 'plus'
 
     /**
      * Writing mode for output, same as CSS writing mode
