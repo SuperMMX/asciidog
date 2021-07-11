@@ -15,8 +15,10 @@ class CriticHtml5Spec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                p {
-                    ins('addition content')
+                div(class: 'paragraph') {
+                    p {
+                        ins('addition content')
+                    }
                 }
             }
         }
@@ -42,8 +44,10 @@ class CriticHtml5Spec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                p {
-                    del(' deletion content ')
+                div(class: 'paragraph') {
+                    p {
+                        del(' deletion content ')
+                    }
                 }
             }
         }
@@ -69,8 +73,10 @@ class CriticHtml5Spec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                p {
-                    span(class: 'critic comment', 'this is a comment')
+                div(class: 'paragraph') {
+                    p {
+                        span(class: 'critic comment', 'this is a comment')
+                    }
                 }
             }
         }
@@ -96,8 +102,10 @@ class CriticHtml5Spec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                p {
-                    mark('highlight')
+                div(class: 'paragraph') {
+                    p {
+                        mark('highlight')
+                    }
                 }
             }
         }
@@ -128,9 +136,11 @@ class CriticHtml5Spec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                p {
-                    del 'deleted'
-                    ins 'added'
+                div(class: 'paragraph') {
+                    p {
+                        del 'deleted'
+                        ins 'added'
+                    }
                 }
             }
         }

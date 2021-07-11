@@ -30,13 +30,14 @@ class Node {
 
         static final DOCUMENT = new Type(parent: STRUCTURE_BLOCK, name: 'document')
         static final HEADER = new Type(parent: STRUCTURE_BLOCK, name: 'header')
-        static final PREAMBLE = new Type(parent: STRUCTURE_BLOCK, name: 'preamble')
-        static final REVISION = new Type(parent: STRUCTURE_BLOCK, name: 'revision')
         static final SECTION = new Type(parent: STRUCTURE_BLOCK, name: 'section')
+
+        static final PREAMBLE = new Type(parent: BLOCK, name: 'preamble')
+        static final REVISION = new Type(parent: BLOCK, name: 'revision')
 
         static final AUTHORS = new Type(parent: BLOCK, name: 'authors')
         static final BLANK = new Type(parent: BLOCK, name: 'blank')
-        static final BLOCK_MACRO = new Type(parent: BLOCK, name: 'block_macro')
+        static final BLOCK_MACRO = new Type(parent: BLOCK, name: 'block_macro', hasSubtype: true)
         static final COMMENT_LINE = new Type(parent: BLOCK, name: 'comment_line')
         static final LIST = new Type(parent: BLOCK, name: 'list', isAbstract: true)
         static final LIST_ITEM = new Type(parent: BLOCK, name: 'list_item')
@@ -58,7 +59,7 @@ class Node {
         static final ATTRIBUTE_REFERENCE = new Type(parent: INLINE, name: 'attribute_reference')
         static final AUTHOR = new Type(parent: INLINE, name: 'author')
         static final CROSS_REFERENCE = new Type(parent: INLINE, name: 'xref')
-        static final INLINE_MACRO = new Type(parent: INLINE, name: 'inline_macro')
+        static final INLINE_MACRO = new Type(parent: INLINE, name: 'inline_macro', hasSubtype: true)
         static final LINK = new Type(parent: INLINE, name: 'link')
         static final NULL = new Type(parent: INLINE, name: 'null')
         static final REPLACEMENT = new Type(parent: INLINE, name: 'replacement')
@@ -79,6 +80,10 @@ class Node {
          * Whether the node with this type is to do some action
          */
         boolean isAction = false
+        /**
+         * Whether the node with this type has subtype
+         */
+        boolean hasSubtype = false
         /**
          * Parent type
          */

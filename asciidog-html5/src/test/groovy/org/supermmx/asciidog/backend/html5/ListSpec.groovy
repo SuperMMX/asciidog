@@ -29,15 +29,23 @@ class ListSpec extends Html5Spec {
         def expectedBody = markupHtml {
             body {
                 h2 (id: 'Lists', 'Lists')
-                ul {
-                    li {
-                        p 'Foo'
-                    }
-                    li {
-                        p 'Boo'
-                    }
-                    li {
-                        p 'Blech'
+                div(class: '') {
+                    ul {
+                        li {
+                            div(class: 'paragraph') {
+                                p 'Foo'
+                            }
+                        }
+                        li {
+                            div(class: 'paragraph') {
+                                p 'Boo'
+                            }
+                        }
+                        li {
+                            div(class: 'paragraph') {
+                                p 'Blech'
+                            }
+                        }
                     }
                 }
             }

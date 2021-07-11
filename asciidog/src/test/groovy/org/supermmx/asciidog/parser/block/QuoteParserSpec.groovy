@@ -61,7 +61,7 @@ ____
 ${thirdPara}"""
 
         def eDoc = builder.document {
-            quote(hasDelimiter: false, isOpenBlock: false) {
+            quote(hasDelimiter: true, isOpenBlock: false, attributes: [quote:null]) {
                 para {
                     text firstPara
                 }
@@ -98,7 +98,7 @@ ${secondPara}
 ${thirdPara}"""
 
         def eDoc = builder.document {
-            quote(hasDelimiter: false, isOpenBlock: true) {
+            quote(hasDelimiter: true, isOpenBlock: true, attributes: [quote:null]) {
                 para {
                     text firstPara
                 }
@@ -122,15 +122,21 @@ ${thirdPara}"""
         given:
         def firstPara = '''first line
 second line'''
+        def secondPara = 'second paragraph'
         def content = """[quote]
 ${firstPara}
+
+${secondPara}
 """
 
         def eDoc = builder.document {
-            quote(hasDelimiter: false, isOpenBlock: false) {
+            quote(hasDelimiter: false, isOpenBlock: false, attributes: [quote:null]) {
                 para {
                     text firstPara
                 }
+            }
+            para {
+                text secondPara
             }
         }
 

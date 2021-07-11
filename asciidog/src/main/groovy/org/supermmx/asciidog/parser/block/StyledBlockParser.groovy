@@ -85,7 +85,7 @@ abstract class StyledBlockParser extends BlockParserPlugin {
 
         // matched for this parser
         if (isStart) {
-            header.properties[HEADER_PROPERTY_HAS_DELIMITER] = (headerStyle == null)
+            header.properties[HEADER_PROPERTY_HAS_DELIMITER] = (headerDelimiter != null)
             header.properties[HEADER_PROPERTY_IS_OPEN_BLOCK] = isOpenBlock
 
             endDelimiterMatcher = sequence([
@@ -108,6 +108,8 @@ abstract class StyledBlockParser extends BlockParserPlugin {
             context.paragraphEndingCheckers << this
         }
 
+        fillBlockFromHeader(styledBlock, header)
+
         return styledBlock
     }
 
@@ -120,6 +122,11 @@ abstract class StyledBlockParser extends BlockParserPlugin {
 
     @Override
     protected boolean doNeedToFindNextChildParser(ParserContext context) {
+        // only one child allowed if no delimiter is specified
+        if (!context.block.hasDelimiter) {
+            return context.block.children.size() == 0
+        }
+
         context.lexer.skipBlanks()
 
         boolean matched = endDelimiterMatcher.matches(context, null, false)

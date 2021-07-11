@@ -93,6 +93,14 @@ abstract class AbstractBackend implements Backend {
     }
 
     @Override
+    void addNodeRenderingProperties(DocumentContext context, Node node) {
+        doAddNodeRenderingProperties(context, node)
+    }
+
+    protected void doAddNodeRenderingProperties(DocumentContext context, Node node) {
+    }
+
+    @Override
     void registerRenderer(NodeRenderer renderer) {
         def nodeType = renderer.nodeType
         def subtype = null

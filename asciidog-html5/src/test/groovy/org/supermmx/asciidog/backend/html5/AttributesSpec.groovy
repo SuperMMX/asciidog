@@ -20,7 +20,11 @@ class AttributesSpec extends Html5Spec {
         }
         def expectedBody = markupHtml {
             body {
-                p 'bigfoot'
+                div(class: '') {
+                    div(class: 'paragraph') {
+                        p 'bigfoot'
+                    }
+                }
             }
         }
 
@@ -54,7 +58,11 @@ class AttributesSpec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                p 'Yo, Tanglefoot!\nBeat Spiderman!'
+                div(class: '') {
+                    div(class: 'paragraph') {
+                        p 'Yo, Tanglefoot!\nBeat Spiderman!'
+                    }
+                }
             }
         }
 
@@ -89,7 +97,11 @@ R is for {r}!
 '''
         def expectedBody = markupHtml {
             body {
-                p 'R is for Ruby!'
+                div(class: '') {
+                    div(class: 'paragraph') {
+                        p 'R is for Ruby!'
+                    }
+                }
             }
         }
 

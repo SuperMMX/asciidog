@@ -30,7 +30,7 @@ ____
 ${thirdPara}"""
 
         def eDoc = builder.document {
-            verse(hasDelimiter: false, isOpenBlock: false) {
+            verse(hasDelimiter: true, isOpenBlock: false, attributes: [verse:null]) {
                 text """${firstPara}
 
 ${secondPara}
@@ -64,7 +64,7 @@ ${secondPara}
 ${thirdPara}"""
 
         def eDoc = builder.document {
-            verse(hasDelimiter: false, isOpenBlock: true) {
+            verse(hasDelimiter: true, isOpenBlock: true, attributes: [verse:null]) {
                 text """${firstPara}
 
 ${secondPara}
@@ -91,7 +91,7 @@ second line
 ${firstPara}"""
 
         def eDoc = builder.document {
-            verse(hasDelimiter: false, isOpenBlock: false) {
+            verse(hasDelimiter: false, isOpenBlock: false, attributes: [verse:null]) {
                 text firstPara
             }
         }

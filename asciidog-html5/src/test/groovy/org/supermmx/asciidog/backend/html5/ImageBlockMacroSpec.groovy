@@ -11,7 +11,9 @@ class ImageBlockMacroSpec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                img(src: 'test.jpeg')
+                div(class: '') {
+                    img(src: 'test.jpeg')
+                }
             }
         }
 
@@ -33,7 +35,9 @@ class ImageBlockMacroSpec extends Html5Spec {
 
         def expectedBody = markupHtml {
             body {
-                img(src: 'images/path/test.jpeg')
+                div(class: '') {
+                    img(src: 'images/path/test.jpeg')
+                }
             }
         }
 
