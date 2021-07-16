@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 import org.slf4j.Logger
 
-@EqualsAndHashCode(excludes=['parent', 'document', 'seq', 'excludes'])
+@EqualsAndHashCode(excludes=['parent', 'document', 'seq'])
 @TupleConstructor
 @Slf4j
 class Node {
