@@ -36,15 +36,15 @@ subprojects {
 
     dependencies {
         implementation 'org.codehaus.groovy:groovy-all:3.0.8'
-        implementation 'org.slf4j:slf4j-api:1.7.10'
+        implementation 'org.slf4j:slf4j-api:1.7.31'
 
         testImplementation('org.spockframework:spock-core:2.0-groovy-3.0') {
             exclude group:'org.codehaus.groovy'
         }
 
-        runtimeOnly 'ch.qos.logback:logback-classic:1.1.7'
+        runtimeOnly 'ch.qos.logback:logback-classic:1.2.3'
 
-        testRuntimeOnly 'cglib:cglib-nodep:3.2.4'
+        testRuntimeOnly 'cglib:cglib-nodep:3.3.0'
     }
 
     compileGroovy {
@@ -52,6 +52,8 @@ subprojects {
     }
 
     test {
+        useJUnitPlatform()
+
         systemProperties System.properties
         testLogging.showStandardStreams = true
     }
