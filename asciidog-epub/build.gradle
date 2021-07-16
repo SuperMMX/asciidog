@@ -1,6 +1,6 @@
 dependencies {
-    compile project(':asciidog-core')
-    compile project(':asciidog-html5')
+    implementation project(':asciidog-core')
+    implementation project(':asciidog-html5')
 
-    compile 'org.supermmx.epug:epug:0.0.1'
+    implementation 'org.supermmx.epug:epug:0.0.1'
 }

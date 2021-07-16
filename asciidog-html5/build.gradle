@@ -3,7 +3,7 @@ configurations {
 }
 
 dependencies {
-    compile project(':asciidog-core')
+    implementation project(':asciidog-core')
 
     testOutput sourceSets.test.output
 }

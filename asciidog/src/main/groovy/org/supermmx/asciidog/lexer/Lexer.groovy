@@ -265,7 +265,7 @@ class Lexer {
 
         // remove last count tokens from mark tokens
         for (def count = backTokens.size(); count > 0; count --) {
-            markTokens.pop()
+            markTokens.removeLast()
         }
 
         // clear the mark
@@ -282,7 +282,7 @@ class Lexer {
         }
 
         // remove the last mark
-        marks.pop()
+        marks.removeLast()
 
         // clear mark tokens if there are no more marks
         if (marks.size() == 0) {
@@ -400,4 +400,15 @@ class Lexer {
         return true
     }
 
+    @Override
+    String toString() {
+        StringBuilder buf = new StringBuilder()
+        buf.append('Tokens: ').append(tokens).append('\n')
+        buf.append('Index: ').append(index).append('\n')
+        buf.append('Last Token: ').append(lastToken).append('\n')
+        buf.append('Marks: ').append(marks).append('\n')
+        buf.append('Mark Tokens: ').append(markTokens).append('\n')
+
+        return buf.toString()
+    }
 }
