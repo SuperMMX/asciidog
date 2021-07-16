@@ -69,12 +69,6 @@ subprojects {
     rootProject.publishToLocal.dependsOn tasks.matching { it.name == 'publishToMavenLocal' }
 }
 
-/*
-task wrapper(type: Wrapper) {
-    gradleVersion = '2.3'
-}
- */
-
 dependencies {
     runtimeOnly project(':asciidog-core')
     runtimeOnly project(':asciidog-html5')
